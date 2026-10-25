@@ -22,6 +22,7 @@ technical foundation; the HackMeridian build sprint produces the submitted MVP.
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — components, transaction lifecycle, and trust boundaries
 - [`docs/SECURITY-EVIDENCE.md`](./docs/SECURITY-EVIDENCE.md) — threat-to-control-to-test evidence matrix
 - [`docs/DEMO-RUNBOOK.md`](./docs/DEMO-RUNBOOK.md) — 60-second pitch, live flow, and failure ladder
+- [`docs/PRODUCT-DECISIONS.md`](./docs/PRODUCT-DECISIONS.md) — shipped signing, asset, and canonical-number decisions
 - `contracts/latch` — LATCH custom-account contract
 - `sites/latch-demo` — responsive payer + merchant judge demo
 - `spike-reentry` — SAC re-entry behavior inside `__check_auth`
@@ -37,7 +38,7 @@ technical foundation; the HackMeridian build sprint produces the submitted MVP.
 | Production contract | 15 focused lifecycle, authorization, event, attack, and invariant tests |
 | Host assumptions | Five isolated Soroban behavior spike suites |
 | Real network lifecycle | Deposit → hold → owner-signed pay → merchant capture on Stellar Testnet |
-| Public contract | [`CD5EUSHP…PZUIC`](https://stellar.expert/explorer/testnet/contract/CD5EUSHPXPBBXJ3G7EZASIVI3GENJZUJYWG5Z4FSEP5TFAJPICYPZUIC) |
+| Public contract | [`CCWSZPG5…NP7LC`](https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC) |
 | Judge product | [Private hosted demo](https://latch-meridian-demo.lemonyswan1024.chatgpt.site) with deterministic replay and Freighter mode |
 | Reproducibility | CI builds the contract, client, site, all tests, and the optimized WASM on every push |
 
@@ -100,12 +101,13 @@ are written to `deployments/testnet.json`.
 
 ## Open the judge demo
 
-The M3 interface has two modes. **Replay** runs the deterministic 12-second LUSD
-story and links every successful transition to its public transaction. **Live
-wallet** connects Freighter, deploys a fresh user-owned LATCH account, deposits
-50 Testnet XLM, signs a 30 XLM hold, proves a 25 XLM overspend is rejected, then
-pays and captures on-chain. The live judge flow uses one wallet for both roles
-to keep setup reliable; the contract still enforces merchant-bound settlement.
+The M3 interface has two modes. **Replay** runs the canonical two-merchant LUSD
+story: holds of 30 + 15, a rejected 10-unit spend with before/after chain reads,
+a safe 4-unit payment, an 8.40 capture, and release of the second hold. Every
+successful transition links to its public transaction. **Live wallet** is the
+stage-safe fallback: Freighter deploys a fresh user-owned LATCH account,
+deposits 50 Testnet XLM, and proves the same policy boundary with one wallet and
+one hold. The contract still enforces merchant-bound settlement.
 
 Freighter must be set to Testnet. The app can fund a new Testnet address through
 Friendbot, stores only the resulting public contract ID in browser storage, and

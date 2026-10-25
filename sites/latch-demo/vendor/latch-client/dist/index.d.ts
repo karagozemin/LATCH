@@ -96,7 +96,7 @@ export interface Client {
     /**
      * Construct and simulate a void transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
      */
-    void: ({ id }: {
+    void_: ({ id }: {
         id: u64;
     }, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>;
     /**

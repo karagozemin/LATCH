@@ -1134,6 +1134,12 @@ availability.
 
 ## 11.5 Client integration decisions
 
+> **Post-build decision record:** the shipped implementation decisions in
+> [`docs/PRODUCT-DECISIONS.md`](./docs/PRODUCT-DECISIONS.md) supersede this
+> pre-build table where they differ. In particular, live mode uses Freighter
+> SEP-53 signing and native Testnet XLM; deterministic replay uses self-issued
+> LUSD.
+
 | Decision | Rationale |
 |---|---|
 | **Own signing flow.** No Freighter, no third-party wallet. | Contract-account client support is explicitly "under development"; the `@x402/stellar` `authorizeEntry` override bug (x402#3018) sits in exactly this surface. |
@@ -1207,8 +1213,8 @@ advance past expiry   → (no-op; B already terminal)
 | 0 | 0:20 | **Hook.** *"How many people in this room have had a hotel or a car rental freeze a few hundred euros on their card, and it took a week to come back? Raise your hand."* Then: *"That money was never spent. It was never theirs. It sat there frozen, because the payment network has no way to say maybe."* | Title slide only |
 | 1 | 0:40 | Judge scans QR → authorizes Hotel hold $30 | `Reserved $30 · Available $20` + **`$0.00 transferred`** + explorer showing the balance intact |
 | 2 | 0:30 | While speaking, fuel station places a $15 hold | `Reserved $45 · Available $5` — **two merchants, one balance.** No other team can show this. |
-| 3 | 0:50 | **"Now try to send ten dollars of your own money."** | Three reads: `available $5` → `✕ FAILED` + tx hash → `balance unchanged` |
-| 4 | 0:40 | Hotel issues the real bill: `Capture $8.40` | `$8.40 → merchant` · `Available $5 → $26.60` · judge's phone buzzes |
+| 3 | 0:50 | **"Now try to send ten dollars of your own money."** Then safely send $4. | Three reads: `available $5` → typed simulation rejection → `balance unchanged`; safe pay leaves `available $1` |
+| 4 | 0:40 | Hotel issues the real bill: `Capture $8.40`; fuel releases its hold. | `$8.40 → merchant` · `Available $1 → $22.60 → $37.60` · second reservation clears |
 | 5 | 0:30 | Close + verticals | 🏨 🚗 ⛽ 🚕 🍔 📦 🎟️ |
 
 **Running in the background on a second screen** (consumes no stage time):

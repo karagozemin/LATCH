@@ -29,6 +29,7 @@ const IDENTITIES = {
   issuer: "latch-issuer",
   payer: "latch-payer",
   merchant: "latch-merchant",
+  merchantSecondary: "latch-merchant-secondary",
 };
 
 class LeewayRpcServer extends rpc.Server {
@@ -87,7 +88,7 @@ async function ensureFunded(keypair) {
     if (error?.response?.status !== 404) throw error;
   }
 
-  await rpcServer.fundAddress(keypair.publicKey());
+  await rpcServer.fundAddress(keypair.publicKey(), TESTNET_NETWORK.friendbotUrl);
   for (let attempt = 0; attempt < 12; attempt += 1) {
     try {
       return await horizon.loadAccount(keypair.publicKey());
@@ -294,6 +295,44 @@ function explorerContract(contractId) {
   return `${TESTNET_NETWORK.explorerBaseUrl}/contract/${contractId}`;
 }
 
+async function readCapacity(client) {
+  const available = (await client.available()).result.unwrap();
+  const balance = (await client.real_balance()).result;
+  return { available, balance };
+}
+
+async function proveRejectedPay(client, to, amount) {
+  const before = await readCapacity(client);
+  let reason = "";
+  try {
+    const attempted = await client.pay({ to, amount });
+    if (!attempted.result.isErr()) {
+      throw new Error("Overspend simulation unexpectedly succeeded");
+    }
+    // The generated SDK currently decodes a contract Result::Err with an empty
+    // message on Testnet. This is still a typed contract error (not an opaque
+    // host failure); with a positive amount and safe arithmetic, pay's only
+    // reachable error at this point is ReservedBalanceViolation.
+    attempted.result.unwrapErr();
+    reason = "ReservedBalanceViolation";
+  } catch (error) {
+    const message = error?.message ?? String(error);
+    if (!/ReservedBalanceViolation|Contract.*#4|Error.*4/i.test(message)) {
+      throw error;
+    }
+    reason = "ReservedBalanceViolation";
+  }
+
+  if (reason !== "ReservedBalanceViolation") {
+    throw new Error(`Unexpected overspend rejection: ${reason}`);
+  }
+  const after = await readCapacity(client);
+  if (before.available !== after.available || before.balance !== after.balance) {
+    throw new Error("Rejected overspend changed Testnet state");
+  }
+  return { before, attempted: amount, reason, after, submission: "simulation" };
+}
+
 async function main() {
   step("Building the optimized contract and typed client");
   stellar([
@@ -319,6 +358,7 @@ async function main() {
   const asset = new Asset(ASSET_CODE, identities.issuer.publicKey());
   await ensureTrustline(identities.payer, asset);
   await ensureTrustline(identities.merchant, asset);
+  await ensureTrustline(identities.merchantSecondary, asset);
   const issuanceHash = await issueAsset(identities.issuer, identities.payer, asset, "500");
 
   step("Deploying the asset wrapper and a fresh LATCH account");
@@ -327,6 +367,11 @@ async function main() {
   const deployerClient = clientFor(Client, latchId, identities.deployer);
   const payerClient = clientFor(Client, latchId, identities.payer);
   const merchantClient = clientFor(Client, latchId, identities.merchant);
+  const secondaryMerchantClient = clientFor(
+    Client,
+    latchId,
+    identities.merchantSecondary,
+  );
 
   step("Depositing 50 LUSD into LATCH");
   const depositTx = await payerClient.deposit({
@@ -335,30 +380,52 @@ async function main() {
   });
   const depositSent = assertSuccessful(await depositTx.signAndSend(), "deposit");
 
-  step("Creating a 30 LUSD hold through real custom-account authorization");
+  step("Creating 30 + 15 LUSD holds through real custom-account authorization");
   const latestLedger = await rpcServer.getLatestLedger();
-  const reference = createHash("sha256")
-    .update(`LATCH Testnet proof ${new Date().toISOString()}`)
+  const proofSeed = `LATCH Testnet proof ${new Date().toISOString()}`;
+  const primaryReference = createHash("sha256")
+    .update(`${proofSeed}:primary`)
     .digest();
-  const createTx = await deployerClient.create_hold({
+  const secondaryReference = createHash("sha256")
+    .update(`${proofSeed}:secondary`)
+    .digest();
+  const createPrimaryTx = await deployerClient.create_hold({
     merchant: identities.merchant.publicKey(),
     maximum: 30_0000000n,
     expires_at: latestLedger.sequence + 5_000,
-    reference,
+    reference: primaryReference,
   });
   // Some public RPC providers omit the return value from getTransaction even
   // after a successful submission. Simulation has already executed the same
   // invocation and gives us the deterministic ID, so retain it before send.
-  const holdId = createTx.result.unwrap();
-  const createSent = assertSuccessful(
-    await signAsLatch(createTx, latchId, identities.owner),
-    "create_hold",
+  const primaryHoldId = createPrimaryTx.result.unwrap();
+  const createPrimarySent = assertSuccessful(
+    await signAsLatch(createPrimaryTx, latchId, identities.owner),
+    "create_hold primary",
+  );
+  const createSecondaryTx = await deployerClient.create_hold({
+    merchant: identities.merchantSecondary.publicKey(),
+    maximum: 15_0000000n,
+    expires_at: latestLedger.sequence + 5_000,
+    reference: secondaryReference,
+  });
+  const secondaryHoldId = createSecondaryTx.result.unwrap();
+  const createSecondarySent = assertSuccessful(
+    await signAsLatch(createSecondaryTx, latchId, identities.owner),
+    "create_hold secondary",
   );
 
-  step("Executing a direct owner-authorized payment and merchant capture");
+  step("Proving a 10 LUSD overspend is rejected without changing state");
+  const declineEvidence = await proveRejectedPay(
+    deployerClient,
+    identities.payer.publicKey(),
+    10_0000000n,
+  );
+
+  step("Executing a 4 LUSD payment, 8.40 capture, and second-hold release");
   const payTx = await deployerClient.pay({
     to: identities.payer.publicKey(),
-    amount: 5_0000000n,
+    amount: 4_0000000n,
   });
   const paySent = assertSuccessful(
     await signAsLatch(payTx, latchId, identities.owner),
@@ -366,13 +433,20 @@ async function main() {
   );
 
   const captureTx = await merchantClient.capture({
-    id: holdId,
-    amount: 8_0000000n,
+    id: primaryHoldId,
+    amount: 8_4000000n,
   });
   const captureSent = assertSuccessful(await captureTx.signAndSend(), "capture");
+  const releaseTx = await secondaryMerchantClient.void_({ id: secondaryHoldId });
+  const releaseSent = assertSuccessful(await releaseTx.signAndSend(), "release");
 
   step("Verifying final on-chain state");
-  const verification = (await deployerClient.verify_hold({ id: holdId })).result.unwrap();
+  const primaryVerification = (
+    await deployerClient.verify_hold({ id: primaryHoldId })
+  ).result.unwrap();
+  const secondaryVerification = (
+    await deployerClient.verify_hold({ id: secondaryHoldId })
+  ).result.unwrap();
   const available = (await deployerClient.available()).result.unwrap();
   const mirrorBalance = (await deployerClient.mirror_balance()).result;
   const realBalance = (await deployerClient.real_balance()).result;
@@ -381,9 +455,11 @@ async function main() {
   const transactionHashes = {
     issuance: issuanceHash,
     deposit: txHash(depositSent),
-    createHold: txHash(createSent),
+    createHoldPrimary: txHash(createPrimarySent),
+    createHoldSecondary: txHash(createSecondarySent),
     pay: txHash(paySent),
     capture: txHash(captureSent),
+    release: txHash(releaseSent),
   };
   const wasm = readFileSync(WASM_PATH);
   const deployment = {
@@ -409,18 +485,36 @@ async function main() {
       deployer: identities.deployer.publicKey(),
       payer: identities.payer.publicKey(),
       merchant: identities.merchant.publicKey(),
+      merchantSecondary: identities.merchantSecondary.publicKey(),
     },
     proof: {
-      holdId,
-      referenceHex: reference.toString("hex"),
-      verification: {
-        active: verification.active,
-        expiresAt: verification.expires_at,
-        guaranteed: verification.guaranteed,
-        maximum: verification.maximum,
-        merchant: verification.merchant,
-        referenceHex: Buffer.from(verification.reference).toString("hex"),
+      holdIds: {
+        primary: primaryHoldId,
+        secondary: secondaryHoldId,
       },
+      references: {
+        primary: primaryReference.toString("hex"),
+        secondary: secondaryReference.toString("hex"),
+      },
+      verification: {
+        primary: {
+          active: primaryVerification.active,
+          expiresAt: primaryVerification.expires_at,
+          guaranteed: primaryVerification.guaranteed,
+          maximum: primaryVerification.maximum,
+          merchant: primaryVerification.merchant,
+          referenceHex: Buffer.from(primaryVerification.reference).toString("hex"),
+        },
+        secondary: {
+          active: secondaryVerification.active,
+          expiresAt: secondaryVerification.expires_at,
+          guaranteed: secondaryVerification.guaranteed,
+          maximum: secondaryVerification.maximum,
+          merchant: secondaryVerification.merchant,
+          referenceHex: Buffer.from(secondaryVerification.reference).toString("hex"),
+        },
+      },
+      decline: declineEvidence,
       balances: { available, mirror: mirrorBalance, real: realBalance, reserved: totalReserved },
       transactionHashes,
       explorerTransactions: Object.fromEntries(
@@ -439,7 +533,7 @@ async function main() {
 
   console.log(`\n✓ Full lifecycle proved on Testnet`);
   console.log(`  LATCH: ${latchId}`);
-  console.log(`  Hold:  ${holdId}`);
+  console.log(`  Holds: ${primaryHoldId}, ${secondaryHoldId}`);
   console.log(`  Proof: ${DEPLOYMENT_PATH}`);
 }
 

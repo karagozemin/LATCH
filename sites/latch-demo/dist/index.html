@@ -91,14 +91,14 @@
 
           <div class="judge-caption" id="judge-caption" aria-live="polite">
             <div class="judge-progress" aria-hidden="true"><span id="judge-progress"></span></div>
-            <span class="judge-beat" id="judge-beat">Judge beat 1 / 5</span>
+            <span class="judge-beat" id="judge-beat">Judge beat 1 / 7</span>
             <strong id="judge-title">The payer keeps custody.</strong>
             <span id="judge-copy">All 50 LUSD remains available until the account itself records a merchant promise.</span>
           </div>
 
           <div class="live-session" id="live-session" hidden>
             <div class="live-session-copy">
-              <span class="live-kicker">Real Testnet mode</span>
+              <span class="live-kicker">Stage-safe live mode · one wallet</span>
               <strong id="live-title">Connect Freighter to begin</strong>
               <span id="live-copy">Your wallet signs every state change. No private key leaves Freighter.</span>
             </div>
@@ -129,10 +129,15 @@
                   <span class="status-tag" id="payer-status">None</span>
                 </div>
                 <div class="empty-promise" id="empty-promise">No funds are currently reserved.</div>
-                <div class="promise-details" id="promise-details" hidden>
+                <div class="promise-details" id="promise-details-primary" hidden>
                   <div class="merchant-mark">M</div>
-                  <div><strong>Meridian Café</strong><span>Table tab · Ref 6A16…5607</span></div>
+                  <div><strong>Meridian Hotel</strong><span>Stay · Ref 6F97…8B9E</span></div>
                   <b><span id="promise-amount">30.00</span></b>
+                </div>
+                <div class="promise-details" id="promise-details-secondary" hidden>
+                  <div class="merchant-mark secondary-mark">F</div>
+                  <div><strong>Atlantic Fuel</strong><span>Fuel · Ref 35AA…155C</span></div>
+                  <b>15.00</b>
                 </div>
               </div>
 
@@ -145,10 +150,12 @@
             <div class="flow-column" aria-label="Transaction sequence">
               <div class="flow-line" aria-hidden="true"></div>
               <div class="flow-step is-current" data-step="0"><span>00</span><div><b>Fund</b><small>50 LUSD deposited</small></div></div>
-              <div class="flow-step" data-step="1"><span>01</span><div><b>Hold</b><small>30 LUSD guaranteed</small></div></div>
-              <div class="flow-step" data-step="2"><span>02</span><div><b>Block</b><small>Overspend rejected</small></div></div>
-              <div class="flow-step" data-step="3"><span>03</span><div><b>Pay</b><small>5 LUSD stays available</small></div></div>
-              <div class="flow-step" data-step="4"><span>04</span><div><b>Capture</b><small>8 LUSD settled</small></div></div>
+              <div class="flow-step" data-step="1"><span>01</span><div><b>Hold A</b><small>30 LUSD · hotel</small></div></div>
+              <div class="flow-step" data-step="2"><span>02</span><div><b>Hold B</b><small>15 LUSD · fuel</small></div></div>
+              <div class="flow-step" data-step="3"><span>03</span><div><b>Block</b><small>10 rejected</small></div></div>
+              <div class="flow-step" data-step="4"><span>04</span><div><b>Pay</b><small>4 LUSD safe</small></div></div>
+              <div class="flow-step" data-step="5"><span>05</span><div><b>Capture</b><small>8.40 settled</small></div></div>
+              <div class="flow-step" data-step="6"><span>06</span><div><b>Release</b><small>15 returned</small></div></div>
             </div>
 
             <article class="device merchant-device" aria-label="Merchant terminal">
@@ -157,13 +164,13 @@
                 <span class="address" id="merchant-address">GCXT…CDHF</span>
               </div>
               <div class="merchant-header">
-                <div class="merchant-logo">M</div>
-                <div><strong>Meridian Café</strong><span>Connected · Testnet</span></div>
+                <div class="merchant-logo" id="merchant-logo">M</div>
+                <div><strong id="merchant-name">Meridian Hotel</strong><span>Connected · Testnet</span></div>
               </div>
               <div class="request-card">
                 <span>Requested capacity</span>
                 <strong><span id="request-amount">30.00</span> <small class="asset-unit">LUSD</small></strong>
-                <div class="request-meta"><span>Valid for 6h 56m</span><span>#0001</span></div>
+                <div class="request-meta"><span>Valid for 6h 56m</span><span id="request-reference">#H-0001</span></div>
               </div>
               <div class="guarantee" id="guarantee">
                 <div class="guarantee-icon">✓</div>
@@ -172,7 +179,7 @@
               <div class="merchant-actions">
                 <button type="button" class="primary-action" id="hold-button">Request 30 LUSD hold</button>
                 <div class="split-actions">
-                  <button type="button" id="capture-button" disabled>Capture 8</button>
+                  <button type="button" id="capture-button" disabled>Capture 8.40</button>
                   <button type="button" id="void-button" disabled>Release</button>
                 </div>
               </div>
@@ -185,7 +192,17 @@
               <span class="console-icon" id="console-icon">✓</span>
               <div><b id="console-title">Account funded</b><span id="console-copy">50 LUSD is available. No promises are active.</span></div>
             </div>
-            <button type="button" class="spend-test" id="spend-button" disabled>Try to spend 25 LUSD</button>
+            <div class="decline-evidence" id="decline-evidence" hidden>
+              <div><span>Before · available</span><b id="decline-before">—</b></div>
+              <div><span>Attempt · simulation</span><b id="decline-attempt">—</b></div>
+              <div><span>After · unchanged</span><b id="decline-after">—</b></div>
+            </div>
+            <div class="settlement-evidence" id="settlement-evidence" hidden>
+              <div><span>Paid to merchant</span><b id="settlement-paid">—</b></div>
+              <div><span>Released from hold</span><b id="settlement-released">—</b></div>
+              <div><span>Available before → after</span><b id="settlement-available">—</b></div>
+            </div>
+            <button type="button" class="spend-test" id="spend-button" disabled>Try to spend 10 LUSD</button>
             <button type="button" class="retry-action" id="retry-button" hidden>Retry action</button>
             <a id="tx-link" href="#proof" target="_blank" rel="noreferrer">View transaction ↗</a>
           </div>
@@ -200,8 +217,10 @@
         <div class="proof-ledger">
           <a data-proof="deposit" href="#" target="_blank" rel="noreferrer"><span>Deposit</span><b>Loading…</b><i>↗</i></a>
           <a data-proof="hold" href="#" target="_blank" rel="noreferrer"><span>Create hold</span><b>Loading…</b><i>↗</i></a>
+          <a data-proof="holdSecondary" href="#" target="_blank" rel="noreferrer"><span>Second hold</span><b>Loading…</b><i>↗</i></a>
           <a data-proof="pay" href="#" target="_blank" rel="noreferrer"><span>Direct pay</span><b>Loading…</b><i>↗</i></a>
           <a data-proof="capture" href="#" target="_blank" rel="noreferrer"><span>Capture</span><b>Loading…</b><i>↗</i></a>
+          <a data-proof="release" href="#" target="_blank" rel="noreferrer"><span>Release</span><b>Loading…</b><i>↗</i></a>
         </div>
         <div class="contract-row">
           <div><span id="contract-label">Deployed proof contract</span><code id="contract-address">Loading Testnet proof…</code></div>

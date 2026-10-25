@@ -6,12 +6,27 @@ export const TESTNET = {
   "horizonUrl": "https://horizon-testnet.stellar.org",
   "friendbotUrl": "https://friendbot.stellar.org/",
   "explorerBaseUrl": "https://stellar.expert/explorer/testnet",
-  "proofContract": "CD5EUSHPXPBBXJ3G7EZASIVI3GENJZUJYWG5Z4FSEP5TFAJPICYPZUIC",
+  "proofContract": "CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC",
   "wasmHash": "d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d",
   "proof": {
-    "deposit": "415bd5b94aeb5405c050110daaa4004c321bd20b3b485b9803c779b5915a620c",
-    "hold": "2da988f6272c48245bb457023c8cd8ca04bd9c7f711c54c94a4844bd8a3ee820",
-    "pay": "4f964bead00d43a85bbe857a07b0ce059420dd9b4d90e4a14d888b62414a0004",
-    "capture": "7be75231124d5d2e90e6fed0b0f330e579ddfbcd34ed431007ff2d51ab5388f4"
+    "deposit": "d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25",
+    "hold": "f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074",
+    "holdSecondary": "b0be04a6a50b9bbc2ddea45186baaee3ba6f13a2950a433d8400f3c2fe7463e7",
+    "pay": "087615b0058ac28bb7dcd4e1436e2736bd677347e1c3c3d1d1d2c7b1f3165b7b",
+    "capture": "4e90adf522314bf98499ffd2563a730d80d9edb74739aa932168bb63f344b3aa",
+    "release": "39c466d6a8603fa30541fda8eb82cf88cfb552524469c32c7cee79cbe7638674"
+  },
+  "decline": {
+    "before": {
+      "available": "50000000",
+      "balance": "500000000"
+    },
+    "attempted": "100000000",
+    "reason": "ReservedBalanceViolation",
+    "after": {
+      "available": "50000000",
+      "balance": "500000000"
+    },
+    "submission": "simulation"
   }
 } as const;

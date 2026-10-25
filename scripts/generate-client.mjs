@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 const outputDirectory = "packages/latch-client";
 const tsconfigPath = `${outputDirectory}/tsconfig.json`;
 const packagePath = `${outputDirectory}/package.json`;
+const clientSourcePath = `${outputDirectory}/src/index.ts`;
 
 execFileSync(
   "stellar",
@@ -45,3 +46,16 @@ generatedPackage.dependencies.buffer = "6.0.3";
 generatedPackage.devDependencies.typescript =
   rootPackage.devDependencies.typescript;
 writeFileSync(packagePath, `${JSON.stringify(generatedPackage, null, 2)}\n`);
+
+// The SDK runtime sanitizes the reserved contract method `void` to `void_`,
+// while stellar-cli 27 currently leaves the generated interface unsanitized.
+// Keep compile-time and runtime method names aligned until upstream does so.
+const generatedClient = readFileSync(clientSourcePath, "utf8");
+const voidMethodPattern = /^  void: \(/m;
+if (!voidMethodPattern.test(generatedClient)) {
+  throw new Error(`Could not locate generated void method in ${clientSourcePath}`);
+}
+writeFileSync(
+  clientSourcePath,
+  generatedClient.replace(voidMethodPattern, "  void_: ("),
+);

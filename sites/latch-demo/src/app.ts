@@ -15,7 +15,7 @@ import {
   rpc,
   xdr,
 } from "@stellar/stellar-sdk";
-import { Client as LatchClient } from "latch-client";
+import { Client as LatchClient, type HoldVerification } from "latch-client";
 import { TESTNET } from "./testnet-config";
 
 const proof = TESTNET.proof;
@@ -28,7 +28,7 @@ const SCALE = 10_000_000n;
 const STORAGE_PREFIX = "latch-live-v2:";
 const rpcServer = new rpc.Server(RPC_URL);
 
-type DemoState = "funded" | "held" | "blocked" | "paid" | "captured" | "released";
+type DemoState = "funded" | "heldPrimary" | "held" | "blocked" | "paid" | "captured" | "released";
 type DemoMode = "replay" | "live";
 
 interface LiveSession {
@@ -36,6 +36,16 @@ interface LiveSession {
   holdId?: string;
   phase: DemoState;
   lastHash?: string;
+  declineEvidence?: DeclineEvidence;
+}
+
+interface DeclineEvidence {
+  beforeAvailable: number;
+  beforeBalance: number;
+  attempted: number;
+  afterAvailable: number;
+  afterBalance: number;
+  kind: "simulation";
 }
 
 interface RetryAction {
@@ -73,12 +83,17 @@ const els = {
   reservedBar: $("#reserved-bar"),
   promiseCard: $("#promise-card"),
   emptyPromise: $("#empty-promise"),
-  promiseDetails: $("#promise-details"),
+  promisePrimary: $("#promise-details-primary"),
+  promiseSecondary: $("#promise-details-secondary"),
   payerStatus: $("#payer-status"),
   guarantee: $("#guarantee"),
   guaranteeLabel: $("#guarantee-label"),
   guaranteeCopy: $("#guarantee-copy"),
   merchantReceived: $("#merchant-received"),
+  merchantLogo: $("#merchant-logo"),
+  merchantName: $("#merchant-name"),
+  requestAmount: $("#request-amount"),
+  requestReference: $("#request-reference"),
   holdButton: $("#hold-button") as HTMLButtonElement,
   captureButton: $("#capture-button") as HTMLButtonElement,
   voidButton: $("#void-button") as HTMLButtonElement,
@@ -108,6 +123,14 @@ const els = {
   contractLabel: $("#contract-label"),
   contractAddress: $("#contract-address"),
   networkLink: $<HTMLAnchorElement>("#network-link"),
+  declineEvidence: $("#decline-evidence"),
+  declineBefore: $("#decline-before"),
+  declineAttempt: $("#decline-attempt"),
+  declineAfter: $("#decline-after"),
+  settlementEvidence: $("#settlement-evidence"),
+  settlementPaid: $("#settlement-paid"),
+  settlementReleased: $("#settlement-released"),
+  settlementAvailable: $("#settlement-available"),
 };
 
 let mode: DemoMode = "replay";
@@ -269,33 +292,84 @@ function setBalances(balance: number, reserved: number, received = 0) {
   els.reservedBar.style.width = `${(reserved / total) * 100}%`;
 }
 
-function setPromise(active: boolean, status = "None") {
+function setMerchant(name: string, mark: string, amount: number, reference: string) {
+  els.merchantName.textContent = name;
+  els.merchantLogo.textContent = mark;
+  els.requestAmount.textContent = money(amount);
+  els.requestReference.textContent = reference;
+}
+
+function setPromise(primary: boolean, secondary: boolean, status = "None") {
+  const active = primary || secondary;
   els.promiseCard.classList.toggle("is-active", active);
   (els.emptyPromise as HTMLElement).hidden = active;
-  (els.promiseDetails as HTMLElement).hidden = !active;
+  (els.promisePrimary as HTMLElement).hidden = !primary;
+  (els.promiseSecondary as HTMLElement).hidden = !secondary;
   els.payerStatus.textContent = status;
 }
 
-function setGuarantee(active: boolean, label: string, copy: string) {
-  els.guarantee.classList.toggle("is-guaranteed", active);
+function setGuarantee(
+  status: "idle" | "guaranteed" | "not-backed",
+  label: string,
+  copy: string,
+) {
+  els.guarantee.classList.toggle("is-guaranteed", status === "guaranteed");
+  els.guarantee.classList.toggle("is-not-backed", status === "not-backed");
+  $(".guarantee-icon").textContent = status === "not-backed" ? "!" : "✓";
   els.guaranteeLabel.textContent = label;
   els.guaranteeCopy.textContent = copy;
 }
 
+function setDeclineEvidence(evidence?: DeclineEvidence) {
+  els.declineEvidence.hidden = !evidence;
+  if (!evidence) return;
+  const asset = mode === "live" ? "XLM" : "LUSD";
+  els.declineBefore.textContent = `${money(evidence.beforeAvailable)} ${asset}`;
+  els.declineAttempt.textContent = `${money(evidence.attempted)} ${asset} · rejected`;
+  els.declineAfter.textContent = `${money(evidence.afterBalance)} ${asset} balance · ${money(evidence.afterAvailable)} available`;
+}
+
+function setSettlementEvidence(visible: boolean) {
+  els.settlementEvidence.hidden = !visible;
+  if (!visible) return;
+  const isLiveFallback = mode === "live";
+  const asset = isLiveFallback ? "XLM" : "LUSD";
+  els.settlementPaid.textContent = `${money(isLiveFallback ? 8 : 8.4)} ${asset}`;
+  els.settlementReleased.textContent = `${money(isLiveFallback ? 22 : 21.6)} ${asset}`;
+  els.settlementAvailable.textContent = isLiveFallback
+    ? `15.00 → 37.00 ${asset}`
+    : `1.00 → 22.60 ${asset}`;
+}
+
 function setJudgeBeat(beat: number, title: string, copy: string) {
-  els.judgeBeat.textContent = `Judge beat ${beat} / 5`;
+  els.judgeBeat.textContent = `Judge beat ${beat} / 7`;
   els.judgeTitle.textContent = title;
   els.judgeCopy.textContent = copy;
-  els.judgeProgress.style.width = `${beat * 20}%`;
+  els.judgeProgress.style.width = `${(beat / 7) * 100}%`;
+}
+
+function recordedDeclineEvidence(): DeclineEvidence {
+  return {
+    beforeAvailable: units(BigInt(TESTNET.decline.before.available)),
+    beforeBalance: units(BigInt(TESTNET.decline.before.balance)),
+    attempted: units(BigInt(TESTNET.decline.attempted)),
+    afterAvailable: units(BigInt(TESTNET.decline.after.available)),
+    afterBalance: units(BigInt(TESTNET.decline.after.balance)),
+    kind: "simulation",
+  };
 }
 
 function render(nextState: DemoState, hash?: string | null) {
+  const previousState = state;
   state = nextState;
   if (state === "funded") {
+    setMerchant("Meridian Hotel", "M", 30, "#H-0001");
     setJudgeBeat(1, "The payer keeps custody.", "All 50 LUSD stays in the payer's account; creating a hold transfers nothing to the merchant.");
     setBalances(50, 0);
-    setPromise(false);
-    setGuarantee(false, "Ready to request", "Waiting for payer authorization");
+    setPromise(false, false);
+    setGuarantee("idle", "Ready to request", "Waiting for payer authorization");
+    setDeclineEvidence();
+    setSettlementEvidence(false);
     setConsole({
       title: mode === "live" ? "Live account funded" : "Account funded",
       copy: mode === "live" ? "50 XLM is now controlled by this LATCH account." : "50 LUSD is available. No promises are active.",
@@ -308,81 +382,145 @@ function render(nextState: DemoState, hash?: string | null) {
     els.voidButton.disabled = true;
     els.spendButton.disabled = true;
   }
-  if (state === "held" || state === "blocked") {
-    if (state === "blocked") {
-      setJudgeBeat(3, "The promise cannot be double-spent.", "A 25 LUSD payment is rejected because only 20 remains available. The 30 LUSD hold stays intact.");
-    } else {
-      setJudgeBeat(2, "The merchant gets certainty, not custody.", "The account records 30 LUSD as reserved and the merchant can verify its backing on-chain.");
-    }
+  if (state === "heldPrimary") {
+    setMerchant(
+      mode === "live" ? "Meridian Hotel" : "Atlantic Fuel",
+      mode === "live" ? "M" : "F",
+      mode === "live" ? 30 : 15,
+      mode === "live" ? "#H-0001" : "#F-0002",
+    );
+    setJudgeBeat(2, "The merchant gets certainty, not custody.", "The first 30 LUSD promise is merchant-bound; zero moves at authorization.");
     setBalances(50, 30);
-    setPromise(true, "Reserved");
-    setGuarantee(true, "Guaranteed", `30 ${mode === "live" ? "XLM" : "LUSD"} is reserved on-chain`);
+    setPromise(true, false, "1 active");
+    setGuarantee("guaranteed", "Funds reserved", `30 ${mode === "live" ? "XLM" : "LUSD"} is guaranteed on-chain`);
+    setDeclineEvidence();
+    setSettlementEvidence(false);
+    setConsole({
+      title: "First capacity guarantee active",
+      copy: `30 ${mode === "live" ? "XLM" : "LUSD"} is reserved; no funds moved to the merchant.`,
+      hash: hash ?? (mode === "replay" ? proof.hold : null),
+    });
+    setFlow(1);
+    els.holdButton.disabled = mode === "live";
+    els.holdButton.textContent = mode === "live" ? "Hold active" : "Authorize second 15 LUSD hold";
+    els.captureButton.disabled = false;
+    els.voidButton.disabled = false;
+    els.spendButton.disabled = mode === "replay";
+    els.spendButton.textContent = `Try to spend 25 ${mode === "live" ? "XLM" : "LUSD"}`;
+  }
+  if (state === "held" || state === "blocked") {
+    const isLiveFallback = mode === "live";
+    const reserved = isLiveFallback ? 30 : 45;
+    const attempted = isLiveFallback ? 25 : 10;
+    const available = 50 - reserved;
+    setMerchant("Meridian Hotel", "M", 30, "#H-0001");
+    if (state === "blocked") {
+      setJudgeBeat(4, "The promise cannot be double-spent.", "The chain reports 5 available, rejects the 10 payment, then reports the same balance and capacity.");
+    } else {
+      setJudgeBeat(3, "Two merchants share one honest capacity.", "A second 15 LUSD hold leaves only 5 available without transferring custody.");
+    }
+    setBalances(50, reserved);
+    setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
+    setGuarantee("guaranteed", "Funds reserved", `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is guaranteed on-chain`);
+    setDeclineEvidence(
+      state === "blocked"
+        ? (isLiveFallback ? liveSession?.declineEvidence : recordedDeclineEvidence())
+        : undefined,
+    );
+    setSettlementEvidence(false);
     setConsole(
       state === "blocked"
         ? {
             icon: "!",
             blocked: true,
-            title: `25 ${mode === "live" ? "XLM" : "LUSD"} payment blocked`,
-            copy: `Only 20 ${mode === "live" ? "XLM" : "LUSD"} is available while 30 remains guaranteed.`,
+            title: `${attempted} ${isLiveFallback ? "XLM" : "LUSD"} payment blocked`,
+            copy: `${available} ${isLiveFallback ? "XLM" : "LUSD"} was available before and after; this was a simulation rejection, not a submitted transaction.`,
           }
         : {
-            title: "Capacity guaranteed",
-            copy: `The merchant can trust 30 ${mode === "live" ? "XLM" : "LUSD"} without taking custody.`,
-            hash: hash ?? (mode === "replay" ? proof.hold : null),
+            title: isLiveFallback ? "Capacity guaranteed" : "Second capacity guarantee active",
+            copy: `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is now reserved across ${isLiveFallback ? "one hold" : "two merchants"}.`,
+            hash: hash ?? (mode === "replay" ? proof.holdSecondary : null),
           },
     );
-    setFlow(state === "blocked" ? 2 : 1);
+    setFlow(state === "blocked" ? 3 : isLiveFallback ? 1 : 2);
     els.holdButton.disabled = true;
-    els.holdButton.textContent = "Hold active";
+    els.holdButton.textContent = isLiveFallback ? "Hold active" : "Two holds active";
     els.captureButton.disabled = false;
     els.voidButton.disabled = false;
     els.spendButton.disabled = false;
-    els.spendButton.textContent = state === "blocked" && mode === "live" ? "Pay 5 XLM safely" : `Try to spend 25 ${mode === "live" ? "XLM" : "LUSD"}`;
+    els.spendButton.textContent = state === "blocked"
+      ? `Pay ${isLiveFallback ? 5 : 4} ${isLiveFallback ? "XLM" : "LUSD"} safely`
+      : `Try to spend ${attempted} ${isLiveFallback ? "XLM" : "LUSD"}`;
   }
   if (state === "paid") {
-    setJudgeBeat(4, "Unreserved money remains useful.", "A 5 LUSD payment succeeds while the merchant's full 30 LUSD guarantee remains untouched.");
-    setBalances(45, 30);
-    setPromise(true, "Reserved");
-    setGuarantee(true, "Still guaranteed", "Direct payment preserved the hold");
+    const isLiveFallback = mode === "live";
+    const amount = isLiveFallback ? 5 : 4;
+    setMerchant("Meridian Hotel", "M", 30, "#H-0001");
+    setJudgeBeat(5, "Unreserved money remains useful.", "A 4 LUSD payment succeeds while both merchant guarantees remain untouched.");
+    setBalances(isLiveFallback ? 45 : 46, isLiveFallback ? 30 : 45);
+    setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
+    setGuarantee("guaranteed", "Still guaranteed", "Direct payment preserved the hold");
+    setDeclineEvidence();
+    setSettlementEvidence(false);
     setConsole({
-      title: `5 ${mode === "live" ? "XLM" : "LUSD"} paid safely`,
-      copy: `The payment used available capacity; the 30 ${mode === "live" ? "XLM" : "LUSD"} promise stayed intact.`,
+      title: `${amount} ${isLiveFallback ? "XLM" : "LUSD"} paid safely`,
+      copy: `The payment used only available capacity; ${isLiveFallback ? "the hold" : "both holds"} stayed intact.`,
       hash: hash ?? (mode === "replay" ? proof.pay : null),
     });
-    setFlow(3);
+    setFlow(4);
     els.holdButton.disabled = true;
     els.captureButton.disabled = false;
     els.voidButton.disabled = false;
     els.spendButton.disabled = true;
   }
   if (state === "captured") {
-    setJudgeBeat(5, "Only the final amount settles.", "The merchant captures 8 LUSD; the unused 22 is released atomically back to available capacity.");
-    setBalances(37, 0, 8);
-    setPromise(false, "Captured");
-    setGuarantee(false, "Settled", `8 ${mode === "live" ? "XLM" : "LUSD"} captured · 22 released`);
+    const isLiveFallback = mode === "live";
+    setMerchant(
+      isLiveFallback ? "Meridian Hotel" : "Atlantic Fuel",
+      isLiveFallback ? "M" : "F",
+      isLiveFallback ? 30 : 15,
+      isLiveFallback ? "#H-0001" : "#F-0002",
+    );
+    setJudgeBeat(6, "Only the final amount settles.", "The hotel captures 8.40 LUSD; its unused 21.60 is released while the second 15 LUSD hold stays backed.");
+    setBalances(isLiveFallback ? 37 : 37.6, isLiveFallback ? 0 : 15, isLiveFallback ? 8 : 8.4);
+    setPromise(false, !isLiveFallback, isLiveFallback ? "Captured" : "1 active");
+    setGuarantee(
+      isLiveFallback ? "idle" : "guaranteed",
+      isLiveFallback ? "Settled" : "Second hold intact",
+      isLiveFallback ? "8 XLM captured · 22 released" : "15 LUSD remains guaranteed for Atlantic Fuel",
+    );
+    setDeclineEvidence();
+    setSettlementEvidence(true);
     setConsole({
-      title: `8 ${mode === "live" ? "XLM" : "LUSD"} captured`,
-      copy: `The final amount settled and 22 ${mode === "live" ? "XLM" : "LUSD"} returned to available capacity.`,
+      title: `${isLiveFallback ? "8" : "8.40"} ${isLiveFallback ? "XLM" : "LUSD"} captured`,
+      copy: isLiveFallback
+        ? "The final amount settled and 22 XLM returned to available capacity."
+        : "21.60 LUSD was released from Hold A; Hold B still reserves 15.00 LUSD.",
       hash: hash ?? (mode === "replay" ? proof.capture : null),
     });
-    setFlow(4);
+    setFlow(5);
     els.holdButton.disabled = true;
-    els.holdButton.textContent = "Session complete";
+    els.holdButton.textContent = isLiveFallback ? "Session complete" : "Hotel settled";
     els.captureButton.disabled = true;
-    els.voidButton.disabled = true;
+    els.voidButton.disabled = isLiveFallback;
     els.spendButton.disabled = true;
   }
   if (state === "released") {
-    setJudgeBeat(5, "The promise ends without settlement.", "Release returns the full reserved capacity without a merchant transfer.");
-    setBalances(mode === "live" ? 45 : 50, 0);
-    setPromise(false, "Released");
-    setGuarantee(false, "Released", "No funds were captured");
+    const liveBalance = previousState === "paid" ? 45 : 50;
+    setJudgeBeat(7, "Unused capacity returns immediately.", "Atlantic Fuel releases 15 LUSD. The payer finishes with 37.60 available and no active reservations.");
+    setBalances(mode === "live" ? liveBalance : 37.6, 0, mode === "live" ? 0 : 8.4);
+    setPromise(false, false, "Released");
+    setGuarantee("idle", "Released", "No funds were captured");
+    setDeclineEvidence();
+    setSettlementEvidence(false);
     setConsole({
       title: "Promise released",
-      copy: `The full 30 ${mode === "live" ? "XLM" : "LUSD"} is available to the payer again.`,
-      hash,
+      copy: mode === "live"
+        ? "The full live hold is available to the payer again."
+        : "The remaining 15 LUSD reservation returned; final available capacity is 37.60 LUSD.",
+      hash: hash ?? (mode === "replay" ? proof.release : null),
     });
-    setFlow(4);
+    setFlow(6);
     els.holdButton.disabled = true;
     els.holdButton.textContent = "Session complete";
     els.captureButton.disabled = true;
@@ -620,46 +758,70 @@ async function createLiveHold() {
     await signLatchAuth(holdTx);
     const held = assertSuccessful(await holdTx.signAndSend(), "Create hold");
     liveSession.holdId = holdId.toString();
-    liveSession.phase = "held";
+    liveSession.phase = "heldPrimary";
     liveSession.lastHash = txHash(held);
     saveLiveSession();
     els.liveTitle.textContent = "30 XLM guaranteed on-chain";
     els.liveCopy.textContent = `Hold #${liveSession.holdId} is active and merchant-verifiable.`;
-    render("held", liveSession.lastHash);
+    render("heldPrimary", liveSession.lastHash);
+    await pollHoldGuarantee();
   } finally {
     busy = false;
     restoreButtons();
   }
 }
 
+async function readLiveCapacity() {
+  if (!liveClient) throw new Error("No live LATCH account is loaded");
+  const [availableTx, balanceTx] = await Promise.all([
+    liveClient.available(),
+    liveClient.real_balance(),
+  ]);
+  return {
+    available: units(unwrapResult<bigint>(availableTx.result)),
+    balance: units(balanceTx.result),
+  };
+}
+
 async function proveOverspendBlocked() {
   if (!liveClient || !liveSession) throw new Error("No live LATCH account is loaded");
   setBusy(true, "Simulating a 25 XLM overspend");
   try {
-    const attempt = await liveClient.pay({ to: walletAddress, amount: 25n * SCALE });
-    if (attempt.result?.isErr?.()) {
-      const rejected = attempt.result.unwrapErr?.();
-      if (rejected?.message !== "ReservedBalanceViolation") {
-        throw new Error(rejected?.message ?? "Contract rejected the simulation");
+    const before = await readLiveCapacity();
+    let rejected = false;
+    try {
+      const attempt = await liveClient.pay({ to: walletAddress, amount: 25n * SCALE });
+      if (attempt.result?.isErr?.()) {
+        attempt.result.unwrapErr?.();
+        rejected = true;
       }
-      liveSession.phase = "blocked";
-      saveLiveSession();
-      render("blocked");
-      els.liveTitle.textContent = "Overspend rejected before signing";
-      els.liveCopy.textContent = "The contract returned ReservedBalanceViolation; no transaction fee was spent.";
-      return;
+    } catch (error) {
+      if (!/ReservedBalanceViolation|Contract.*#4|Error.*4/i.test(errorMessage(error))) {
+        throw error;
+      }
+      rejected = true;
     }
-    throw new Error("Safety invariant failed: the overspend simulation was accepted");
-  } catch (error) {
-    if (/ReservedBalanceViolation|Contract.*#4|Error.*4/i.test(errorMessage(error))) {
-      liveSession.phase = "blocked";
-      saveLiveSession();
-      render("blocked");
-      els.liveTitle.textContent = "Overspend rejected before signing";
-      els.liveCopy.textContent = "The reservation stayed intact; no transaction reached the network.";
-      return;
+    if (!rejected) throw new Error("Safety invariant failed: the overspend simulation was accepted");
+
+    const after = await readLiveCapacity();
+    if (before.available !== after.available || before.balance !== after.balance) {
+      throw new Error("Safety invariant failed: rejected simulation changed on-chain state");
     }
-    throw error;
+
+    liveSession.declineEvidence = {
+      beforeAvailable: before.available,
+      beforeBalance: before.balance,
+      attempted: 25,
+      afterAvailable: after.available,
+      afterBalance: after.balance,
+      kind: "simulation",
+    };
+    liveSession.phase = "blocked";
+    saveLiveSession();
+    render("blocked");
+    await pollHoldGuarantee();
+    els.liveTitle.textContent = "Overspend rejected before signing";
+    els.liveCopy.textContent = "Three chain reads agree: capacity and balance are unchanged; no transaction was submitted.";
   } finally {
     busy = false;
     restoreButtons();
@@ -680,6 +842,7 @@ async function makeSafePayment() {
     els.liveTitle.textContent = "Safe payment confirmed";
     els.liveCopy.textContent = "5 XLM moved while the full 30 XLM merchant guarantee remained active.";
     render("paid", liveSession.lastHash);
+    await pollHoldGuarantee();
   } finally {
     busy = false;
     restoreButtons();
@@ -710,7 +873,7 @@ async function voidLiveHold() {
   if (!liveClient || !liveSession?.holdId) throw new Error("No active live hold exists");
   setBusy(true, "Releasing the live hold");
   try {
-    const voidTx = await liveClient.void({ id: BigInt(liveSession.holdId) });
+    const voidTx = await liveClient.void_({ id: BigInt(liveSession.holdId) });
     unwrapResult(voidTx.result);
     const released = assertSuccessful(await voidTx.signAndSend(), "Release hold");
     liveSession.phase = "released";
@@ -740,6 +903,38 @@ async function refreshLiveState() {
   setBalances(real, reserved, received);
   els.available.textContent = money(available);
   updateLiveContract();
+  await pollHoldGuarantee();
+}
+
+async function pollHoldGuarantee() {
+  if (
+    mode !== "live" ||
+    !liveClient ||
+    !liveSession?.holdId ||
+    !["heldPrimary", "held", "blocked", "paid"].includes(liveSession.phase)
+  ) {
+    return;
+  }
+
+  try {
+    const verificationTx = await liveClient.verify_hold({
+      id: BigInt(liveSession.holdId),
+    });
+    const verification = unwrapResult<HoldVerification>(verificationTx.result);
+    if (verification.active && verification.guaranteed) {
+      setGuarantee("guaranteed", "Funds reserved", "verify_hold: active + backed on-chain");
+    } else {
+      setGuarantee(
+        "not-backed",
+        "Not backed",
+        verification.active
+          ? "Hold exists, but current token backing is insufficient"
+          : "Hold is no longer active on-chain",
+      );
+    }
+  } catch {
+    setGuarantee("idle", "Verification delayed", "RPC read unavailable · no guarantee claimed");
+  }
 }
 
 function updateLiveContract() {
@@ -816,12 +1011,12 @@ els.walletButton.addEventListener("click", () => {
 });
 
 els.holdButton.addEventListener("click", () => {
-  if (mode === "replay") render("held");
+  if (mode === "replay") render(state === "funded" ? "heldPrimary" : "held");
   else void runLiveAction("30 XLM hold", createLiveHold);
 });
 
 els.spendButton.addEventListener("click", () => {
-  if (mode === "replay") render("blocked");
+  if (mode === "replay") render(state === "blocked" ? "paid" : "blocked");
   else if (state === "blocked") void runLiveAction("5 XLM payment", makeSafePayment);
   else void runLiveAction("overspend proof", proveOverspendBlocked);
 });
@@ -861,17 +1056,23 @@ els.runButton.addEventListener("click", async () => {
   render("funded");
   await wait(900);
   if (!running) return;
+  render("heldPrimary");
+  await wait(1200);
+  if (!running) return;
   render("held");
-  await wait(1700);
+  await wait(1200);
   if (!running) return;
   render("blocked");
-  await wait(1900);
+  await wait(1500);
   if (!running) return;
   render("paid");
-  await wait(1900);
+  await wait(1300);
   if (!running) return;
   render("captured");
-  await wait(800);
+  await wait(1400);
+  if (!running) return;
+  render("released");
+  await wait(700);
   running = false;
   els.runButton.disabled = false;
   els.runButton.innerHTML = '<span class="run-icon">↻</span> Replay judge proof';
@@ -885,6 +1086,10 @@ $("#copy-contract").addEventListener("click", async () => {
     toast(currentContractAddress);
   }
 });
+
+window.setInterval(() => {
+  void pollHoldGuarantee();
+}, 12_000);
 
 configureProofEvidence();
 render("funded");

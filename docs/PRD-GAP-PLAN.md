@@ -16,11 +16,11 @@ from that same frozen build.
 ## P0 — Truth freeze and decision record
 
 - [x] Inventory every known implementation/PRD delta.
-- [ ] Record the working Freighter SEP-53 flow as the superseding signing
+- [x] Record the working Freighter SEP-53 flow as the superseding signing
   decision; do not reintroduce private-key handling merely to match old copy.
-- [ ] Define dual demo assets honestly: deterministic LUSD proof plus user-owned
+- [x] Define dual demo assets honestly: deterministic LUSD proof plus user-owned
   native-XLM live mode.
-- [ ] Make the canonical judge amounts and spoken script identical across PRD,
+- [x] Make the canonical judge amounts and spoken script identical across PRD,
   replay, live flow, runbook, and backup video.
 
 **Exit:** no repository document contradicts the shipped product.
@@ -49,13 +49,13 @@ from that same frozen build.
 
 ## P3 — On-chain guarantee and decline evidence
 
-- [ ] Poll `verify_hold` for active holds and render `FUNDS RESERVED` versus
+- [x] Poll `verify_hold` for active holds and render `FUNDS RESERVED` versus
   `NOT BACKED` from its `guaranteed` value.
-- [ ] Implement the PRD's three-fact decline proof: pre-attempt available,
+- [x] Implement the PRD's three-fact decline proof: pre-attempt available,
   rejected attempt/evidence, and unchanged post-attempt balance.
-- [ ] Preserve safe retry semantics and distinguish simulation rejection from a
+- [x] Preserve safe retry semantics and distinguish simulation rejection from a
   submitted failed transaction.
-- [ ] Surface exact explorer evidence without interpreting opaque host errors as
+- [x] Surface exact explorer evidence without interpreting opaque host errors as
   contract reasons.
 
 **Exit:** every safety claim visible to a judge is backed by an on-chain read or
@@ -66,11 +66,11 @@ transaction artifact.
 - [ ] Merchant creates amount, expiry, and reference; UI produces a hold request
   payload/QR.
 - [ ] Payer opens/scans the request and explicitly authorizes or declines it.
-- [ ] Render multiple concurrent holds and reference-derived authorization IDs.
-- [ ] Match the canonical lifecycle: holds 30 + 15, available 5, rejected spend
+- [x] Render multiple concurrent holds and reference-derived authorization IDs.
+- [x] Match the canonical lifecycle: holds 30 + 15, available 5, rejected spend
   10, safe spend 4, capture 8.40, release the second hold.
-- [ ] Add the capture sheet: paid, released, and available-before/after.
-- [ ] Keep the short one-wallet live fallback, but label it clearly as stage-safe
+- [x] Add the capture sheet: paid, released, and available-before/after.
+- [x] Keep the short one-wallet live fallback, but label it clearly as stage-safe
   mode rather than the final two-party integration.
 
 **Exit:** first-time payer and merchant roles complete the PRD script without CLI
@@ -102,8 +102,8 @@ one verifiable story.
 
 ## Known deltas captured by this plan
 
-- Current replay/live story uses one 30-unit hold and 8-unit capture rather than
-  the PRD's two-hold 30 + 15 and 8.40 narrative.
+- Live wallet intentionally remains the labeled one-wallet stage fallback; the
+  canonical replay and public proof use the full two-merchant lifecycle.
 - QR/request approval, multiple active holds, capture sheet, and guarantee
   polling are absent.
 - Decline UX does not yet show the PRD's three independent chain facts.
