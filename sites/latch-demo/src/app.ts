@@ -19,13 +19,13 @@ import {
 } from "@stellar/stellar-sdk";
 
 const proof = {
-  deposit: "da805dc64f9c3aca3b936f6a7f603efd68e32dc8f80466f7be3e02695dccdb53",
-  hold: "00c4f1b17485961fd39a736d675431b0fc5c3401bbbc4f95e159174916b8ce7b",
-  pay: "afb7b736f7d96c8b916e32169001178c7e8c6fd76e302fc45531cee4097ec921",
-  capture: "fee70c5d51af5ce9ec4e2907bf95c5266d2ef5117e7c5c6f929c7e1fc807cb9a",
+  deposit: "4b8f3cfb39783fcd07f29e620da6795f45c21a2e51f86e993698647baadb4b3c",
+  hold: "b85112560fcef7ae519afdf7fc81d4e8fc833f37e64b4c00763da0aae83fff82",
+  pay: "dabb600e8df6908b36596bc7e2e5fb87f94182d1307b5f5ef14a6092fe103e99",
+  capture: "80a26e60ac70959e0be748cc2a0dd0053d27f4e8136cf4eb9f5224fcdfd9b505",
 };
 
-const PROOF_CONTRACT = "CANMN7PU2HNWVZHOVN7EHO7EGKZFIJXHKHKO2XEFLKFCIJDAP7MPBAXR";
+const PROOF_CONTRACT = "CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS";
 const WASM_HASH = "36091aa64aaaa74b4a2cd1d91487ce1f9e3c445c0ca549993726c0a6e2f1e7a6";
 const RPC_URL = "https://soroban-testnet.stellar.org";
 const FRIENDBOT_URL = "https://friendbot.stellar.org/";
@@ -381,7 +381,11 @@ async function signLatchAuth(assembled: any) {
 function addExecutionLeeway(assembled: any) {
   const current = assembled.simulationData.transactionData;
   const resources = current.resources;
-  const extraInstructions = 1_000_000;
+  // Protocol 29 simulation undercounts the SEP-53 + Ed25519 custom-account
+  // path by just over one million instructions on the public Testnet RPC.
+  // Keep a further 500k margin so minor host variance cannot fail after the
+  // user has approved both wallet prompts.
+  const extraInstructions = 1_500_000;
   const extraResourceFee = 1_000_000n;
   const padded = new SorobanDataBuilder(current)
     .setResources(

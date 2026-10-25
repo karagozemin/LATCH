@@ -223,7 +223,7 @@ function customAccountAuthorizer(owner) {
 function addExecutionLeeway(assembled) {
   const current = assembled.simulationData.transactionData;
   const resources = current.resources;
-  const extraInstructions = 1_000_000;
+  const extraInstructions = 1_500_000;
   const extraResourceFee = 1_000_000n;
   const padded = new SorobanDataBuilder(current)
     .setResources(
