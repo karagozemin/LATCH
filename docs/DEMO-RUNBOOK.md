@@ -2,7 +2,7 @@
 
 ## 60-second product proof
 
-1. Open the private hosted demo and press **Run 12-second judge proof**.
+1. Open the local or release demo and press **Run 12-second judge proof**.
 2. Narrate: “The 30 and 15 holds transfer nothing; two merchants share one
    honest 50-unit capacity.”
 3. At the orange decline state: “The chain reports 5 available, rejects 10, and
@@ -12,13 +12,29 @@
 6. At release: “The second 15 returns too; final available capacity is 37.60.”
 7. Open one proof link: “These are the exact Testnet transactions, not UI mocks.”
 
-For the two-party interaction, enter amount, expiry, and reference in the
-merchant terminal and press **Generate request + QR**. Scanning the QR opens the
-same signed-intent payload on the payer view, where **Authorize hold** and
-**Decline** are explicit. The displayed authorization ID is the SHA-256 digest
-of that exact payload.
+## Two-profile live-wallet proof
 
-## Stage-safe live-wallet fallback
+Prerequisites: two Chrome profiles with Freighter set to Testnet, one merchant
+G-address, one different payer G-address, and popup access enabled.
+
+1. In the merchant profile, select **Live wallet**, connect the merchant, enter
+   30 XLM plus expiry/reference, and press **Generate request + QR**.
+2. Open the payer link in the payer profile. Connect the distinct payer wallet,
+   create/fund its LATCH account if needed, and press **Authorize hold**.
+3. Approve both Freighter prompts. The request's SHA-256 authorization ID is
+   written into the hold's on-chain reference.
+4. Copy or scan the returned **merchant settlement link** into the merchant
+   profile.
+5. Connect the exact merchant address. Confirm that capture/release remain
+   disabled until the UI matches merchant, ceiling, expiry, request hash,
+   activity, and backing against `verify_hold`.
+6. Enter the final amount and capture, or release the hold. Open the resulting
+   Stellar Expert transaction.
+
+If a second profile is unavailable on stage, use the recovery path below. Do
+not present it as the canonical merchant integration.
+
+## One-wallet stage-recovery path
 
 Prerequisites: Chrome, Freighter set to Testnet, popup access enabled, and a
 fresh browser profile if rehearsing first-run behavior.

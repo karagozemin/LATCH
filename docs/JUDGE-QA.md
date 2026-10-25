@@ -36,12 +36,13 @@ Soroban custom accounts make authorization programmable, and SAC transfers can
 settle atomically after that policy passes. LATCH demonstrates a capability at
 the account layer rather than deploying generic escrow on another chain.
 
-## Why does live mode use one wallet?
+## Does live mode really use two wallets?
 
-Stage reliability. One Freighter wallet controls payer and merchant roles, while
-the contract still records and authenticates the merchant address. The QR flow
-demonstrates the intended two-party UX; separate merchant signing is the next
-integration step.
+Yes. The merchant profile creates a request link, a distinct payer wallet opens
+the hold, and a settlement link returns the contract and hold ID. Before the
+merchant can act, the UI requires the bound merchant G-address and matches the
+merchant, ceiling, expiry, and request hash against `verify_hold`. A shorter
+one-wallet route exists only as a labeled stage-recovery option.
 
 ## Why is the rejected payment not linked to an explorer transaction?
 
@@ -52,9 +53,10 @@ and proves unchanged state with independent before/after reads.
 ## How do you avoid replaying a QR request?
 
 The QR's authorization ID commits to merchant, amount, expiry, reference,
-network, and asset. On-chain authorization binds the exact call and the account
-assigns each accepted hold a unique ID. Production integration should also
-expire consumed request URLs server-side.
+network, and asset, and is stored as the hold's on-chain reference. On-chain
+authorization binds the exact call and the account assigns each accepted hold a
+unique ID. Production integration should also track consumed request IDs and
+expire request URLs server-side.
 
 ## What is the biggest remaining technical limitation?
 

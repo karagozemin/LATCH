@@ -47,7 +47,7 @@ Visual: capture breakdown sheet.
 ## 7 — Built to survive technical judging
 
 15 production tests, 14 protocol spike tests, generated typed client, ABI drift
-gate, 12 frontend tests, lint, audits, optimized WASM, public Testnet lifecycle,
+gate, 15 frontend tests, lint, audits, optimized WASM, public Testnet lifecycle,
 and 30/30 automated replay rehearsals.
 
 Visual: green CI plus contract explorer.

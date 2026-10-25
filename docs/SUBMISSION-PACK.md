@@ -7,7 +7,7 @@
 **Thematic track:** Stellar Unlocked  
 **Tagline:** Funds that keep their promise.  
 **Repository:** https://github.com/karagozemin/Latch  
-**Demo:** https://latch-meridian-demo.lemonyswan1024.chatgpt.site  
+**Demo:** public Vercel URL to add after the release freeze
 **Testnet contract:** https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC
 
 Team names, contact details, and the final video URL must be added by the team
@@ -56,8 +56,11 @@ guarantee.
 - Freighter SEP-53 live mode with no application-held private key.
 - Merchant request builder with amount, expiry, reference, QR, payload hash,
   payer authorize, and payer decline.
+- Two-profile return handoff with bound-merchant wallet matching and fresh
+  on-chain verification of merchant, ceiling, expiry, and request hash before
+  capture or release unlocks.
 - CI gates for format, Clippy, tests, optimized WASM, generated ABI drift,
-  frontend lint, 12 frontend tests, builds, audits, and committed bundle drift.
+  frontend lint, 15 frontend tests, builds, audits, and committed bundle drift.
 
 ## Canonical 90-second video script
 
@@ -79,12 +82,13 @@ guarantee.
 ## Honest limitations
 
 - Genesis v1 supports one configured asset and one terminal capture per hold.
-- Live mode uses one Freighter wallet for both roles as a stage-safe fallback;
-  the canonical QR/replay experience shows the two-party product flow.
+- The live UI implements a two-profile link/QR handoff, but the complete
+  merchant → payer → merchant Freighter rehearsal must still be archived before
+  release. A one-wallet route remains only for stage recovery.
 - Issuer clawback/freeze remains issuer risk; LATCH detects backing loss and
   stops reporting a guarantee.
-- The hosted demo is owner-private until the team explicitly changes access or
-  adds judge accounts.
+- The public Vercel deployment is intentionally deferred until the release
+  build is frozen.
 
 ## Eligibility and disclosure note
 

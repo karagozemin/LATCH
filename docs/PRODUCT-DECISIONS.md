@@ -40,8 +40,10 @@ capture A 8.40     -> balance 37.60, reserved 15.00, available 22.60
 release B 15.00    -> balance 37.60, reserved  0.00, available 37.60
 ```
 
-The one-wallet live path remains a stage-safe fallback. The canonical replay
-and final two-party UX must use the full two-hold lifecycle above.
+The canonical live UX uses separate merchant and payer profiles connected by
+request and settlement links. The one-wallet live path remains only as a
+stage-recovery fallback. The deterministic replay continues to demonstrate the
+full two-hold lifecycle above.
 
 ## D4 — One-shot settlement
 
@@ -76,3 +78,16 @@ story.
 Final materials should lead with this single flow instead of claiming to solve
 every merchant vertical. Wallet, anchor, POS, and issuer adapters remain outside
 the Testnet MVP.
+
+## D7 — Two-party transport and verification
+
+**Decision:** the static demo uses URL-safe request and settlement payloads for
+browser-to-browser handoff; it does not add a coordination backend merely to
+make the demo look integrated.
+
+Neither payload is trusted as chain state. The request hash becomes the
+on-chain hold reference. On return, the merchant UI requires the bound merchant
+wallet and matches merchant, maximum, expiry, and that request hash against a
+fresh `verify_hold` response before enabling capture or release. Production
+integrations may replace copy/QR transport with a POS backend while preserving
+the same verification rule.

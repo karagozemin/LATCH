@@ -14,7 +14,7 @@ account prevents the reserved capacity from being spent elsewhere.
 ![Stellar Testnet](https://img.shields.io/badge/network-Stellar%20Testnet-6c63ff)
 ![Soroban SDK](https://img.shields.io/badge/soroban--sdk-27.0.6-111827)
 ![Contract tests](https://img.shields.io/badge/contract%20tests-15%20passing-22c55e)
-![Frontend tests](https://img.shields.io/badge/frontend%20tests-12%20passing-22c55e)
+![Frontend tests](https://img.shields.io/badge/frontend%20tests-15%20passing-22c55e)
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
 
@@ -125,7 +125,7 @@ owner, payer, and merchant identities. It is not a UI-only simulation.
 | On-chain actors | Distinct owner, payer, primary merchant, and secondary merchant addresses |
 | Contract suite | 15 lifecycle, authorization, event, attack, and invariant tests |
 | Host assumptions | 14 tests across five isolated Soroban spike crates |
-| Frontend suite | 12 state, request, retry, persistence, and responsive-control tests |
+| Frontend suite | 15 state, request, settlement, retry, persistence, and responsive-control tests |
 | Rehearsal | 30/30 automated seven-state judge replays passed |
 | Reproduction | `npm run testnet:bootstrap` rebuilds, deploys, executes, verifies, and rewrites the manifest |
 
@@ -172,17 +172,26 @@ The product models two distinct roles:
 - **Merchant:** creates the request, verifies the hold, then captures or
   releases it.
 
-The interface already creates amount/expiry/reference requests, QR deep links,
-authorization IDs, explicit payer approve/decline actions, merchant verification,
-and capture/release controls.
+The live interface implements a two-party handoff without a trusted backend:
+
+1. The merchant creates an amount/expiry/reference request and shares its QR or
+   URL with the payer.
+2. A different payer wallet authorizes the hold from its own LATCH account.
+3. The payer returns a settlement QR/URL carrying the account and hold ID.
+4. The bound merchant reconnects, re-reads the hold from Testnet, and verifies
+   merchant, ceiling, expiry, and the original request hash before capture or
+   release controls unlock.
+
+The links are transports, not authority. Freighter signatures and fresh
+contract reads remain the authorization and verification boundaries.
 
 It exposes two honest proof modes:
 
 - **Verified replay:** the canonical two-merchant LUSD flow, backed by the public
   transaction manifest.
-- **Live wallet:** a judge deploys a new LATCH account and executes real Testnet
-  XLM calls through Freighter. The current live UI uses one wallet for stage
-  reliability; it does not pretend to be a production two-device integration.
+- **Live wallet:** separate merchant and payer browser profiles exchange request
+  and settlement links while Freighter submits real Testnet XLM calls. A
+  one-wallet path remains available only as a labeled stage-recovery option.
 
 The final public frontend will be deployed to Vercel after the release build is
 frozen. Until then, run it locally.
@@ -278,12 +287,11 @@ See [Product decisions](./docs/PRODUCT-DECISIONS.md).
 
 ## Planned next steps
 
-1. Real two-device payer-to-merchant handoff using the existing QR payload.
-2. Merchant integration helpers over the generated ABI client.
-3. Event/indexer-backed status history for merchant operations.
-4. Partial capture with explicit residual-reservation accounting.
-5. Multi-asset account policy and POS integration adapters.
-6. Exploration of reserved capacity for x402-style deferred settlement.
+1. Merchant integration helpers over the generated ABI client.
+2. Event/indexer-backed status history for merchant operations.
+3. Partial capture with explicit residual-reservation accounting.
+4. Multi-asset account policy and POS integration adapters.
+5. Exploration of reserved capacity for x402-style deferred settlement.
 
 ## Three-minute judge path
 

@@ -126,6 +126,14 @@ button { border: 0; cursor: pointer; }
 .request-inbox > div { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .request-inbox button { border: 0; border-radius: 8px; padding: 9px; background: var(--ink); color: var(--paper); font-size: 9px; font-weight: 800; }
 .request-inbox button:last-child { background: #ebeae2; color: var(--ink); }
+.settlement-handoff { margin-top: 12px; padding: 10px; border: 1px solid rgba(22,31,26,.18); border-radius: 13px; background: var(--mint-soft); display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: center; }
+.settlement-handoff[hidden] { display: none; }
+.settlement-handoff canvas { width: 70px !important; height: 70px !important; }
+.settlement-handoff > div { min-width: 0; display: grid; gap: 4px; }
+.settlement-handoff span { color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.settlement-handoff strong { font-size: 10px; }
+.settlement-handoff code { overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 8px; }
+.settlement-handoff button, .request-qr button { border-radius: 7px; padding: 7px; background: var(--ink); color: var(--paper); font-size: 8px; font-weight: 800; text-transform: uppercase; }
 .policy-card { display: flex; gap: 11px; align-items: center; background: var(--mint-soft); padding: 13px; border-radius: 13px; margin-top: 15px; }
 .policy-card svg { width: 23px; fill: var(--green); flex: 0 0 auto; }
 .policy-card div { display: flex; flex-direction: column; }
@@ -181,6 +189,10 @@ button { border: 0; cursor: pointer; }
 .primary-action, .split-actions button { width: 100%; min-height: 44px; border-radius: 11px; font-size: 11px; font-weight: 800; }
 .primary-action { background: var(--mint); }
 .primary-action:disabled { background: #324139; color: #829087; cursor: default; }
+.verify-action { width: 100%; min-height: 38px; margin-top: 8px; border-radius: 10px; background: transparent; color: var(--mint); border: 1px solid rgba(185,255,102,.35); font-size: 9px; font-weight: 850; text-transform: uppercase; }
+.verify-action:disabled { opacity: .35; cursor: default; }
+.capture-input { display: grid; grid-template-columns: 1fr 90px; align-items: center; gap: 8px; margin-top: 8px; color: #89968e; font-size: 8px; text-transform: uppercase; letter-spacing: .06em; }
+.capture-input input { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; padding: 8px; background: rgba(0,0,0,.18); color: var(--paper); font: inherit; }
 .split-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .split-actions button { background: transparent; color: var(--paper); border: 1px solid rgba(255,255,255,.15); }
 .split-actions button:disabled { opacity: .3; cursor: default; }

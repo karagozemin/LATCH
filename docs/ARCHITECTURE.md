@@ -344,13 +344,46 @@ The browser demo is a static TypeScript application bundled with esbuild.
 - Network and proof constants originate in `config/testnet.mjs` and
   `deployments/testnet.json`; generated frontend configuration is drift-checked.
 - Merchant requests encode network, asset, merchant, amount, expiry delta, and
-  reference into a URL-safe payload. A SHA-256 digest is shown as its
-  authorization identifier.
+  reference into a URL-safe payload. Its SHA-256 digest is shown as the
+  authorization ID and stored as the hold's on-chain `reference`.
+- After creation, the payer returns a second URL-safe payload containing the
+  LATCH contract, hold ID, exact expiry, merchant, ceiling, and request ID.
+  The merchant treats every field as untrusted until `verify_hold` returns a
+  matching active and backed hold.
 - Live session recovery is keyed by the connected public address in browser
   storage. Invalid stored shapes are rejected.
 
-The request QR is a transport mechanism, not a signature. The payer's explicit
-on-chain authorization is the security boundary.
+The request and settlement QR codes are transport mechanisms, not signatures.
+The payer's explicit on-chain authorization creates the reservation; the bound
+merchant's Freighter signature authorizes its terminal settlement.
+
+### Browser-to-browser handoff
+
+```mermaid
+sequenceDiagram
+    actor M as Merchant profile
+    actor P as Payer profile
+    participant F as Freighter
+    participant L as Payer's LATCH contract
+
+    M->>P: Request URL/QR<br/>merchant + ceiling + expiry + reference
+    P->>F: Review and approve exact request
+    F->>L: create_hold(..., reference = SHA-256(request))
+    L-->>P: Hold ID + exact ledger expiry
+    P->>M: Settlement URL/QR<br/>contract + hold ID + original terms
+    M->>F: Connect the bound merchant address
+    M->>L: verify_hold(hold ID)
+    L-->>M: Merchant + ceiling + expiry + reference + backing
+    Note over M,L: UI unlocks only after every term matches
+    M->>F: Sign capture(final amount) or void
+    F->>L: Merchant-authenticated settlement
+```
+
+There is no rendezvous server in this prototype. URL fragments are not used;
+the payload is carried in a query parameter so profiles can exchange it by QR
+or copy/paste. Because transport data can be edited, the merchant UI never
+derives a guarantee from the URL itself: it checks the connected G-address and
+re-reads all security-relevant terms from the C-address on Testnet.
 
 ### Two proof modes
 
@@ -359,9 +392,10 @@ on-chain authorization is the security boundary.
 | Verified replay | Fast, deterministic explanation of the two-merchant LUSD lifecycle | Checked-in Testnet transaction manifest |
 | Live wallet | Real deployment and signing with judge-controlled Testnet XLM | Current RPC reads and submitted transactions |
 
-Replay is not presented as the connected wallet's activity. Live mode is
-explicitly a one-wallet stage fallback; a production two-device merchant flow
-is future work.
+Replay is not presented as the connected wallet's activity. Live mode supports
+separate merchant and payer profiles through the two-link handoff. The shorter
+one-wallet route remains a labeled stage-recovery path, not the canonical
+merchant integration.
 
 ## 11. Failure and retry semantics
 
@@ -404,7 +438,7 @@ Every GitHub Actions run performs:
 4. optimized WASM build;
 5. ABI client regeneration and drift detection;
 6. frontend configuration/vendor drift detection;
-7. frontend lint, 12 tests, typecheck, and production bundle;
+7. frontend lint, 15 tests, typecheck, and production bundle;
 8. committed bundle drift detection.
 
 The Testnet lifecycle is intentionally a separate explicit command because it
@@ -430,5 +464,5 @@ the resulting hashes to the proof manifest.
 | Static client, no backend | Small trust surface and easy deployment | No notifications, indexing service, or merchant identity layer |
 
 These are v1 scope decisions, not hidden production claims. The next
-architecture milestone is a real two-device payer/merchant handoff without
-changing the on-chain invariant.
+architecture milestone is a small merchant integration layer plus event-indexed
+status history, without changing the on-chain invariant.

@@ -5,12 +5,15 @@ import {
   amountToUnits,
   canonicalSnapshot,
   decodeRequest,
+  decodeSettlement,
   encodeRequest,
+  encodeSettlement,
   guaranteeState,
   nextReplayState,
   parseStoredLiveSession,
   shouldOfferRetry,
   type HoldRequestPayload,
+  type SettlementPayload,
 } from "./demo-model";
 
 describe("canonical judge lifecycle", () => {
@@ -110,6 +113,40 @@ describe("merchant hold requests", () => {
   });
 });
 
+describe("two-party settlement handoff", () => {
+  const settlement: SettlementPayload = {
+    version: 1,
+    network: "testnet",
+    asset: "XLM",
+    contractId: "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+    holdId: "1",
+    merchant: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+    merchantName: "Meridian Hotel",
+    amount: "30.00",
+    expiresAt: 5_301_753,
+    reference: "H-0001 · Meridian stay",
+    requestId: "a".repeat(64),
+  };
+
+  it("round-trips the payer-to-merchant settlement payload", () => {
+    expect(decodeSettlement(encodeSettlement(settlement))).toEqual(settlement);
+  });
+
+  it("rejects a settlement link for an invalid contract or hold", () => {
+    const invalid = Buffer.from(
+      JSON.stringify({ ...settlement, contractId: "not-a-contract", holdId: "0" }),
+    ).toString("base64url");
+    expect(() => decodeSettlement(invalid)).toThrow("Invalid LATCH settlement payload");
+  });
+
+  it("rejects a settlement link without its request binding", () => {
+    const invalid = Buffer.from(
+      JSON.stringify({ ...settlement, requestId: "missing" }),
+    ).toString("base64url");
+    expect(() => decodeSettlement(invalid)).toThrow("Invalid LATCH settlement payload");
+  });
+});
+
 describe("critical responsive controls", () => {
   it("keeps judge, payer, merchant, retry, and QR actions in the shipped HTML", () => {
     const html = readFileSync("dist/index.html", "utf8");
@@ -123,6 +160,9 @@ describe("critical responsive controls", () => {
       "generate-request",
       "approve-request",
       "decline-request",
+      "copy-request-link",
+      "copy-settlement-link",
+      "verify-button",
     ]) {
       expect(html).toContain(`id="${id}"`);
     }

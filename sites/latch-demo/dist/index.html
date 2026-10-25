@@ -98,7 +98,7 @@
 
           <div class="live-session" id="live-session" hidden>
             <div class="live-session-copy">
-              <span class="live-kicker">Stage-safe live mode · one wallet</span>
+              <span class="live-kicker" id="live-kicker">Live Testnet · two-party handoff</span>
               <strong id="live-title">Connect Freighter to begin</strong>
               <span id="live-copy">Your wallet signs every state change. No private key leaves Freighter.</span>
             </div>
@@ -148,6 +148,16 @@
                 <div><button type="button" id="approve-request">Authorize hold</button><button type="button" id="decline-request">Decline</button></div>
               </div>
 
+              <div class="settlement-handoff" id="settlement-handoff" hidden>
+                <canvas id="settlement-qr-canvas" aria-label="Merchant settlement link QR"></canvas>
+                <div>
+                  <span>Return to merchant</span>
+                  <strong>Hold created · settlement link ready</strong>
+                  <code id="settlement-hold-id">Hold —</code>
+                  <button type="button" id="copy-settlement-link">Copy merchant link</button>
+                </div>
+              </div>
+
               <div class="policy-card">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5zm0 4a3 3 0 0 1 3 3v1h1v6H8v-6h1V9a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1v1h2V9a1 1 0 0 0-1-1" /></svg>
                 <div><strong>Policy enforced by your account</strong><span>Reserved capacity cannot be double-spent.</span></div>
@@ -187,7 +197,7 @@
               </div>
               <div class="request-qr" id="request-qr" hidden>
                 <canvas id="request-qr-canvas" aria-label="Scannable hold request QR"></canvas>
-                <div><span>Authorization ID</span><code id="request-auth-id">—</code><small>Scan to open this exact merchant, amount, expiry, and reference.</small></div>
+                <div><span>Authorization ID</span><code id="request-auth-id">—</code><small>Scan to open this exact merchant, amount, expiry, and reference.</small><button type="button" id="copy-request-link">Copy payer link</button></div>
               </div>
               <div class="guarantee" id="guarantee">
                 <div class="guarantee-icon">✓</div>
@@ -195,6 +205,8 @@
               </div>
               <div class="merchant-actions">
                 <button type="button" class="primary-action" id="hold-button">Request 30 LUSD hold</button>
+                <button type="button" class="verify-action" id="verify-button" disabled>Verify hold on-chain</button>
+                <label class="capture-input"><span>Final capture</span><input id="capture-amount-input" type="number" min="0" step="0.01" value="8.00" /></label>
                 <div class="split-actions">
                   <button type="button" id="capture-button" disabled>Capture 8.40</button>
                   <button type="button" id="void-button" disabled>Release</button>
@@ -253,7 +265,7 @@
         <div class="architecture-flow" aria-label="LATCH transaction architecture">
           <article><span>01</span><small>Control</small><h3>Owner signs</h3><p>Freighter signs a domain-separated authorization payload.</p></article>
           <i aria-hidden="true">→</i>
-          <article class="architecture-core"><span>02</span><small>Policy</small><h3>LATCH account</h3><p>Default-deny auth permits only exact pay and hold call shapes.</p></article>
+          <article class="architecture-core"><span>02</span><small>Policy</small><h3>LATCH account</h3><p>Default-deny auth permits only pay and hold; typed bodies validate their terms.</p></article>
           <i aria-hidden="true">→</i>
           <article><span>03</span><small>Capacity</small><h3>Hold registry</h3><p>Merchant, ceiling, expiry, and backing are verifiable on-chain.</p></article>
           <i aria-hidden="true">→</i>
@@ -272,14 +284,14 @@
         <div class="principles">
           <article><span>01</span><h3>Account-native</h3><p>The policy lives inside the smart account. Funds never move into a merchant escrow before settlement.</p></article>
           <article><span>02</span><h3>Capacity-aware</h3><p>Every payment sees the same available-versus-reserved truth, closing the double-spend gap by construction.</p></article>
-          <article><span>03</span><h3>Merchant-verifiable</h3><p>A merchant can verify guaranteed capacity on-chain, then capture less than the maximum and release the rest.</p></article>
+          <article><span>03</span><h3>Merchant-verifiable</h3><p>A merchant can verify active, payer-side-backed capacity, then capture less than the maximum and release the rest.</p></article>
         </div>
       </section>
     </main>
 
     <footer>
       <a class="brand footer-brand" href="#top"><span>LATCH</span></a>
-      <p>Built for HackMeridian Genesis · Lisbon</p>
+      <p>Built for HackMeridian · Lisbon</p>
       <p>Soroban SDK 27 · Stellar Testnet</p>
     </footer>
 

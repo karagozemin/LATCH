@@ -70,8 +70,8 @@ transaction artifact.
 - [x] Match the canonical lifecycle: holds 30 + 15, available 5, rejected spend
   10, safe spend 4, capture 8.40, release the second hold.
 - [x] Add the capture sheet: paid, released, and available-before/after.
-- [x] Keep the short one-wallet live fallback, but label it clearly as stage-safe
-  mode rather than the final two-party integration.
+- [x] Keep the short one-wallet live fallback as a labeled stage-recovery mode
+  alongside the canonical two-profile handoff.
 
 **Exit:** first-time payer and merchant roles complete the PRD script without CLI
 help, and the 12-second replay tells the same numerical story.
@@ -98,6 +98,9 @@ contract proof and a merchant-ready product proof.
   identities in the reproducible bootstrap flow.
 - [x] Expose amount, asset, merchant, expiry, reference, authorization ID,
   hold status, capture, and release in the judge interface.
+- [x] Implement the two-profile request/settlement link round-trip and require
+  the merchant UI to match wallet, merchant, ceiling, expiry, and request hash
+  against a fresh `verify_hold` result before enabling settlement.
 - [ ] Run the live browser flow across two separate wallet identities/profiles:
   merchant request → payer hold → merchant verify → merchant capture/release.
 - [ ] Add a small merchant integration layer over the generated ABI client with
@@ -124,8 +127,9 @@ one verifiable story.
 
 ## Known deltas captured by this plan
 
-- Live wallet intentionally remains the labeled one-wallet stage fallback; the
-  canonical replay and public proof use the full two-merchant lifecycle.
+- Live wallet now implements the two-profile handoff. A complete manual
+  Freighter rehearsal across two identities is still required before release;
+  the labeled one-wallet path remains only for stage recovery.
 - Manual poor-network rehearsals, backup video, team/contact fields, track
   confirmation, and judge access are not yet final.
 
@@ -139,5 +143,5 @@ one verifiable story.
   assertions in the production test suite.
 - QR request/approval, concurrent holds, guarantee polling, three-fact decline
   evidence, and the capture breakdown now ship in the judge UI.
-- The Freighter/XLM live fallback and deterministic LUSD proof are documented as
+- The Freighter/XLM live flow and deterministic LUSD proof are documented as
   deliberate, non-interchangeable modes.

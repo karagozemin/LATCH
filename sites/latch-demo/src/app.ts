@@ -22,13 +22,16 @@ import {
   amountToUnits,
   canonicalSnapshot,
   decodeRequest,
+  decodeSettlement,
   encodeRequest,
+  encodeSettlement,
   guaranteeState,
   parseStoredLiveSession,
   shouldOfferRetry,
   type DeclineEvidence,
   type DemoState,
   type HoldRequestPayload,
+  type SettlementPayload,
   type StoredLiveSession,
 } from "./demo-model";
 import { TESTNET } from "./testnet-config";
@@ -48,6 +51,12 @@ interface PendingRequest {
   payload: HoldRequestPayload;
   encoded: string;
   authorizationId: string;
+  url: string;
+}
+
+interface PendingSettlement {
+  payload: SettlementPayload;
+  encoded: string;
   url: string;
 }
 
@@ -117,6 +126,7 @@ const els = {
   replayMode: $("#replay-mode") as HTMLButtonElement,
   liveMode: $("#live-mode") as HTMLButtonElement,
   liveSession: $("#live-session") as HTMLElement,
+  liveKicker: $("#live-kicker"),
   liveTitle: $("#live-title"),
   liveCopy: $("#live-copy"),
   walletButton: $("#wallet-button") as HTMLButtonElement,
@@ -146,6 +156,13 @@ const els = {
   requestQr: $("#request-qr"),
   requestQrCanvas: $<HTMLCanvasElement>("#request-qr-canvas"),
   requestAuthId: $("#request-auth-id"),
+  copyRequestLink: $<HTMLButtonElement>("#copy-request-link"),
+  settlementHandoff: $("#settlement-handoff"),
+  settlementQrCanvas: $<HTMLCanvasElement>("#settlement-qr-canvas"),
+  settlementHoldId: $("#settlement-hold-id"),
+  copySettlementLink: $<HTMLButtonElement>("#copy-settlement-link"),
+  verifyButton: $<HTMLButtonElement>("#verify-button"),
+  captureAmountInput: $<HTMLInputElement>("#capture-amount-input"),
 };
 
 let mode: DemoMode = "replay";
@@ -158,6 +175,11 @@ let liveSession: StoredLiveSession | null = null;
 let currentContractAddress: string = PROOF_CONTRACT;
 let retryAction: RetryAction | null = null;
 let pendingRequest: PendingRequest | null = null;
+let pendingSettlement: PendingSettlement | null = null;
+let liveRole: "payer" | "merchant" = "payer";
+let lastCaptureAmount = 8;
+let liveHoldMaximum = 30;
+let merchantVerified = false;
 
 function money(value: number) {
   return Number(value).toFixed(2);
@@ -196,6 +218,7 @@ async function authorizationId(encoded: string) {
 async function showHoldRequest(payload: HoldRequestPayload, encoded = encodeRequest(payload)) {
   const id = await authorizationId(encoded);
   const requestUrl = new URL(window.location.href);
+  requestUrl.searchParams.delete("settlement");
   requestUrl.searchParams.set("request", encoded);
   requestUrl.hash = "demo";
   pendingRequest = { payload, encoded, authorizationId: id, url: requestUrl.toString() };
@@ -208,6 +231,51 @@ async function showHoldRequest(payload: HoldRequestPayload, encoded = encodeRequ
     width: 180,
     margin: 1,
     color: { dark: "#111d17", light: "#f4f2e9" },
+  });
+}
+
+async function copyText(value: string, confirmation: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    toast(confirmation);
+  } catch {
+    toast(value);
+  }
+}
+
+async function showSettlementHandoff(
+  request: HoldRequestPayload,
+  contractId: string,
+  holdId: string,
+  expiresAt: number,
+  requestId: string,
+) {
+  const payload: SettlementPayload = {
+    version: 1,
+    network: "testnet",
+    asset: "XLM",
+    contractId,
+    holdId,
+    merchant: request.merchant,
+    merchantName: request.merchantName,
+    amount: request.amount,
+    expiresAt,
+    reference: request.reference,
+    requestId,
+  };
+  const encoded = encodeSettlement(payload);
+  const settlementUrl = new URL(window.location.href);
+  settlementUrl.searchParams.delete("request");
+  settlementUrl.searchParams.set("settlement", encoded);
+  settlementUrl.hash = "demo";
+  pendingSettlement = { payload, encoded, url: settlementUrl.toString() };
+  els.merchantAddress.textContent = shortAddress(request.merchant);
+  els.settlementHoldId.textContent = `Hold #${holdId} · request ${requestId.slice(0, 10)}…`;
+  els.settlementHandoff.hidden = false;
+  await QRCode.toCanvas(els.settlementQrCanvas, settlementUrl.toString(), {
+    width: 180,
+    margin: 1,
+    color: { dark: "#111d17", light: "#efffdc" },
   });
 }
 
@@ -228,6 +296,11 @@ async function generateHoldRequest() {
     expiresInLedgers: Number(els.requestExpiry.value),
     reference,
   });
+  if (mode === "live") {
+    els.liveKicker.textContent = "Merchant · request created";
+    els.liveTitle.textContent = "Payer handoff ready";
+    els.liveCopy.textContent = "Open the QR or copied link in a separate Freighter profile or device.";
+  }
   toast("Scannable hold request ready");
 }
 
@@ -239,7 +312,49 @@ async function loadHoldRequestFromUrl() {
     throw new Error("Hold request merchant is not a valid Stellar account");
   }
   await showHoldRequest(payload, encoded);
+  if (payload.asset === "XLM") {
+    liveRole = "payer";
+    setMode("live");
+    els.liveKicker.textContent = "Payer · incoming merchant request";
+  }
   toast("Merchant request loaded · authorize or decline");
+}
+
+async function loadSettlementFromUrl() {
+  const encoded = new URL(window.location.href).searchParams.get("settlement");
+  if (!encoded) return false;
+  const payload = decodeSettlement(encoded);
+  if (!StrKey.isValidContract(payload.contractId) || !StrKey.isValidEd25519PublicKey(payload.merchant)) {
+    throw new Error("Settlement link contains an invalid Stellar address");
+  }
+  pendingSettlement = { payload, encoded, url: window.location.href };
+  liveRole = "merchant";
+  setMode("live");
+  els.liveKicker.textContent = "Merchant · independent settlement";
+  setMerchant(payload.merchantName, payload.merchantName.slice(0, 1).toUpperCase(), Number(payload.amount), payload.reference);
+  els.requestAmountInput.value = payload.amount;
+  els.requestReferenceInput.value = payload.reference;
+  els.walletButton.textContent = "Connect merchant wallet";
+  els.liveTitle.textContent = `Settlement for hold #${payload.holdId}`;
+  els.liveCopy.textContent = "Connect the merchant address named in the hold, then verify on-chain before settlement.";
+  els.merchantAddress.textContent = shortAddress(payload.merchant);
+  els.contractLabel.textContent = "Payer's live LATCH contract";
+  els.contractAddress.textContent = payload.contractId;
+  currentContractAddress = payload.contractId;
+  els.balance.textContent = "—";
+  els.available.textContent = "—";
+  els.reserved.textContent = "—";
+  els.availableBar.style.width = "0%";
+  els.reservedBar.style.width = "0%";
+  setGuarantee("idle", "Awaiting merchant", "No backing claim is shown before wallet match and fresh verification");
+  setConsole({
+    title: "Settlement link loaded",
+    copy: "Connect the bound merchant wallet; LATCH will compare every hold term on-chain before enabling settlement.",
+  });
+  els.holdButton.disabled = true;
+  els.holdButton.textContent = "Payer authorization received";
+  els.verifyButton.disabled = true;
+  return true;
 }
 
 function errorMessage(error: unknown) {
@@ -363,6 +478,14 @@ function setBalances(balance: number, reserved: number, received = 0) {
   els.reservedBar.style.width = `${(reserved / total) * 100}%`;
 }
 
+function maskLiveBalances() {
+  els.balance.textContent = "—";
+  els.available.textContent = "—";
+  els.reserved.textContent = "—";
+  els.availableBar.style.width = "0%";
+  els.reservedBar.style.width = "0%";
+}
+
 function setCanonicalBalances(nextState: DemoState) {
   const snapshot = canonicalSnapshot(nextState);
   setBalances(
@@ -418,10 +541,12 @@ function setSettlementEvidence(visible: boolean) {
   if (!visible) return;
   const isLiveFallback = mode === "live";
   const asset = isLiveFallback ? "XLM" : "LUSD";
-  els.settlementPaid.textContent = `${money(isLiveFallback ? 8 : 8.4)} ${asset}`;
-  els.settlementReleased.textContent = `${money(isLiveFallback ? 22 : 21.6)} ${asset}`;
+  const liveMaximum = pendingSettlement ? Number(pendingSettlement.payload.amount) : 30;
+  const livePaid = pendingSettlement ? lastCaptureAmount : 8;
+  els.settlementPaid.textContent = `${money(isLiveFallback ? livePaid : 8.4)} ${asset}`;
+  els.settlementReleased.textContent = `${money(isLiveFallback ? liveMaximum - livePaid : 21.6)} ${asset}`;
   els.settlementAvailable.textContent = isLiveFallback
-    ? `15.00 → 37.00 ${asset}`
+    ? (pendingSettlement ? "Refreshed from payer contract" : `15.00 → 37.00 ${asset}`)
     : `1.00 → 22.60 ${asset}`;
 }
 
@@ -444,7 +569,6 @@ function recordedDeclineEvidence(): DeclineEvidence {
 }
 
 function render(nextState: DemoState, hash?: string | null) {
-  const previousState = state;
   state = nextState;
   if (state === "funded") {
     setMerchant("Meridian Hotel", "M", 30, "#H-0001");
@@ -471,19 +595,20 @@ function render(nextState: DemoState, hash?: string | null) {
     setMerchant(
       mode === "live" ? "Meridian Hotel" : "Atlantic Fuel",
       mode === "live" ? "M" : "F",
-      mode === "live" ? 30 : 15,
+      mode === "live" ? liveHoldMaximum : 15,
       mode === "live" ? "#H-0001" : "#F-0002",
     );
     setJudgeBeat(2, "The merchant gets certainty, not custody.", "The first 30 LUSD promise is merchant-bound; zero moves at authorization.");
     if (mode === "replay") setCanonicalBalances(state);
-    else setBalances(50, 30);
+    else setBalances(50, liveHoldMaximum);
     setPromise(true, false, "1 active");
-    setGuarantee("guaranteed", "Funds reserved", `30 ${mode === "live" ? "XLM" : "LUSD"} is guaranteed on-chain`);
+    const primaryMaximum = mode === "live" ? liveHoldMaximum : 30;
+    setGuarantee("guaranteed", "Funds reserved", `${money(primaryMaximum)} ${mode === "live" ? "XLM" : "LUSD"} is payer-side backed on-chain`);
     setDeclineEvidence();
     setSettlementEvidence(false);
     setConsole({
       title: "First capacity guarantee active",
-      copy: `30 ${mode === "live" ? "XLM" : "LUSD"} is reserved; no funds moved to the merchant.`,
+      copy: `${money(primaryMaximum)} ${mode === "live" ? "XLM" : "LUSD"} is reserved; no funds moved to the merchant.`,
       hash: hash ?? (mode === "replay" ? proof.hold : null),
     });
     setFlow(1);
@@ -496,10 +621,10 @@ function render(nextState: DemoState, hash?: string | null) {
   }
   if (state === "held" || state === "blocked") {
     const isLiveFallback = mode === "live";
-    const reserved = isLiveFallback ? 30 : 45;
+    const reserved = isLiveFallback ? liveHoldMaximum : 45;
     const attempted = isLiveFallback ? 25 : 10;
     const available = 50 - reserved;
-    setMerchant("Meridian Hotel", "M", 30, "#H-0001");
+    setMerchant("Meridian Hotel", "M", isLiveFallback ? liveHoldMaximum : 30, "#H-0001");
     if (state === "blocked") {
       setJudgeBeat(4, "The promise cannot be double-spent.", "The chain reports 5 available, rejects the 10 payment, then reports the same balance and capacity.");
     } else {
@@ -508,7 +633,7 @@ function render(nextState: DemoState, hash?: string | null) {
     if (isLiveFallback) setBalances(50, reserved);
     else setCanonicalBalances(state);
     setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
-    setGuarantee("guaranteed", "Funds reserved", `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is guaranteed on-chain`);
+    setGuarantee("guaranteed", "Funds reserved", `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is payer-side backed on-chain`);
     setDeclineEvidence(
       state === "blocked"
         ? (isLiveFallback ? liveSession?.declineEvidence : recordedDeclineEvidence())
@@ -524,7 +649,7 @@ function render(nextState: DemoState, hash?: string | null) {
             copy: `${available} ${isLiveFallback ? "XLM" : "LUSD"} was available before and after; this was a simulation rejection, not a submitted transaction.`,
           }
         : {
-            title: isLiveFallback ? "Capacity guaranteed" : "Second capacity guarantee active",
+            title: isLiveFallback ? "Capacity reserved" : "Second capacity reservation active",
             copy: `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is now reserved across ${isLiveFallback ? "one hold" : "two merchants"}.`,
             hash: hash ?? (mode === "replay" ? proof.holdSecondary : null),
           },
@@ -542,12 +667,12 @@ function render(nextState: DemoState, hash?: string | null) {
   if (state === "paid") {
     const isLiveFallback = mode === "live";
     const amount = isLiveFallback ? 5 : 4;
-    setMerchant("Meridian Hotel", "M", 30, "#H-0001");
+    setMerchant("Meridian Hotel", "M", isLiveFallback ? liveHoldMaximum : 30, "#H-0001");
     setJudgeBeat(5, "Unreserved money remains useful.", "A 4 LUSD payment succeeds while both merchant guarantees remain untouched.");
-    if (isLiveFallback) setBalances(45, 30);
+    if (isLiveFallback) setBalances(45, liveHoldMaximum);
     else setCanonicalBalances(state);
     setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
-    setGuarantee("guaranteed", "Still guaranteed", "Direct payment preserved the hold");
+    setGuarantee("guaranteed", "Still reserved", "Direct payment preserved the payer-side-backed hold");
     setDeclineEvidence();
     setSettlementEvidence(false);
     setConsole({
@@ -566,24 +691,28 @@ function render(nextState: DemoState, hash?: string | null) {
     setMerchant(
       isLiveFallback ? "Meridian Hotel" : "Atlantic Fuel",
       isLiveFallback ? "M" : "F",
-      isLiveFallback ? 30 : 15,
+      isLiveFallback ? liveHoldMaximum : 15,
       isLiveFallback ? "#H-0001" : "#F-0002",
     );
     setJudgeBeat(6, "Only the final amount settles.", "The hotel captures 8.40 LUSD; its unused 21.60 is released while the second 15 LUSD hold stays backed.");
-    if (isLiveFallback) setBalances(37, 0, 8);
-    else setCanonicalBalances(state);
+    if (isLiveFallback) {
+      maskLiveBalances();
+      els.merchantReceived.textContent = money(lastCaptureAmount);
+    } else setCanonicalBalances(state);
     setPromise(false, !isLiveFallback, isLiveFallback ? "Captured" : "1 active");
     setGuarantee(
       isLiveFallback ? "idle" : "guaranteed",
       isLiveFallback ? "Settled" : "Second hold intact",
-      isLiveFallback ? "8 XLM captured · 22 released" : "15 LUSD remains guaranteed for Atlantic Fuel",
+      isLiveFallback
+        ? `${money(lastCaptureAmount)} XLM captured · ${money(liveHoldMaximum - lastCaptureAmount)} released`
+        : "15 LUSD remains guaranteed for Atlantic Fuel",
     );
     setDeclineEvidence();
     setSettlementEvidence(true);
     setConsole({
-      title: `${isLiveFallback ? "8" : "8.40"} ${isLiveFallback ? "XLM" : "LUSD"} captured`,
+      title: `${isLiveFallback ? money(lastCaptureAmount) : "8.40"} ${isLiveFallback ? "XLM" : "LUSD"} captured`,
       copy: isLiveFallback
-        ? "The final amount settled and 22 XLM returned to available capacity."
+        ? `The final amount settled and ${money(liveHoldMaximum - lastCaptureAmount)} XLM returned to available capacity.`
         : "21.60 LUSD was released from Hold A; Hold B still reserves 15.00 LUSD.",
       hash: hash ?? (mode === "replay" ? proof.capture : null),
     });
@@ -595,10 +724,10 @@ function render(nextState: DemoState, hash?: string | null) {
     els.spendButton.disabled = true;
   }
   if (state === "released") {
-    const liveBalance = previousState === "paid" ? 45 : 50;
     setJudgeBeat(7, "Unused capacity returns immediately.", "Atlantic Fuel releases 15 LUSD. The payer finishes with 37.60 available and no active reservations.");
-    if (mode === "live") setBalances(liveBalance, 0);
-    else setCanonicalBalances(state);
+    if (mode === "live") {
+      maskLiveBalances();
+    } else setCanonicalBalances(state);
     setPromise(false, false, "Released");
     setGuarantee("idle", "Released", "No funds were captured");
     setDeclineEvidence();
@@ -641,7 +770,33 @@ function setBusy(next: boolean, message?: string) {
 
 function restoreButtons() {
   render(state, liveSession?.lastHash);
+  if (liveRole === "payer" && pendingSettlement) {
+    els.captureButton.disabled = true;
+    els.voidButton.disabled = true;
+  }
+  applyMerchantSettlementUi();
   els.walletButton.disabled = false;
+}
+
+function applyMerchantSettlementUi() {
+  if (liveRole !== "merchant" || !pendingSettlement) return;
+  const { payload } = pendingSettlement;
+  setMerchant(
+    payload.merchantName,
+    payload.merchantName.slice(0, 1).toUpperCase(),
+    Number(payload.amount),
+    payload.reference,
+  );
+  els.payerAddress.textContent = shortAddress(payload.contractId);
+  els.merchantAddress.textContent = shortAddress(payload.merchant);
+  els.holdButton.disabled = true;
+  els.holdButton.textContent = "Payer authorization received";
+  els.spendButton.disabled = true;
+  els.verifyButton.disabled = !liveClient;
+  const canSettle = !busy && merchantVerified && ["heldPrimary", "held", "blocked", "paid"].includes(state);
+  els.captureButton.disabled = !canSettle;
+  els.voidButton.disabled = !canSettle;
+  els.captureAmountInput.max = payload.amount;
 }
 
 function setAsset(code: "LUSD" | "XLM") {
@@ -651,7 +806,7 @@ function setAsset(code: "LUSD" | "XLM") {
 }
 
 function saveLiveSession() {
-  if (!walletAddress || !liveSession) return;
+  if (liveRole !== "payer" || !walletAddress || !liveSession) return;
   localStorage.setItem(`${STORAGE_PREFIX}${walletAddress}`, JSON.stringify(liveSession));
 }
 
@@ -743,6 +898,44 @@ async function connectWallet() {
       throw new Error("Switch Freighter to Testnet, then connect again");
     }
     walletAddress = access.address;
+    if (liveRole === "merchant" && pendingSettlement) {
+      const { payload } = pendingSettlement;
+      if (walletAddress !== payload.merchant) {
+        throw new Error(`Switch Freighter to the bound merchant ${shortAddress(payload.merchant)}`);
+      }
+      liveRole = "merchant";
+      els.liveKicker.textContent = "Merchant · independent settlement";
+      merchantVerified = false;
+      liveSession = {
+        contractId: payload.contractId,
+        holdId: payload.holdId,
+        phase: "heldPrimary",
+      };
+      liveClient = new LatchClient({
+        contractId: payload.contractId,
+        networkPassphrase: NETWORK_PASSPHRASE,
+        publicKey: walletAddress,
+        rpcUrl: RPC_URL,
+        signTransaction: walletSigner,
+      });
+      els.payerAddress.textContent = shortAddress(payload.contractId);
+      els.merchantAddress.textContent = shortAddress(walletAddress);
+      els.walletButton.textContent = "Merchant connected";
+      els.walletButton.classList.add("is-ready");
+      els.liveTitle.textContent = `Merchant connected · ${shortAddress(walletAddress)}`;
+      els.liveCopy.textContent = "Verify the payer's live reservation before capture or release.";
+      currentContractAddress = payload.contractId;
+      state = "heldPrimary";
+      liveHoldMaximum = Number(payload.amount);
+      maskLiveBalances();
+      setGuarantee("idle", "Ready to verify", "No merchant guarantee is claimed before a fresh on-chain read");
+      applyMerchantSettlementUi();
+      await refreshLiveState();
+      return;
+    }
+
+    liveRole = "payer";
+    els.liveKicker.textContent = pendingRequest ? "Payer · incoming merchant request" : "Live Testnet · wallet connected";
     els.payerAddress.textContent = shortAddress(walletAddress);
     els.merchantAddress.textContent = shortAddress(walletAddress);
     liveSession = loadLiveSession(walletAddress);
@@ -764,8 +957,14 @@ async function connectWallet() {
       els.walletButton.textContent = "Create LATCH + deposit 50 XLM";
       els.walletButton.classList.add("is-ready");
       els.liveTitle.textContent = `Connected · ${shortAddress(walletAddress)}`;
-      els.liveCopy.textContent = "Next: deploy your smart account and deposit 50 Testnet XLM.";
+      els.liveCopy.textContent = "Create a merchant request below, or deploy a payer account and deposit 50 Testnet XLM.";
       render("funded");
+      maskLiveBalances();
+      setGuarantee("idle", "No payer account loaded", "No live balance claim is shown before a LATCH account is deployed or restored");
+      setConsole({
+        title: "Wallet connected",
+        copy: "Use this address as the merchant, or create a funded LATCH account to act as payer.",
+      });
       els.holdButton.disabled = true;
     }
   } finally {
@@ -788,6 +987,8 @@ async function createLiveAccount() {
   if (!walletAddress) return connectWallet();
   setBusy(true, "Deploying your LATCH account");
   try {
+    liveRole = "payer";
+    els.liveKicker.textContent = "Live Testnet · payer account";
     await ensureFunded();
     const deployTx = await LatchClient.deploy(
       {
@@ -828,18 +1029,22 @@ async function createLiveAccount() {
   }
 }
 
-async function createLiveHold(request?: HoldRequestPayload) {
+async function createLiveHold(request?: HoldRequestPayload, requestId?: string) {
   if (!liveClient || !liveSession) throw new Error("Create a live LATCH account first");
-  setBusy(true, "Signing a 30 XLM hold");
+  setBusy(true, `Signing a ${request?.amount ?? "30"} XLM hold`);
   try {
+    liveHoldMaximum = Number(request?.amount ?? "30");
     const latest = await rpcServer.getLatestLedger();
-    const reference = request
-      ? new Uint8Array(await crypto.subtle.digest("SHA-256", Buffer.from(request.reference, "utf8")))
+    const expiresAt = latest.sequence + (request?.expiresInLedgers ?? 5_000);
+    const reference = request && requestId
+      ? Buffer.from(requestId, "hex")
+      : request
+        ? new Uint8Array(await crypto.subtle.digest("SHA-256", Buffer.from(request.reference, "utf8")))
       : crypto.getRandomValues(new Uint8Array(32));
     const holdTx = await liveClient.create_hold({
       merchant: request?.merchant ?? walletAddress,
       maximum: request ? amountToUnits(request.amount) : 30n * SCALE,
-      expires_at: latest.sequence + (request?.expiresInLedgers ?? 5_000),
+      expires_at: expiresAt,
       reference: Buffer.from(reference),
     });
     const holdId = unwrapResult<bigint>(holdTx.result);
@@ -849,10 +1054,15 @@ async function createLiveHold(request?: HoldRequestPayload) {
     liveSession.phase = "heldPrimary";
     liveSession.lastHash = txHash(held);
     saveLiveSession();
-    els.liveTitle.textContent = "30 XLM guaranteed on-chain";
+    els.liveTitle.textContent = `${money(liveHoldMaximum)} XLM reserved and backed on-chain`;
     els.liveCopy.textContent = `Hold #${liveSession.holdId} is active and merchant-verifiable.`;
     render("heldPrimary", liveSession.lastHash);
     await pollHoldGuarantee();
+    if (request && requestId) {
+      await showSettlementHandoff(request, liveSession.contractId, liveSession.holdId, expiresAt, requestId);
+      els.liveTitle.textContent = "Two-party hold active";
+      els.liveCopy.textContent = "Return the settlement link to the merchant for independent verification and settlement.";
+    }
   } finally {
     busy = false;
     restoreButtons();
@@ -870,14 +1080,13 @@ function clearPendingRequest() {
 
 async function approvePendingRequest() {
   if (!pendingRequest) throw new Error("Generate or scan a hold request first");
-  const { payload } = pendingRequest;
+  const { payload, authorizationId: requestId } = pendingRequest;
   if (mode === "live") {
     if (!liveClient || !walletAddress) throw new Error("Create the live LATCH account before authorizing");
-    if (payload.asset !== "XLM" || payload.merchant !== walletAddress || amountToUnits(payload.amount) !== 30n * SCALE) {
-      throw new Error("Stage-safe live mode accepts a 30 XLM request from the connected one-wallet merchant");
-    }
+    if (payload.asset !== "XLM") throw new Error("Live mode accepts Testnet XLM requests");
+    if (payload.merchant === walletAddress) throw new Error("Open this request with a separate payer wallet");
+    await createLiveHold(payload, requestId);
     clearPendingRequest();
-    await createLiveHold(payload);
     return;
   }
 
@@ -977,7 +1186,7 @@ async function makeSafePayment() {
     liveSession.lastHash = txHash(paid);
     saveLiveSession();
     els.liveTitle.textContent = "Safe payment confirmed";
-    els.liveCopy.textContent = "5 XLM moved while the full 30 XLM merchant guarantee remained active.";
+    els.liveCopy.textContent = `5 XLM moved while the full ${money(liveHoldMaximum)} XLM reservation remained backed.`;
     render("paid", liveSession.lastHash);
     await pollHoldGuarantee();
   } finally {
@@ -988,16 +1197,23 @@ async function makeSafePayment() {
 
 async function captureLiveHold() {
   if (!liveClient || !liveSession?.holdId) throw new Error("No active live hold exists");
-  setBusy(true, "Capturing 8 XLM");
+  if (liveRole === "merchant") await verifyMerchantHold();
+  const captureUnits = amountToUnits(els.captureAmountInput.value);
+  if (pendingSettlement && captureUnits > amountToUnits(pendingSettlement.payload.amount)) {
+    throw new Error("Capture cannot exceed the payer-authorized maximum");
+  }
+  lastCaptureAmount = units(captureUnits);
+  setBusy(true, `Capturing ${money(lastCaptureAmount)} XLM`);
   try {
-    const captureTx = await liveClient.capture({ id: BigInt(liveSession.holdId), amount: 8n * SCALE });
+    const captureTx = await liveClient.capture({ id: BigInt(liveSession.holdId), amount: captureUnits });
     unwrapResult(captureTx.result);
     const captured = assertSuccessful(await captureTx.signAndSend(), "Capture");
     liveSession.phase = "captured";
     liveSession.lastHash = txHash(captured);
     saveLiveSession();
     els.liveTitle.textContent = "Lifecycle complete on Testnet";
-    els.liveCopy.textContent = "8 XLM settled, 22 XLM released, and every state transition is public.";
+    const maximum = pendingSettlement ? Number(pendingSettlement.payload.amount) : 30;
+    els.liveCopy.textContent = `${money(lastCaptureAmount)} XLM settled, ${money(maximum - lastCaptureAmount)} XLM released, and the merchant signed independently.`;
     render("captured", liveSession.lastHash);
     await refreshLiveState();
   } finally {
@@ -1008,6 +1224,7 @@ async function captureLiveHold() {
 
 async function voidLiveHold() {
   if (!liveClient || !liveSession?.holdId) throw new Error("No active live hold exists");
+  if (liveRole === "merchant") await verifyMerchantHold();
   setBusy(true, "Releasing the live hold");
   try {
     const voidTx = await liveClient.void_({ id: BigInt(liveSession.holdId) });
@@ -1034,13 +1251,56 @@ async function refreshLiveState() {
   const available = units(unwrapResult<bigint>(availableTx.result));
   const reserved = units(unwrapResult<bigint>(reservedTx.result));
   const real = units(unwrapResult<bigint>(realTx.result));
-  const received = liveSession.phase === "captured" ? 8 : 0;
+  const received = liveSession.phase === "captured" ? lastCaptureAmount : 0;
   state = liveSession.phase;
   render(state, liveSession.lastHash);
   setBalances(real, reserved, received);
   els.available.textContent = money(available);
   updateLiveContract();
   await pollHoldGuarantee();
+}
+
+async function verifyMerchantHold() {
+  if (liveRole !== "merchant" || !pendingSettlement || !liveClient || !liveSession?.holdId) {
+    throw new Error("Open a settlement link and connect the bound merchant wallet first");
+  }
+  const { payload } = pendingSettlement;
+  const verificationTx = await liveClient.verify_hold({ id: BigInt(payload.holdId) });
+  const verification = unwrapResult<HoldVerification>(verificationTx.result);
+  const expectedReference = Buffer.from(payload.requestId, "hex");
+  const actualReference = Buffer.from(verification.reference);
+  const termsMatch =
+    verification.merchant === payload.merchant &&
+    verification.maximum === amountToUnits(payload.amount) &&
+    verification.expires_at === payload.expiresAt &&
+    actualReference.equals(expectedReference);
+
+  if (!termsMatch) {
+    merchantVerified = false;
+    applyMerchantSettlementUi();
+    throw new Error("On-chain hold terms do not match this settlement link");
+  }
+
+  merchantVerified = guaranteeState(verification.active, verification.guaranteed) === "guaranteed";
+  if (merchantVerified) {
+    setGuarantee("guaranteed", "Funds reserved", "Merchant, amount, reference, activity, and backing verified on-chain");
+    setConsole({
+      title: `Hold #${payload.holdId} verified for ${payload.merchantName}`,
+      copy: `${money(Number(payload.amount))} XLM is active, correctly merchant-bound, and currently payer-side backed.`,
+    });
+    els.liveTitle.textContent = "Independent merchant verification passed";
+    els.liveCopy.textContent = "The connected merchant may now capture the final amount or release the reservation.";
+  } else {
+    setGuarantee(
+      "not-backed",
+      verification.active ? "Not backed" : "Hold inactive",
+      verification.active
+        ? "The terms match, but current token backing is insufficient"
+        : "The hold has expired or already reached a terminal state",
+    );
+  }
+  applyMerchantSettlementUi();
+  return verification;
 }
 
 async function pollHoldGuarantee() {
@@ -1050,6 +1310,17 @@ async function pollHoldGuarantee() {
     !liveSession?.holdId ||
     !["heldPrimary", "held", "blocked", "paid"].includes(liveSession.phase)
   ) {
+    return;
+  }
+
+  if (liveRole === "merchant") {
+    try {
+      await verifyMerchantHold();
+    } catch {
+      merchantVerified = false;
+      applyMerchantSettlementUi();
+      setGuarantee("idle", "Verification delayed", "RPC read unavailable or hold terms did not match");
+    }
     return;
   }
 
@@ -1077,7 +1348,7 @@ async function pollHoldGuarantee() {
 function updateLiveContract() {
   if (!liveSession) return;
   currentContractAddress = liveSession.contractId;
-  els.contractLabel.textContent = "Your live LATCH contract";
+  els.contractLabel.textContent = liveRole === "merchant" ? "Payer's live LATCH contract" : "Your live LATCH contract";
   els.contractAddress.textContent = liveSession.contractId;
 }
 
@@ -1104,6 +1375,12 @@ function setMode(nextMode: DemoMode) {
       void refreshLiveState().catch(reportError);
     } else {
       render("funded");
+      maskLiveBalances();
+      setGuarantee("idle", "Connect wallet", "No live balance claim is shown before a LATCH account is deployed or restored");
+      setConsole({
+        title: "No live account loaded",
+        copy: "Connect Freighter on Testnet to create a merchant request or restore a payer account.",
+      });
       els.holdButton.disabled = true;
       els.txLink.hidden = true;
     }
@@ -1147,7 +1424,11 @@ els.replayMode.addEventListener("click", () => setMode("replay"));
 els.liveMode.addEventListener("click", () => setMode("live"));
 
 els.walletButton.addEventListener("click", () => {
-  const action = walletAddress && !liveClient ? createLiveAccount() : connectWallet();
+  const action = liveRole === "merchant" && pendingSettlement
+    ? connectWallet()
+    : walletAddress && !liveClient
+      ? createLiveAccount()
+      : connectWallet();
   action.catch(reportError);
 });
 
@@ -1155,11 +1436,27 @@ els.generateRequest.addEventListener("click", () => {
   void generateHoldRequest().catch(reportError);
 });
 
+els.copyRequestLink.addEventListener("click", () => {
+  if (!pendingRequest) return;
+  void copyText(pendingRequest.url, "Payer request link copied");
+});
+
+els.copySettlementLink.addEventListener("click", () => {
+  if (!pendingSettlement) return;
+  void copyText(pendingSettlement.url, "Merchant settlement link copied");
+});
+
 els.approveRequest.addEventListener("click", () => {
   void approvePendingRequest().catch(reportError);
 });
 
 els.declineRequest.addEventListener("click", declinePendingRequest);
+
+els.verifyButton.addEventListener("click", () => {
+  void runLiveAction("hold verification", async () => {
+    await verifyMerchantHold();
+  });
+});
 
 els.holdButton.addEventListener("click", () => {
   if (mode === "replay") render(state === "funded" ? "heldPrimary" : "held");
@@ -1174,7 +1471,7 @@ els.spendButton.addEventListener("click", () => {
 
 els.captureButton.addEventListener("click", () => {
   if (mode === "replay") render("captured");
-  else void runLiveAction("8 XLM capture", captureLiveHold);
+  else void runLiveAction(`${els.captureAmountInput.value} XLM capture`, captureLiveHold);
 });
 
 els.voidButton.addEventListener("click", () => {
@@ -1244,4 +1541,8 @@ window.setInterval(() => {
 
 configureProofEvidence();
 render("funded");
-void loadHoldRequestFromUrl().catch(reportError);
+void loadSettlementFromUrl()
+  .then((loaded) => {
+    if (!loaded) return loadHoldRequestFromUrl();
+  })
+  .catch(reportError);
