@@ -172,6 +172,10 @@ try {
   await click("#hero-promise-trigger");
   await wait(650);
   assert(
+    await evaluate(`getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'`),
+    "Hero tap hint did not stop after interaction",
+  );
+  assert(
     await evaluate(
       `document.querySelector('#hero-reserved-value').textContent==='150.00'&&document.querySelector('#hero-available-value').textContent==='350.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='true'&&document.querySelector('#hero-promise-card').classList.contains('is-latched')`,
     ),
@@ -184,6 +188,10 @@ try {
       `document.querySelector('#hero-reserved-value').textContent==='0.00'&&document.querySelector('#hero-available-value').textContent==='500.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='false'`,
     ),
     "Hero promise preview did not release funds",
+  );
+  assert(
+    await evaluate(`getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'`),
+    "Hero tap hint restarted after release",
   );
   assert(
     await evaluate(`!performance.getEntriesByType('resource').some(r => /protocol-.*\\.js/.test(r.name))`),

@@ -158,6 +158,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 	}
 
 	heroTrigger.addEventListener("click", () => {
+		heroTrigger.classList.add("has-interacted");
 		const rect = heroTrigger.getBoundingClientRect();
 		const reserved = $("#hero-reserved-value");
 		const available = $("#hero-available-value");
@@ -170,10 +171,10 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			: "INTERACTIVE PREVIEW";
 		$("#hero-promise-action-label").textContent = heroLatched
 			? "Release 150"
-			: "Reserve 150";
+			: "Try reserving 150";
 		$("#hero-preview-feedback").textContent = heroLatched
 			? "150 reserved. Nothing transferred."
-			: "See your balance change.";
+			: "Try it here. Tap again to release.";
 		animateNumber(reserved, heroLatched ? 0 : 150, heroLatched ? 150 : 0);
 		animateNumber(available, heroLatched ? 500 : 350, heroLatched ? 350 : 500);
 		reward(

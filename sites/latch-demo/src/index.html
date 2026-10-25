@@ -157,12 +157,20 @@
 									<span>Available <b><span id="hero-available-value">500.00</span></b></span>
 									<span>Reserved <b><span id="hero-reserved-value">0.00</span></b></span>
 								</footer>
+								<span class="receipt-action-wrap">
 								<button type="button" class="receipt-action" id="hero-promise-trigger"
 									aria-pressed="false" aria-describedby="hero-preview-hint">
-									<span class="reservation-switch-copy"><span id="hero-promise-action-label">Reserve 150</span><small>Toggle to try</small></span>
-									<span class="reservation-switch-track" aria-hidden="true"><span class="reservation-switch-thumb">✓</span></span>
+									<span class="receipt-action-icon" aria-hidden="true"></span>
+									<span id="hero-promise-action-label">Try reserving 150</span>
 								</button>
-								<p class="reservation-feedback" id="hero-preview-feedback" aria-live="polite">See your balance change.</p>
+								<span class="receipt-tap-hint" aria-hidden="true">
+									<span class="receipt-tap-ring"></span>
+									<svg viewBox="0 0 32 40" width="38" height="48" fill="none" focusable="false">
+										<path d="M8 22V6a3 3 0 0 1 6 0v10a3 3 0 0 1 6 0v2a3 3 0 0 1 6 0v2a2.5 2.5 0 0 1 5 0v7c0 5-3 9-5 11H13c-2-3-4-5-6-8l-5-7a3 3 0 0 1 4-4l2 3Z" fill="#f4edff" stroke="#513877" stroke-width="1.8" stroke-linejoin="round"/>
+									</svg>
+								</span>
+								</span>
+								<p class="reservation-feedback" id="hero-preview-feedback" aria-live="polite">Try it here. Tap again to release.</p>
 								<small class="receipt-disclosure" id="hero-preview-hint">Simulation · No wallet needed</small>
 							</div>
 							<div class="art-coordinate bottom">
