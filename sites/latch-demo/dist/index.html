@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="LATCH turns a Stellar smart-account balance into programmable, verifiable payment capacity."
+    />
+    <meta name="theme-color" content="#08110d" />
+    <title>LATCH — Funds that keep their promise</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="LATCH home">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M10 5h15a9 9 0 0 1 9 9v5h-5v-5a4 4 0 0 0-4-4H15v24h10a4 4 0 0 0 4-4v-5h5v5a9 9 0 0 1-9 9H10z" />
+          <path d="M21 19h17v6H21z" />
+        </svg>
+        <span>LATCH</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#demo">Demo</a>
+        <a href="#proof">Proof</a>
+        <a href="#protocol">Protocol</a>
+      </nav>
+      <a
+        class="network-pill"
+        href="https://stellar.expert/explorer/testnet/contract/CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <span class="pulse"></span>
+        Stellar Testnet
+      </a>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="eyebrow"><span>Genesis / HackMeridian</span><span>Lisbon 2026</span></div>
+        <h1 id="hero-title">Funds that keep<br /><em>their promise.</em></h1>
+        <div class="hero-footer">
+          <p>
+            Native authorization holds for Stellar smart accounts. Reserve payment
+            capacity, capture the final amount, and never surrender custody first.
+          </p>
+          <a class="hero-cta" href="#demo">
+            Replay the proof
+            <span aria-hidden="true">↘</span>
+          </a>
+        </div>
+        <div class="hero-rule" aria-hidden="true"><span></span></div>
+      </section>
+
+      <section class="demo-section" id="demo" aria-labelledby="demo-title">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">01 / Live product story</span>
+            <h2 id="demo-title">One balance. Two truths.</h2>
+          </div>
+          <p>Available to spend now. Reserved for promises already made.</p>
+        </div>
+
+        <div class="demo-shell">
+          <div class="demo-toolbar">
+            <div class="replay-label">
+              <span class="pulse"></span>
+              Verified Testnet replay
+            </div>
+            <div class="toolbar-actions">
+              <button class="text-button" type="button" id="reset-button">Reset</button>
+              <button class="run-button" type="button" id="run-button">
+                <span class="run-icon">▶</span>
+                Run 12-second demo
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-grid">
+            <article class="device payer-device" aria-label="Payer wallet">
+              <div class="device-topline">
+                <span>Payer</span>
+                <span class="address">GAQ6…SALV</span>
+              </div>
+              <div class="balance-block">
+                <span class="balance-label">LATCH balance</span>
+                <strong><span id="payer-balance">50.00</span><small>LUSD</small></strong>
+                <div class="capacity-bar" aria-label="Available and reserved capacity">
+                  <span id="available-bar"></span><i id="reserved-bar"></i>
+                </div>
+                <div class="balance-split">
+                  <div><span class="dot available-dot"></span>Available <b id="available-value">50.00</b></div>
+                  <div><span class="dot reserved-dot"></span>Reserved <b id="reserved-value">0.00</b></div>
+                </div>
+              </div>
+
+              <div class="promise-card" id="promise-card">
+                <div class="promise-head">
+                  <span>Active promise</span>
+                  <span class="status-tag" id="payer-status">None</span>
+                </div>
+                <div class="empty-promise" id="empty-promise">No funds are currently reserved.</div>
+                <div class="promise-details" id="promise-details" hidden>
+                  <div class="merchant-mark">M</div>
+                  <div><strong>Meridian Café</strong><span>Table tab · Ref 6A16…5607</span></div>
+                  <b>30.00</b>
+                </div>
+              </div>
+
+              <div class="policy-card">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5zm0 4a3 3 0 0 1 3 3v1h1v6H8v-6h1V9a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1v1h2V9a1 1 0 0 0-1-1" /></svg>
+                <div><strong>Policy enforced by your account</strong><span>Reserved capacity cannot be double-spent.</span></div>
+              </div>
+            </article>
+
+            <div class="flow-column" aria-label="Transaction sequence">
+              <div class="flow-line" aria-hidden="true"></div>
+              <div class="flow-step is-current" data-step="0"><span>00</span><div><b>Fund</b><small>50 LUSD deposited</small></div></div>
+              <div class="flow-step" data-step="1"><span>01</span><div><b>Hold</b><small>30 LUSD guaranteed</small></div></div>
+              <div class="flow-step" data-step="2"><span>02</span><div><b>Block</b><small>Overspend rejected</small></div></div>
+              <div class="flow-step" data-step="3"><span>03</span><div><b>Pay</b><small>5 LUSD stays available</small></div></div>
+              <div class="flow-step" data-step="4"><span>04</span><div><b>Capture</b><small>8 LUSD settled</small></div></div>
+            </div>
+
+            <article class="device merchant-device" aria-label="Merchant terminal">
+              <div class="device-topline">
+                <span>Merchant terminal</span>
+                <span class="address">GCXT…CDHF</span>
+              </div>
+              <div class="merchant-header">
+                <div class="merchant-logo">M</div>
+                <div><strong>Meridian Café</strong><span>Connected · Testnet</span></div>
+              </div>
+              <div class="request-card">
+                <span>Requested capacity</span>
+                <strong>30.00 <small>LUSD</small></strong>
+                <div class="request-meta"><span>Valid for 6h 56m</span><span>#0001</span></div>
+              </div>
+              <div class="guarantee" id="guarantee">
+                <div class="guarantee-icon">✓</div>
+                <div><span id="guarantee-label">Ready to request</span><strong id="guarantee-copy">Waiting for payer authorization</strong></div>
+              </div>
+              <div class="merchant-actions">
+                <button type="button" class="primary-action" id="hold-button">Request 30 LUSD hold</button>
+                <div class="split-actions">
+                  <button type="button" id="capture-button" disabled>Capture 8</button>
+                  <button type="button" id="void-button" disabled>Release</button>
+                </div>
+              </div>
+              <div class="merchant-total"><span>Received in this session</span><b><span id="merchant-received">0.00</span> LUSD</b></div>
+            </article>
+          </div>
+
+          <div class="demo-console">
+            <div class="console-status">
+              <span class="console-icon" id="console-icon">✓</span>
+              <div><b id="console-title">Account funded</b><span id="console-copy">50 LUSD is available. No promises are active.</span></div>
+            </div>
+            <button type="button" class="spend-test" id="spend-button" disabled>Try to spend 25 LUSD</button>
+            <a id="tx-link" href="https://stellar.expert/explorer/testnet/tx/8b1c3f1464633d060be25f5216d89fefdff572a764e7073093e881f849bc2c5e" target="_blank" rel="noreferrer">View transaction ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof-section" id="proof" aria-labelledby="proof-title">
+        <div class="section-heading proof-heading">
+          <div><span class="section-index">02 / Verifiable, not theatrical</span><h2 id="proof-title">The proof is public.</h2></div>
+          <p>Every successful transition below is anchored to the exact Testnet run shipped in the repository.</p>
+        </div>
+        <div class="proof-ledger">
+          <a href="https://stellar.expert/explorer/testnet/tx/8b1c3f1464633d060be25f5216d89fefdff572a764e7073093e881f849bc2c5e" target="_blank" rel="noreferrer"><span>Deposit</span><b>8b1c3f…2c5e</b><i>↗</i></a>
+          <a href="https://stellar.expert/explorer/testnet/tx/e32feceb96ea6d8d5122b51c141bd1e53f0b63e5ea3d34188850195b2b6ecfb9" target="_blank" rel="noreferrer"><span>Create hold</span><b>e32fec…cfb9</b><i>↗</i></a>
+          <a href="https://stellar.expert/explorer/testnet/tx/ed7a2eab8d49b96aaa5f3af7861d753e47382f8d6ff9cb0f0b6da4281859da6e" target="_blank" rel="noreferrer"><span>Direct pay</span><b>ed7a2e…da6e</b><i>↗</i></a>
+          <a href="https://stellar.expert/explorer/testnet/tx/cee7f80908dd667ccb61353cae29af4c5d40f8436ea07415555e8da3addde9f4" target="_blank" rel="noreferrer"><span>Capture</span><b>cee7f8…e9f4</b><i>↗</i></a>
+        </div>
+        <div class="contract-row">
+          <div><span>Deployed contract</span><code>CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS</code></div>
+          <button type="button" id="copy-contract" aria-label="Copy contract address">Copy</button>
+        </div>
+      </section>
+
+      <section class="protocol-section" id="protocol" aria-labelledby="protocol-title">
+        <span class="section-index">03 / Why LATCH</span>
+        <h2 id="protocol-title">A primitive,<br />not another wallet.</h2>
+        <div class="principles">
+          <article><span>01</span><h3>Account-native</h3><p>The policy lives inside the smart account. Funds never move into a merchant escrow before settlement.</p></article>
+          <article><span>02</span><h3>Capacity-aware</h3><p>Every payment sees the same available-versus-reserved truth, closing the double-spend gap by construction.</p></article>
+          <article><span>03</span><h3>Merchant-verifiable</h3><p>A merchant can verify guaranteed capacity on-chain, then capture less than the maximum and release the rest.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="brand footer-brand" href="#top"><span>LATCH</span></a>
+      <p>Built for HackMeridian Genesis · Lisbon</p>
+      <p>Soroban SDK 27 · Stellar Testnet</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
