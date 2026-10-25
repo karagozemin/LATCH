@@ -1,0 +1,21 @@
+{
+  "name": "latch",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:client": "npm run build --workspace latch-client",
+    "testnet:bootstrap": "node scripts/testnet/bootstrap.mjs"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "17.2.1"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

@@ -39,7 +39,7 @@ The spike projects use `soroban-sdk 27.0.6` and exercise behavior against
 The production suite currently has 14 focused tests covering lifecycle,
 authorization policy, merchant binding, expiry, reservation bounds, external
 clawback/backing loss, sync, and bounded state retention. The optimized WASM is
-23,746 bytes (31,995 bytes before optimization).
+14,622 bytes (17,225 bytes before Stellar CLI optimization).
 
 ## Build the contract
 
@@ -47,3 +47,19 @@ clawback/backing loss, sync, and bounded state retention. The optimized WASM is
 cargo test --workspace --all-features
 cargo build --package latch-contract --target wasm32v1-none --release
 ```
+
+## Prove the lifecycle on Testnet
+
+Requires Node.js 22.12+, npm, Rust, and Stellar CLI 27. The script creates five
+isolated local `latch-*` identities, funds them on Testnet, deploys a fresh
+LATCH contract, and executes deposit → hold → owner-signed pay → capture.
+Secrets remain in the local Stellar CLI config and are never written to this
+repository.
+
+```sh
+npm install
+npm run testnet:bootstrap
+```
+
+The public contract IDs, final balances, and Stellar Expert transaction links
+are written to `deployments/testnet.json`.

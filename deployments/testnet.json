@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-10-19T17:29:45.587Z",
+  "network": "testnet",
+  "networkPassphrase": "Test SDF Network ; September 2015",
+  "rpcUrl": "https://soroban-rpc.testnet.stellar.gateway.fm",
+  "horizonUrl": "https://horizon-testnet.stellar.org",
+  "asset": {
+    "code": "LUSD",
+    "issuer": "GBXZVQD5ZJYOIO6PKLCQVGQJOS4QM4LZ4TTRW2BNXCLWIUZNH3FS3BIB",
+    "tokenContractId": "CBJCAPZTEORM3HU3RU53GQAMM5X5KOQI7KAW3N4525J4642443ARHTU5",
+    "explorer": "https://stellar.expert/explorer/testnet/contract/CBJCAPZTEORM3HU3RU53GQAMM5X5KOQI7KAW3N4525J4642443ARHTU5"
+  },
+  "latch": {
+    "contractId": "CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS",
+    "ownerPublicKey": "GDFTXQPMZ57FIAR5XBM2XGTKMGF33WGB7MPZNR54KFXD47DJJJQLZUAV",
+    "explorer": "https://stellar.expert/explorer/testnet/contract/CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS"
+  },
+  "actors": {
+    "deployer": "GAGF2Y5GDDDSSXOAQDR5UHXVN3BZIP52FCLKEHCPO5O3TF2MAMF6YPMZ",
+    "payer": "GAQ6RGCI6TRKMPDFTBIDJ756CJ7Y6RRQHR43C5QPH7TZDK6WVMIDSALV",
+    "merchant": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF"
+  },
+  "proof": {
+    "holdId": "1",
+    "referenceHex": "6a16694464312a770973e30330947f1df0d8a34c990371af6321cca636ce5607",
+    "verification": {
+      "active": false,
+      "expiresAt": 5286476,
+      "guaranteed": false,
+      "maximum": "300000000",
+      "merchant": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
+      "referenceHex": "6a16694464312a770973e30330947f1df0d8a34c990371af6321cca636ce5607"
+    },
+    "balances": {
+      "available": "370000000",
+      "mirror": "370000000",
+      "real": "370000000",
+      "reserved": "0"
+    },
+    "transactionHashes": {
+      "issuance": "811da5bdea1777226b0605a09bab703f919dde0b38d562914a456c7a49c356a6",
+      "deposit": "8b1c3f1464633d060be25f5216d89fefdff572a764e7073093e881f849bc2c5e",
+      "createHold": "e32feceb96ea6d8d5122b51c141bd1e53f0b63e5ea3d34188850195b2b6ecfb9",
+      "pay": "ed7a2eab8d49b96aaa5f3af7861d753e47382f8d6ff9cb0f0b6da4281859da6e",
+      "capture": "cee7f80908dd667ccb61353cae29af4c5d40f8436ea07415555e8da3addde9f4"
+    },
+    "explorerTransactions": {
+      "issuance": "https://stellar.expert/explorer/testnet/tx/811da5bdea1777226b0605a09bab703f919dde0b38d562914a456c7a49c356a6",
+      "deposit": "https://stellar.expert/explorer/testnet/tx/8b1c3f1464633d060be25f5216d89fefdff572a764e7073093e881f849bc2c5e",
+      "createHold": "https://stellar.expert/explorer/testnet/tx/e32feceb96ea6d8d5122b51c141bd1e53f0b63e5ea3d34188850195b2b6ecfb9",
+      "pay": "https://stellar.expert/explorer/testnet/tx/ed7a2eab8d49b96aaa5f3af7861d753e47382f8d6ff9cb0f0b6da4281859da6e",
+      "capture": "https://stellar.expert/explorer/testnet/tx/cee7f80908dd667ccb61353cae29af4c5d40f8436ea07415555e8da3addde9f4"
+    }
+  }
+}

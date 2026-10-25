@@ -19,7 +19,7 @@ when its exit test passes.
 - [x] Defend reservations against stale mirror state and external SAC clawback
   by checking `min(mirror balance, real balance)` in execution.
 - [x] Pass lifecycle, invariant, authorization-context, and attack tests.
-- [x] Build an optimized WASM artifact (23,746 bytes; 31,995 bytes before
+- [x] Build an optimized WASM artifact (14,622 bytes; 17,225 bytes before
   `stellar contract optimize`).
 
 **Exit test:** a merchant can reserve, partially capture, and void funds while
@@ -27,10 +27,10 @@ every overspend and unauthorized transition is rejected.
 
 ## M2 — Testnet proof
 
-- [ ] Add deterministic deploy/config scripts for the test asset and LATCH.
-- [ ] Run simulate → sign → submit transactions against Stellar Testnet.
-- [ ] Record contract IDs and explorer links in a generated deployment file.
-- [ ] Prove a full lifecycle from clean identities without mocked auth.
+- [x] Add deterministic deploy/config scripts for the test asset and LATCH.
+- [x] Run simulate → sign → submit transactions against Stellar Testnet.
+- [x] Record contract IDs and explorer links in a generated deployment file.
+- [x] Prove a full lifecycle from clean identities without mocked auth.
 
 **Exit test:** the exact demo lifecycle completes on Testnet from a fresh clone.
 
