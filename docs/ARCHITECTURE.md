@@ -248,7 +248,7 @@ sequenceDiagram
     M->>L: capture(id, final amount)
     L->>L: Authenticate bound merchant
     L->>T: Check real backing and transfer final amount
-    L->>L: Mark captured; release unused capacity
+    L->>L: Mark captured and release unused capacity
 ```
 
 ### Direct owner payment
