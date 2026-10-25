@@ -8,7 +8,7 @@
 **Tagline:** Funds that keep their promise.  
 **Repository:** https://github.com/karagozemin/Latch  
 **Demo:** public Vercel URL to add after the release freeze
-**Testnet contract:** https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC
+**Testnet contract:** https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU
 
 Team names, contact details, and the final video URL must be added by the team
 before submission.

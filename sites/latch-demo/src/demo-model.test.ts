@@ -89,7 +89,7 @@ describe("merchant hold requests", () => {
     version: 1,
     network: "testnet",
     asset: "LUSD",
-    merchant: "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
+    merchant: "GC4FCQ5VYSJL2DMPXAQ6NT6AGSTNPRFEKJOXEJ7UR5F25YCAQ3MFVDT2",
     merchantName: "Meridian Hotel",
     amount: "30.00",
     expiresInLedgers: 5_000,

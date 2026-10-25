@@ -23,13 +23,18 @@ const HORIZON_URL = TESTNET_NETWORK.horizonUrl;
 const WASM_PATH = "artifacts/latch_contract.wasm";
 const DEPLOYMENT_PATH = "deployments/testnet.json";
 const ASSET_CODE = "LUSD";
+const DEPLOYMENT_TAG = (process.env.LATCH_DEPLOYMENT_TAG ?? "stable")
+  .toLowerCase()
+  .replace(/[^a-z0-9-]/g, "-")
+  .replace(/^-+|-+$/g, "");
+if (!DEPLOYMENT_TAG) throw new Error("LATCH_DEPLOYMENT_TAG must contain a letter or number");
 const IDENTITIES = {
-  deployer: "latch-deployer",
-  owner: "latch-owner",
-  issuer: "latch-issuer",
-  payer: "latch-payer",
-  merchant: "latch-merchant",
-  merchantSecondary: "latch-merchant-secondary",
+  deployer: `latch-${DEPLOYMENT_TAG}-deployer`,
+  owner: `latch-${DEPLOYMENT_TAG}-owner`,
+  issuer: `latch-${DEPLOYMENT_TAG}-issuer`,
+  payer: `latch-${DEPLOYMENT_TAG}-payer`,
+  merchant: `latch-${DEPLOYMENT_TAG}-merchant`,
+  merchantSecondary: `latch-${DEPLOYMENT_TAG}-merchant-secondary`,
 };
 
 class LeewayRpcServer extends rpc.Server {
@@ -169,7 +174,7 @@ function deployAsset(asset, sourceIdentity) {
       sourceIdentity,
       ...rpcCliArgs,
       "--alias",
-      "latch-token-testnet",
+      `latch-token-testnet-${DEPLOYMENT_TAG}`,
     ]);
   }
   return contractId;
@@ -186,7 +191,7 @@ function deployLatch(owner, tokenId) {
     IDENTITIES.deployer,
     ...rpcCliArgs,
     "--alias",
-    "latch-testnet",
+    `latch-testnet-${DEPLOYMENT_TAG}`,
     "--",
     "--owner",
     ownerBytes,
@@ -464,6 +469,7 @@ async function main() {
   const wasm = readFileSync(WASM_PATH);
   const deployment = {
     generatedAt: new Date().toISOString(),
+    deploymentTag: DEPLOYMENT_TAG,
     network: NETWORK,
     networkPassphrase: NETWORK_PASSPHRASE,
     rpcUrl: RPC_URL,

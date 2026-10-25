@@ -325,7 +325,7 @@ The current public proof is pinned in
 | Artifact | Value |
 |---|---|
 | Network | Stellar Testnet |
-| LATCH contract | [`CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC`](https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC) |
+| LATCH contract | [`CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU`](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU) |
 | Asset | LUSD test asset |
 | Optimized WASM | 15,156 bytes |
 | WASM SHA-256 | `d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d` |

@@ -42,7 +42,7 @@ const WASM_HASH = TESTNET.wasmHash;
 const RPC_URL = TESTNET.rpcUrl;
 const FRIENDBOT_URL = TESTNET.friendbotUrl;
 const NETWORK_PASSPHRASE = TESTNET.passphrase;
-const STORAGE_PREFIX = "latch-live-v2:";
+const STORAGE_PREFIX = "latch-live-v3:";
 const rpcServer = new rpc.Server(RPC_URL);
 
 type DemoMode = "replay" | "live";

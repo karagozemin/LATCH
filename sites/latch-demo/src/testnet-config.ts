@@ -6,24 +6,24 @@ export const TESTNET = {
   "horizonUrl": "https://horizon-testnet.stellar.org",
   "friendbotUrl": "https://friendbot.stellar.org/",
   "explorerBaseUrl": "https://stellar.expert/explorer/testnet",
-  "proofContract": "CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC",
+  "proofContract": "CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU",
   "wasmHash": "d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d",
   "actors": {
-    "payer": "GAQ6RGCI6TRKMPDFTBIDJ756CJ7Y6RRQHR43C5QPH7TZDK6WVMIDSALV",
-    "merchantPrimary": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
-    "merchantSecondary": "GAQJZ3J6DRHX7GCG2ENX7GCFH5UBKZWNHALVE7TGW4XPSTDW7RBLPI4A"
+    "payer": "GBUK63E4OP5QQARICDBYM374FACMZBZPQPMAD7YQRYJO4W7JDHMMLISN",
+    "merchantPrimary": "GC4FCQ5VYSJL2DMPXAQ6NT6AGSTNPRFEKJOXEJ7UR5F25YCAQ3MFVDT2",
+    "merchantSecondary": "GALVERHC6WKDTR26C2NITTFFVFFBTGABAA4OUHJRKR7JWPCVA3VJYREW"
   },
   "references": {
-    "primary": "6f972d0a53963c5730aa6234e0f250d036fb550550d10e9d5fd3a21308658b9e",
-    "secondary": "35aa2c647e355f8f7f65a3fbe5c69585101c3a6eaf00427f38e24c7411e2155c"
+    "primary": "f55971aa2000aef2a556e2546ff595abb1bc4e6ab3ffbc5e1f9c822f2afdf8cf",
+    "secondary": "3849cc08d9be575e7818f8abfb5f73578ac126149c0250e3636ca52e941c598e"
   },
   "proof": {
-    "deposit": "d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25",
-    "hold": "f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074",
-    "holdSecondary": "b0be04a6a50b9bbc2ddea45186baaee3ba6f13a2950a433d8400f3c2fe7463e7",
-    "pay": "087615b0058ac28bb7dcd4e1436e2736bd677347e1c3c3d1d1d2c7b1f3165b7b",
-    "capture": "4e90adf522314bf98499ffd2563a730d80d9edb74739aa932168bb63f344b3aa",
-    "release": "39c466d6a8603fa30541fda8eb82cf88cfb552524469c32c7cee79cbe7638674"
+    "deposit": "b4313250ad58eac044885eae512df64db91fb837d36965528f9088c5e25b83c0",
+    "hold": "4d3f69ced6e15393278999d16c6d5c7aa8dfb925c1f971d39c16a74ba4e1d5dd",
+    "holdSecondary": "a855db9c95f8c95d3aff70304cd59b688b2fa86c3bbf173d53bc4dfa3c0fe9c2",
+    "pay": "0bc163a75ea166474f194c37cb0c30d33510ca72d69cf62b38d2dc126ef77367",
+    "capture": "1e2ea4365c02534f53a0c1a16b7aafeb463184f88937bc3cc0df0f574d0d69bf",
+    "release": "6f30c65ffbe7ac6ddea014a9ebf29520cfe510bdd431ddc44f00e7b568062fdf"
   },
   "decline": {
     "before": {

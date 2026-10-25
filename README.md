@@ -22,7 +22,7 @@ LATCH is not escrow: no third party receives the reservation. Its guarantee is
 deliberately payer-side—issuer freeze/clawback remains external, and fresh
 verification or settlement requires network access.
 
-[Testnet contract](https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC)
+[Testnet contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
 · [proof manifest](./deployments/testnet.json)
 · [architecture](./docs/ARCHITECTURE.md)
 · [security evidence](./docs/SECURITY-EVIDENCE.md)
@@ -120,7 +120,7 @@ owner, payer, and merchant identities. It is not a UI-only simulation.
 
 | Proof | Verifiable result |
 |---|---|
-| Contract | [`CCWSZPG5…NP7LC`](https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC) |
+| Contract | [`CCPQ2PBP…GJ4JPWU`](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU) |
 | Lifecycle | Deposit → two holds → rejected overspend → safe pay → capture → release |
 | On-chain actors | Distinct owner, payer, primary merchant, and secondary merchant addresses |
 | Contract suite | 15 lifecycle, authorization, event, attack, and invariant tests |
@@ -135,13 +135,13 @@ One 50 LUSD balance carries two independent merchant reservations:
 
 | Step | Balance | Reserved | Available | Evidence |
 |---|---:|---:|---:|---|
-| Deposit | 50.00 | 0.00 | 50.00 | [transaction](https://stellar.expert/explorer/testnet/tx/d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25) |
-| Hold 30 | 50.00 | 30.00 | 20.00 | [transaction](https://stellar.expert/explorer/testnet/tx/f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074) |
-| Hold 15 | 50.00 | 45.00 | 5.00 | [transaction](https://stellar.expert/explorer/testnet/tx/b0be04a6a50b9bbc2ddea45186baaee3ba6f13a2950a433d8400f3c2fe7463e7) |
+| Deposit | 50.00 | 0.00 | 50.00 | [transaction](https://stellar.expert/explorer/testnet/tx/b4313250ad58eac044885eae512df64db91fb837d36965528f9088c5e25b83c0) |
+| Hold 30 | 50.00 | 30.00 | 20.00 | [transaction](https://stellar.expert/explorer/testnet/tx/4d3f69ced6e15393278999d16c6d5c7aa8dfb925c1f971d39c16a74ba4e1d5dd) |
+| Hold 15 | 50.00 | 45.00 | 5.00 | [transaction](https://stellar.expert/explorer/testnet/tx/a855db9c95f8c95d3aff70304cd59b688b2fa86c3bbf173d53bc4dfa3c0fe9c2) |
 | Attempt pay 10 | 50.00 | 45.00 | 5.00 | Rejected during typed simulation; state unchanged |
-| Pay 4 | 46.00 | 45.00 | 1.00 | [transaction](https://stellar.expert/explorer/testnet/tx/087615b0058ac28bb7dcd4e1436e2736bd677347e1c3c3d1d1d2c7b1f3165b7b) |
-| Capture 8.40 | 37.60 | 15.00 | 22.60 | [transaction](https://stellar.expert/explorer/testnet/tx/4e90adf522314bf98499ffd2563a730d80d9edb74739aa932168bb63f344b3aa) |
-| Release 15 | 37.60 | 0.00 | 37.60 | [transaction](https://stellar.expert/explorer/testnet/tx/39c466d6a8603fa30541fda8eb82cf88cfb552524469c32c7cee79cbe7638674) |
+| Pay 4 | 46.00 | 45.00 | 1.00 | [transaction](https://stellar.expert/explorer/testnet/tx/0bc163a75ea166474f194c37cb0c30d33510ca72d69cf62b38d2dc126ef77367) |
+| Capture 8.40 | 37.60 | 15.00 | 22.60 | [transaction](https://stellar.expert/explorer/testnet/tx/1e2ea4365c02534f53a0c1a16b7aafeb463184f88937bc3cc0df0f574d0d69bf) |
+| Release 15 | 37.60 | 0.00 | 37.60 | [transaction](https://stellar.expert/explorer/testnet/tx/6f30c65ffbe7ac6ddea014a9ebf29520cfe510bdd431ddc44f00e7b568062fdf) |
 
 The rejected payment has no transaction hash because it is rejected before
 signing or submission. The [proof manifest](./deployments/testnet.json) records
@@ -239,6 +239,13 @@ executes the complete lifecycle, verifies final state, and rewrites
 `deployments/testnet.json`. Secret keys remain in local Stellar CLI
 configuration and are never committed or written to the manifest.
 
+Set a unique deployment tag to create a fully isolated issuer, asset contract,
+owner, payer, and merchant set instead of reusing local bootstrap identities:
+
+```sh
+LATCH_DEPLOYMENT_TAG=meridian-live npm run testnet:bootstrap
+```
+
 ## Contract API
 
 | Method | Authority | Result |
@@ -295,7 +302,7 @@ See [Product decisions](./docs/PRODUCT-DECISIONS.md).
 
 ## Three-minute judge path
 
-1. Inspect the [public contract](https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC)
+1. Inspect the [public contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
    and [proof manifest](./deployments/testnet.json).
 2. Read the [architecture](./docs/ARCHITECTURE.md) and
    [security evidence](./docs/SECURITY-EVIDENCE.md).

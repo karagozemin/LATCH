@@ -1,27 +1,28 @@
 {
-  "generatedAt": "2026-10-20T14:42:59.679Z",
+  "generatedAt": "2026-10-25T11:39:51.048Z",
+  "deploymentTag": "meridian-live-20261025",
   "network": "testnet",
   "networkPassphrase": "Test SDF Network ; September 2015",
   "rpcUrl": "https://soroban-rpc.testnet.stellar.gateway.fm",
   "horizonUrl": "https://horizon-testnet.stellar.org",
   "asset": {
     "code": "LUSD",
-    "issuer": "GBXZVQD5ZJYOIO6PKLCQVGQJOS4QM4LZ4TTRW2BNXCLWIUZNH3FS3BIB",
-    "tokenContractId": "CBJCAPZTEORM3HU3RU53GQAMM5X5KOQI7KAW3N4525J4642443ARHTU5",
-    "explorer": "https://stellar.expert/explorer/testnet/contract/CBJCAPZTEORM3HU3RU53GQAMM5X5KOQI7KAW3N4525J4642443ARHTU5"
+    "issuer": "GB3BWHP3JCEQOFJCWFMI3RJFM3SVS5VHXAAKQ4FFHKAGS6BOHFW7OAVM",
+    "tokenContractId": "CCCVYMNTR7O4XYGZPGIWKELMAIM36IFQ3SUAYANGWRLFYLN26YYE6UJ5",
+    "explorer": "https://stellar.expert/explorer/testnet/contract/CCCVYMNTR7O4XYGZPGIWKELMAIM36IFQ3SUAYANGWRLFYLN26YYE6UJ5"
   },
   "latch": {
-    "contractId": "CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC",
-    "ownerPublicKey": "GDFTXQPMZ57FIAR5XBM2XGTKMGF33WGB7MPZNR54KFXD47DJJJQLZUAV",
+    "contractId": "CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU",
+    "ownerPublicKey": "GCGAFHDDCZR4VCRMSKSRI6INDT7IFUFPCQZX4ECJ3NNFBV322ETSKJA7",
     "wasmSha256": "d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d",
     "wasmBytes": 15156,
-    "explorer": "https://stellar.expert/explorer/testnet/contract/CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC"
+    "explorer": "https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU"
   },
   "actors": {
-    "deployer": "GAGF2Y5GDDDSSXOAQDR5UHXVN3BZIP52FCLKEHCPO5O3TF2MAMF6YPMZ",
-    "payer": "GAQ6RGCI6TRKMPDFTBIDJ756CJ7Y6RRQHR43C5QPH7TZDK6WVMIDSALV",
-    "merchant": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
-    "merchantSecondary": "GAQJZ3J6DRHX7GCG2ENX7GCFH5UBKZWNHALVE7TGW4XPSTDW7RBLPI4A"
+    "deployer": "GCAWWLTGRMKK4URCQ6L27JZUE5LAGOACNVK7F7B6J3CF4J2DV64G5I6I",
+    "payer": "GBUK63E4OP5QQARICDBYM374FACMZBZPQPMAD7YQRYJO4W7JDHMMLISN",
+    "merchant": "GC4FCQ5VYSJL2DMPXAQ6NT6AGSTNPRFEKJOXEJ7UR5F25YCAQ3MFVDT2",
+    "merchantSecondary": "GALVERHC6WKDTR26C2NITTFFVFFBTGABAA4OUHJRKR7JWPCVA3VJYREW"
   },
   "proof": {
     "holdIds": {
@@ -29,25 +30,25 @@
       "secondary": "2"
     },
     "references": {
-      "primary": "6f972d0a53963c5730aa6234e0f250d036fb550550d10e9d5fd3a21308658b9e",
-      "secondary": "35aa2c647e355f8f7f65a3fbe5c69585101c3a6eaf00427f38e24c7411e2155c"
+      "primary": "f55971aa2000aef2a556e2546ff595abb1bc4e6ab3ffbc5e1f9c822f2afdf8cf",
+      "secondary": "3849cc08d9be575e7818f8abfb5f73578ac126149c0250e3636ca52e941c598e"
     },
     "verification": {
       "primary": {
         "active": false,
-        "expiresAt": 5301753,
+        "expiresAt": 5385955,
         "guaranteed": false,
         "maximum": "300000000",
-        "merchant": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
-        "referenceHex": "6f972d0a53963c5730aa6234e0f250d036fb550550d10e9d5fd3a21308658b9e"
+        "merchant": "GC4FCQ5VYSJL2DMPXAQ6NT6AGSTNPRFEKJOXEJ7UR5F25YCAQ3MFVDT2",
+        "referenceHex": "f55971aa2000aef2a556e2546ff595abb1bc4e6ab3ffbc5e1f9c822f2afdf8cf"
       },
       "secondary": {
         "active": false,
-        "expiresAt": 5301753,
+        "expiresAt": 5385955,
         "guaranteed": false,
         "maximum": "150000000",
-        "merchant": "GAQJZ3J6DRHX7GCG2ENX7GCFH5UBKZWNHALVE7TGW4XPSTDW7RBLPI4A",
-        "referenceHex": "35aa2c647e355f8f7f65a3fbe5c69585101c3a6eaf00427f38e24c7411e2155c"
+        "merchant": "GALVERHC6WKDTR26C2NITTFFVFFBTGABAA4OUHJRKR7JWPCVA3VJYREW",
+        "referenceHex": "3849cc08d9be575e7818f8abfb5f73578ac126149c0250e3636ca52e941c598e"
       }
     },
     "decline": {
@@ -70,22 +71,22 @@
       "reserved": "0"
     },
     "transactionHashes": {
-      "issuance": "97f76a232d6f5f94ef9173dc4079db497a1bd664fa97793de43793a4f92ff5ac",
-      "deposit": "d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25",
-      "createHoldPrimary": "f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074",
-      "createHoldSecondary": "b0be04a6a50b9bbc2ddea45186baaee3ba6f13a2950a433d8400f3c2fe7463e7",
-      "pay": "087615b0058ac28bb7dcd4e1436e2736bd677347e1c3c3d1d1d2c7b1f3165b7b",
-      "capture": "4e90adf522314bf98499ffd2563a730d80d9edb74739aa932168bb63f344b3aa",
-      "release": "39c466d6a8603fa30541fda8eb82cf88cfb552524469c32c7cee79cbe7638674"
+      "issuance": "fc04330c8db7a62b2a3b1a943da4a3558c073b3370b7a45597c4a90d6aa00a47",
+      "deposit": "b4313250ad58eac044885eae512df64db91fb837d36965528f9088c5e25b83c0",
+      "createHoldPrimary": "4d3f69ced6e15393278999d16c6d5c7aa8dfb925c1f971d39c16a74ba4e1d5dd",
+      "createHoldSecondary": "a855db9c95f8c95d3aff70304cd59b688b2fa86c3bbf173d53bc4dfa3c0fe9c2",
+      "pay": "0bc163a75ea166474f194c37cb0c30d33510ca72d69cf62b38d2dc126ef77367",
+      "capture": "1e2ea4365c02534f53a0c1a16b7aafeb463184f88937bc3cc0df0f574d0d69bf",
+      "release": "6f30c65ffbe7ac6ddea014a9ebf29520cfe510bdd431ddc44f00e7b568062fdf"
     },
     "explorerTransactions": {
-      "issuance": "https://stellar.expert/explorer/testnet/tx/97f76a232d6f5f94ef9173dc4079db497a1bd664fa97793de43793a4f92ff5ac",
-      "deposit": "https://stellar.expert/explorer/testnet/tx/d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25",
-      "createHoldPrimary": "https://stellar.expert/explorer/testnet/tx/f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074",
-      "createHoldSecondary": "https://stellar.expert/explorer/testnet/tx/b0be04a6a50b9bbc2ddea45186baaee3ba6f13a2950a433d8400f3c2fe7463e7",
-      "pay": "https://stellar.expert/explorer/testnet/tx/087615b0058ac28bb7dcd4e1436e2736bd677347e1c3c3d1d1d2c7b1f3165b7b",
-      "capture": "https://stellar.expert/explorer/testnet/tx/4e90adf522314bf98499ffd2563a730d80d9edb74739aa932168bb63f344b3aa",
-      "release": "https://stellar.expert/explorer/testnet/tx/39c466d6a8603fa30541fda8eb82cf88cfb552524469c32c7cee79cbe7638674"
+      "issuance": "https://stellar.expert/explorer/testnet/tx/fc04330c8db7a62b2a3b1a943da4a3558c073b3370b7a45597c4a90d6aa00a47",
+      "deposit": "https://stellar.expert/explorer/testnet/tx/b4313250ad58eac044885eae512df64db91fb837d36965528f9088c5e25b83c0",
+      "createHoldPrimary": "https://stellar.expert/explorer/testnet/tx/4d3f69ced6e15393278999d16c6d5c7aa8dfb925c1f971d39c16a74ba4e1d5dd",
+      "createHoldSecondary": "https://stellar.expert/explorer/testnet/tx/a855db9c95f8c95d3aff70304cd59b688b2fa86c3bbf173d53bc4dfa3c0fe9c2",
+      "pay": "https://stellar.expert/explorer/testnet/tx/0bc163a75ea166474f194c37cb0c30d33510ca72d69cf62b38d2dc126ef77367",
+      "capture": "https://stellar.expert/explorer/testnet/tx/1e2ea4365c02534f53a0c1a16b7aafeb463184f88937bc3cc0df0f574d0d69bf",
+      "release": "https://stellar.expert/explorer/testnet/tx/6f30c65ffbe7ac6ddea014a9ebf29520cfe510bdd431ddc44f00e7b568062fdf"
     }
   }
 }
