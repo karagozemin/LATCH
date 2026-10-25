@@ -45,6 +45,23 @@ interface LiveSession {
   lastHash?: string;
 }
 
+interface RetryAction {
+  label: string;
+  run: () => Promise<void>;
+}
+
+class LiveTransactionError extends Error {
+  constructor(
+    readonly actionLabel: string,
+    readonly transactionHash: string,
+    readonly reason: string,
+    readonly safeToRetry: boolean,
+  ) {
+    super(`${actionLabel} failed on Stellar Testnet. ${reason}`);
+    this.name = "LiveTransactionError";
+  }
+}
+
 const $ = <T extends Element = HTMLElement>(selector: string): T => {
   const element = document.querySelector<T>(selector);
   if (!element) throw new Error(`Missing element: ${selector}`);
@@ -77,6 +94,7 @@ const els = {
   consoleTitle: $("#console-title"),
   consoleCopy: $("#console-copy"),
   txLink: $("#tx-link") as HTMLAnchorElement,
+  retryButton: $("#retry-button") as HTMLButtonElement,
   toast: $("#toast"),
   replayMode: $("#replay-mode") as HTMLButtonElement,
   liveMode: $("#live-mode") as HTMLButtonElement,
@@ -99,6 +117,7 @@ let walletAddress = "";
 let liveClient: DynamicLatch | null = null;
 let liveSession: LiveSession | null = null;
 let currentContractAddress = PROOF_CONTRACT;
+let retryAction: RetryAction | null = null;
 
 function money(value: number) {
   return Number(value).toFixed(2);
@@ -135,12 +154,59 @@ function txHash(sent: any) {
   return sent?.sendTransactionResponse?.hash ?? sent?.getTransactionResponse?.txHash ?? "";
 }
 
+function transactionFailureReason(response: any) {
+  const diagnostics = Array.isArray(response?.diagnosticEventsXdr)
+    ? response.diagnosticEventsXdr
+        .map((event: any) => {
+          try {
+            const value = typeof event?.toJSON === "function" ? event.toJSON() : event;
+            return JSON.stringify(value, (_key, item) => (typeof item === "bigint" ? item.toString() : item));
+          } catch {
+            return "";
+          }
+        })
+        .join(" ")
+    : "";
+
+  if (/exceeded_limit|instructions exceeds|instruction.*limit/i.test(diagnostics)) {
+    const amounts = [...diagnostics.matchAll(/"u64":"?(\d+)"?/g)].map((match) => Number(match[1]));
+    const detail = amounts.length >= 2 ? ` (${amounts[0].toLocaleString()} used / ${amounts[1].toLocaleString()} allowed)` : "";
+    return `Execution budget exceeded${detail}. No state changed.`;
+  }
+  if (/expired|expiration|valid.*until/i.test(diagnostics)) {
+    return "The authorization expired before confirmation. No state changed.";
+  }
+  if (/auth|signature|unauthorized/i.test(diagnostics)) {
+    return "The account authorization was rejected. No state changed.";
+  }
+  if (/storage|rent|footprint/i.test(diagnostics)) {
+    return "Stellar rejected the transaction's storage resources. No state changed.";
+  }
+  return "Stellar rejected the transaction atomically, so no state changed.";
+}
+
 function assertSuccessful(sent: any, label: string) {
-  const status = sent?.getTransactionResponse?.status;
+  const response = sent?.getTransactionResponse;
+  const status = response?.status;
   if (status !== "SUCCESS") {
-    throw new Error(`${label} failed on Stellar Testnet${status ? ` (${status})` : ""}`);
+    throw new LiveTransactionError(label, txHash(sent), transactionFailureReason(response), status === "FAILED");
   }
   return sent;
+}
+
+function clearRetry() {
+  retryAction = null;
+  els.retryButton.hidden = true;
+}
+
+async function runLiveAction(label: string, action: () => Promise<void>) {
+  retryAction = { label, run: action };
+  try {
+    await action();
+    clearRetry();
+  } catch (error) {
+    reportError(error);
+  }
 }
 
 function setFlow(step: number) {
@@ -305,6 +371,7 @@ function setBusy(next: boolean, message?: string) {
   els.captureButton.disabled = next || els.captureButton.disabled;
   els.voidButton.disabled = next || els.voidButton.disabled;
   els.spendButton.disabled = next || els.spendButton.disabled;
+  els.retryButton.disabled = next;
   if (next && message) {
     els.liveTitle.textContent = message;
     els.liveCopy.textContent = "Approve the request in Freighter, then wait for Testnet confirmation.";
@@ -650,6 +717,7 @@ function updateLiveContract() {
 
 function setMode(nextMode: DemoMode) {
   if (busy) return;
+  clearRetry();
   mode = nextMode;
   const isLive = mode === "live";
   els.replayMode.classList.toggle("is-active", !isLive);
@@ -684,11 +752,23 @@ function setMode(nextMode: DemoMode) {
 
 function reportError(error: unknown) {
   const message = errorMessage(error);
+  const transactionError = error instanceof LiveTransactionError ? error : null;
+  const walletRejected = /user rejected|declined|denied|cancelled|canceled/i.test(message);
+  const canRetry = Boolean(retryAction && (transactionError?.safeToRetry || walletRejected));
   toast(message);
-  setConsole({ icon: "!", blocked: true, title: "Action could not complete", copy: message });
+  setConsole({
+    icon: "!",
+    blocked: true,
+    title: canRetry ? `${transactionError?.actionLabel ?? "Action"} failed · safe to retry` : "Action could not complete",
+    copy: transactionError?.reason ?? message,
+    hash: transactionError?.transactionHash,
+  });
+  els.retryButton.textContent = retryAction ? `Retry ${retryAction.label}` : "Retry action";
+  els.retryButton.disabled = false;
+  els.retryButton.hidden = !canRetry;
   if (mode === "live") {
-    els.liveTitle.textContent = "Check Freighter and try again";
-    els.liveCopy.textContent = message;
+    els.liveTitle.textContent = canRetry ? "Nothing changed · safe to retry" : "Refresh state before trying again";
+    els.liveCopy.textContent = transactionError?.reason ?? message;
   }
 }
 
@@ -702,23 +782,29 @@ els.walletButton.addEventListener("click", () => {
 
 els.holdButton.addEventListener("click", () => {
   if (mode === "replay") render("held");
-  else createLiveHold().catch(reportError);
+  else void runLiveAction("30 XLM hold", createLiveHold);
 });
 
 els.spendButton.addEventListener("click", () => {
   if (mode === "replay") render("blocked");
-  else if (state === "blocked") makeSafePayment().catch(reportError);
-  else proveOverspendBlocked().catch(reportError);
+  else if (state === "blocked") void runLiveAction("5 XLM payment", makeSafePayment);
+  else void runLiveAction("overspend proof", proveOverspendBlocked);
 });
 
 els.captureButton.addEventListener("click", () => {
   if (mode === "replay") render("captured");
-  else captureLiveHold().catch(reportError);
+  else void runLiveAction("8 XLM capture", captureLiveHold);
 });
 
 els.voidButton.addEventListener("click", () => {
   if (mode === "replay") render("released");
-  else voidLiveHold().catch(reportError);
+  else void runLiveAction("hold release", voidLiveHold);
+});
+
+els.retryButton.addEventListener("click", () => {
+  if (busy || !retryAction) return;
+  const pending = retryAction;
+  void runLiveAction(pending.label, pending.run);
 });
 
 els.resetButton.addEventListener("click", () => {

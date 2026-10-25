@@ -148,7 +148,7 @@ button { border: 0; cursor: pointer; }
 .split-actions button:disabled { opacity: .3; cursor: default; }
 .merchant-total { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 17px; border-top: 1px solid rgba(255,255,255,.1); font-size: 10px; color: #87938c; }
 .merchant-total b { color: var(--paper); font-size: 11px; }
-.demo-console { min-height: 86px; border-top: 1px solid rgba(255,255,255,.12); padding: 17px 25px; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 15px; }
+.demo-console { min-height: 86px; border-top: 1px solid rgba(255,255,255,.12); padding: 17px 25px; display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 15px; }
 .console-status { display: flex; align-items: center; gap: 12px; }
 .console-icon { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); background: var(--mint); font-weight: 900; }
 .console-icon.is-blocked { background: var(--orange); }
@@ -157,6 +157,9 @@ button { border: 0; cursor: pointer; }
 .console-status span { font-size: 10px; color: #87948c; margin-top: 3px; }
 .spend-test { background: var(--orange); padding: 11px 14px; border-radius: 10px; font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
 .spend-test:disabled { opacity: .3; cursor: default; }
+.retry-action { color: var(--ink); background: var(--mint); border: 1px solid var(--mint); padding: 10px 14px; border-radius: 10px; font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
+.retry-action:hover { background: #c9ff72; }
+.retry-action:disabled { opacity: .45; cursor: wait; }
 #tx-link { font-size: 10px; color: #9aa79f; border-bottom: 1px solid #66736b; padding-bottom: 2px; }
 
 .proof-section { padding: 120px 4.2vw; }
@@ -229,7 +232,7 @@ footer p:last-child { justify-self: end; }
   .flow-step div { display: none; }
   .device { min-height: auto; }
   .demo-console { grid-template-columns: 1fr; }
-  .spend-test, #tx-link { justify-self: stretch; text-align: center; }
+  .spend-test, .retry-action, #tx-link { justify-self: stretch; text-align: center; }
   .proof-ledger a { grid-template-columns: 1fr auto; }
   .proof-ledger b { display: none; }
   .principles { grid-template-columns: 1fr; margin-top: 65px; }
