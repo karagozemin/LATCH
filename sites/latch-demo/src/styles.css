@@ -165,7 +165,7 @@ svg {
 }
 .brand-period {
 	font-family: Arial, sans-serif;
-	font-size: 11px;
+	font-size: 13px;
 	vertical-align: top;
 	line-height: 24px;
 	margin-left: 4px;
@@ -174,7 +174,7 @@ svg {
 .desktop-nav {
 	display: flex;
 	gap: 34px;
-	font-size: 13px;
+	font-size: 15px;
 	color: #b8b6c2;
 }
 .desktop-nav a {
@@ -194,7 +194,7 @@ svg {
 	justify-content: space-between;
 	gap: 34px;
 	padding: 0 25px;
-	font-size: 13px;
+	font-size: 15px;
 	font-weight: 600;
 	border-radius: 4px;
 	transition:
@@ -228,7 +228,7 @@ svg {
 .button.small {
 	min-height: 42px;
 	padding: 0 17px;
-	font-size: 12px;
+	font-size: 14px;
 	gap: 28px;
 }
 .menu-toggle {
@@ -269,7 +269,7 @@ svg {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 	text-transform: uppercase;
 	letter-spacing: 1.3px;
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.5;
 }
 .status-dot,
@@ -343,7 +343,7 @@ svg {
 	color: #a497f5;
 }
 .hero-copy > p {
-	font-size: 15px;
+	font-size: 17px;
 	line-height: 1.85;
 	color: #a9a5b6;
 	margin-top: 23px;
@@ -358,7 +358,7 @@ svg {
 .quiet-link {
 	display: inline-flex;
 	gap: 18px;
-	font-size: 11px;
+	font-size: 13px;
 	line-height: 1.5;
 	align-items: center;
 }
@@ -376,7 +376,7 @@ svg {
 	gap: 8px;
 	margin-top: 18px;
 	color: #84808f;
-	font-size: 9px;
+	font-size: 11px;
 	text-transform: none;
 	letter-spacing: 0.3px;
 }
@@ -472,7 +472,7 @@ svg {
 	justify-content: space-between;
 	align-items: center;
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1.2px;
 	color: #8d849c;
 }
@@ -526,7 +526,7 @@ svg {
 }
 .core-balance > span {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1.4px;
 	color: #9388a2;
 }
@@ -538,13 +538,13 @@ svg {
 }
 .core-balance strong small {
 	font-family: Inter, sans-serif;
-	font-size: 8px;
+	font-size: 10px;
 	letter-spacing: 0.7px;
 	color: #988daa;
 }
 .core-balance p {
 	margin-top: 7px;
-	font-size: 9px;
+	font-size: 11px;
 	color: #81778f;
 }
 .core-rule {
@@ -595,7 +595,7 @@ svg {
 	position: absolute;
 	color: #716980;
 	z-index: 2;
-	font-size: 8px;
+	font-size: 10px;
 	letter-spacing: 1.5px;
 }
 .art-coordinate.top {
@@ -607,14 +607,14 @@ svg {
 	left: 35%;
 }
 .art-coordinate.bottom span {
-	font-size: 6px;
+	font-size: 8px;
 	margin: 0 9px;
 	color: #9d83e6;
 }
 .art-cross {
 	position: absolute;
 	color: #5a506a;
-	font-size: 18px;
+	font-size: 20px;
 	z-index: 2;
 }
 .cross-one {
@@ -645,7 +645,7 @@ svg {
 	align-items: center;
 	gap: 7px;
 	font-family: monospace;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1.15px;
 	padding: 15px 18px;
 	border-bottom: 1px solid var(--line);
@@ -660,7 +660,7 @@ svg {
 }
 .floating-receipt section > span {
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1.1px;
 	color: #91879e;
 }
@@ -671,7 +671,7 @@ svg {
 	letter-spacing: -1.4px;
 }
 .floating-receipt small {
-	font-size: 8px;
+	font-size: 10px;
 	color: #9b91ad;
 	letter-spacing: 0;
 }
@@ -700,7 +700,7 @@ svg {
 	grid-template-columns: 1fr 1fr;
 	gap: 14px;
 	border-top: 1px dashed #b4a3dc25;
-	font-size: 8px;
+	font-size: 10px;
 	color: #a9a1b9;
 }
 .floating-receipt footer > span:last-child {
@@ -712,7 +712,7 @@ svg {
 	margin-top: 5px;
 	color: var(--text);
 	font-family: Space, sans-serif;
-	font-size: 13px;
+	font-size: 15px;
 }
 .hero-bottom {
 	padding: 23px 0;
@@ -720,7 +720,7 @@ svg {
 	display: flex;
 	justify-content: space-between;
 	color: #777180;
-	font-size: 8px;
+	font-size: 10px;
 }
 .hero-bottom a {
 	color: #b4adbf;
@@ -762,7 +762,7 @@ svg {
 	display: flex;
 	justify-content: space-between;
 	color: #898392;
-	font-size: 9px;
+	font-size: 11px;
 }
 .section-meta > span:first-child {
 	color: #b4a6d4;
@@ -786,7 +786,7 @@ h2 {
 .how-heading > p,
 .cases-heading > p {
 	max-width: 315px;
-	font-size: 14px;
+	font-size: 16px;
 	line-height: 1.9;
 	color: #9b95a6;
 	margin-bottom: 5px;
@@ -813,7 +813,7 @@ h2 {
 }
 .step-num {
 	font-family: monospace;
-	font-size: 10px;
+	font-size: 12px;
 	color: #797382;
 	align-self: start;
 	margin-top: 20px;
@@ -825,7 +825,7 @@ h2 {
 }
 .how-step p {
 	color: #9b96a5;
-	font-size: 13px;
+	font-size: 15px;
 	line-height: 1.9;
 	max-width: 300px;
 }
@@ -834,7 +834,7 @@ h2 {
 	justify-content: space-between;
 	margin-top: 27px;
 	color: #a196b4;
-	font-size: 8px;
+	font-size: 10px;
 }
 .use-cases-section {
 	background: #101015;
@@ -900,7 +900,7 @@ h2 {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	font-size: 8px;
+	font-size: 10px;
 	gap: 8px;
 }
 .round-arrow {
@@ -910,7 +910,7 @@ h2 {
 	place-items: center;
 	border: 1px solid #ffffff50;
 	border-radius: 50%;
-	font-size: 18px;
+	font-size: 20px;
 	transition:
 		color 0.3s,
 		background 0.3s;
@@ -921,7 +921,7 @@ h2 {
 	border-color: #c1b0f5;
 }
 .scenario-card-bottom > span {
-	font-size: 8px;
+	font-size: 10px;
 	color: #d0c5dc;
 }
 .scenario-card h3 {
@@ -942,14 +942,14 @@ h2 {
 	text-transform: none;
 	letter-spacing: 0.1px;
 	font-family: Inter, Arial, sans-serif;
-	font-size: 10px;
+	font-size: 12px;
 }
 .scenario-try b {
-	font-size: 17px;
+	font-size: 19px;
 	font-weight: 400;
 }
 .section-footnote {
-	font-size: 8px;
+	font-size: 10px;
 	letter-spacing: 0.6px;
 	text-transform: none;
 	color: #837b90;
@@ -984,18 +984,18 @@ h2 {
 .principle-list article > span {
 	font-family: monospace;
 	color: #7e748f;
-	font-size: 9px;
+	font-size: 11px;
 	padding-top: 5px;
 }
 .principle-list h3 {
-	font-size: 18px;
+	font-size: 20px;
 	letter-spacing: -0.6px;
 	margin-bottom: 10px;
 }
 .principle-list p {
 	color: #96909f;
 	line-height: 1.8;
-	font-size: 12px;
+	font-size: 14px;
 }
 .testnet-disclosure {
 	display: flex;
@@ -1006,13 +1006,13 @@ h2 {
 	border-top: 1px solid var(--line);
 }
 .testnet-disclosure p {
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.8;
 	color: #8f899b;
 	max-width: 720px;
 }
 .testnet-disclosure a {
-	font-size: 10px;
+	font-size: 12px;
 	white-space: nowrap;
 	margin-left: auto;
 	color: #c4b5e9;
@@ -1032,7 +1032,7 @@ h2 {
 }
 .closing-section > .eyebrow {
 	color: #9687b2;
-	font-size: 8px;
+	font-size: 10px;
 }
 .closing-section h2 {
 	margin: 25px 0 32px;
@@ -1040,7 +1040,7 @@ h2 {
 }
 .closing-coordinate {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #71657f;
 	margin-top: 60px;
 	letter-spacing: 2px;
@@ -1062,17 +1062,17 @@ h2 {
 }
 .site-footer > span {
 	color: #756f80;
-	font-size: 8px;
+	font-size: 10px;
 }
 .site-footer > div {
 	display: flex;
 	gap: 25px;
 	margin-left: auto;
-	font-size: 10px;
+	font-size: 12px;
 	color: #aaa1b5;
 }
 .site-footer small {
-	font-size: 7px;
+	font-size: 9px;
 	color: #756f80;
 }
 .reveal {
@@ -1115,7 +1115,7 @@ h2 {
 	align-self: stretch;
 	gap: 30px;
 	margin-left: 90px;
-	font-size: 12px;
+	font-size: 14px;
 	color: #898492;
 }
 .app-header nav a {
@@ -1129,12 +1129,12 @@ h2 {
 	border-bottom-color: #a38be7;
 }
 .app-header nav a span {
-	font-size: 14px;
+	font-size: 16px;
 }
 .app-network {
 	margin-left: auto;
 	color: #aca2bc;
-	font-size: 10px;
+	font-size: 12px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -1158,7 +1158,7 @@ h2 {
 	flex-direction: column;
 }
 .experience-sidebar > .eyebrow {
-	font-size: 8px;
+	font-size: 10px;
 	color: #8f829e;
 }
 .experience-sidebar h2 {
@@ -1177,14 +1177,14 @@ h2 {
 	align-items: center;
 	gap: 12px;
 	padding: 14px 12px;
-	font-size: 11px;
+	font-size: 13px;
 	color: #96909f;
 	border: 1px solid transparent;
 	border-radius: 5px;
 }
 .scenario-link > span:first-child {
 	font-family: monospace;
-	font-size: 9px;
+	font-size: 11px;
 	color: #6d657a;
 }
 .scenario-link > span:last-child {
@@ -1207,20 +1207,20 @@ h2 {
 	color: #80709e;
 }
 .sidebar-note p {
-	font-size: 12px;
+	font-size: 14px;
 	color: #a59aaf;
 	line-height: 1.8;
 	margin: 16px 0;
 }
 .sidebar-note small {
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.8;
 	color: #787080;
 }
 .sidebar-proof {
 	margin-top: auto;
 	padding-top: 45px;
-	font-size: 10px;
+	font-size: 12px;
 	color: #8a8098;
 	line-height: 2;
 }
@@ -1240,7 +1240,7 @@ h2 {
 }
 .experience-topline .eyebrow {
 	color: #9e89bb;
-	font-size: 8px;
+	font-size: 10px;
 }
 .experience-topline h1 {
 	font-size: clamp(24px, 2.5vw, 36px);
@@ -1252,13 +1252,13 @@ h2 {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	font-size: 18px;
+	font-size: 20px;
 	background: transparent;
 	padding: 10px 0 10px 10px;
 	color: #a093b0;
 }
 .restart-button > span {
-	font-size: 10px;
+	font-size: 12px;
 }
 .experience-progress {
 	padding: 0;
@@ -1272,7 +1272,7 @@ h2 {
 	align-items: center;
 	gap: 8px;
 	color: #716979;
-	font-size: 10px;
+	font-size: 12px;
 	flex: 1;
 	padding-bottom: 13px;
 	border-bottom: 2px solid #ffffff0c;
@@ -1282,7 +1282,7 @@ h2 {
 	height: 20px;
 	border-radius: 50%;
 	border: 1px solid #ffffff20;
-	font-size: 8px;
+	font-size: 10px;
 	display: grid;
 	place-items: center;
 	font-weight: 400;
@@ -1338,7 +1338,7 @@ h2 {
 }
 .scene-location > span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	letter-spacing: 1.7px;
 	text-transform: uppercase;
 	color: #d7c8e9;
@@ -1358,7 +1358,7 @@ h2 {
 	border-radius: 3px;
 	padding: 6px 8px;
 	z-index: 1;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1px;
 	color: #eee6f8;
 	backdrop-filter: blur(8px);
@@ -1369,7 +1369,7 @@ h2 {
 }
 .scene-content > .eyebrow {
 	color: #9c8ab3;
-	font-size: 8px;
+	font-size: 10px;
 }
 .scene-content h2 {
 	font-size: 25px;
@@ -1377,7 +1377,7 @@ h2 {
 	margin: 9px 0 12px;
 }
 .scene-content > p {
-	font-size: 11px;
+	font-size: 13px;
 	line-height: 1.85;
 	color: #a599b3;
 	max-width: 470px;
@@ -1394,7 +1394,7 @@ h2 {
 .reservation-terms div > span,
 .receipt-row > span {
 	color: #9588a2;
-	font-size: 9px;
+	font-size: 11px;
 }
 .reservation-terms strong {
 	display: block;
@@ -1405,11 +1405,11 @@ h2 {
 .reservation-terms strong small {
 	font-family: Inter, sans-serif;
 	letter-spacing: 0;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a296ae;
 }
 .reservation-terms div:last-child strong {
-	font-size: 14px;
+	font-size: 16px;
 	letter-spacing: -0.3px;
 	margin-top: 15px;
 }
@@ -1424,18 +1424,18 @@ h2 {
 	justify-content: space-between;
 	align-items: center;
 	gap: 12px;
-	font-size: 11px;
+	font-size: 13px;
 	transition: background 0.2s;
 }
 .scene-primary:hover {
 	background: #a288e8;
 }
 .scene-primary > span {
-	font-size: 18px;
+	font-size: 20px;
 }
 .scene-content > p.scene-smallprint {
 	text-align: center;
-	font-size: 8px;
+	font-size: 10px;
 	color: #8d809c;
 	margin-top: 12px;
 	max-width: none;
@@ -1448,7 +1448,7 @@ h2 {
 	border: 1px solid #a7d8b830;
 	color: #adceb8;
 	border-radius: 4px;
-	font-size: 9px;
+	font-size: 11px;
 	margin: 18px 0;
 }
 .reservation-badge .status-dot {
@@ -1462,7 +1462,7 @@ h2 {
 }
 .scene-secondary-actions button,
 .scene-secondary-actions a {
-	font-size: 9px;
+	font-size: 11px;
 	background: transparent;
 	color: #aa9ab9;
 	padding: 5px 0;
@@ -1482,7 +1482,7 @@ h2 {
 	border-bottom: 1px solid var(--line);
 }
 .receipt-row strong {
-	font-size: 18px;
+	font-size: 20px;
 	letter-spacing: -0.4px;
 }
 .bill-adjust {
@@ -1494,7 +1494,7 @@ h2 {
 	justify-content: space-between;
 	gap: 14px;
 	color: #ad9dba;
-	font-size: 9px;
+	font-size: 11px;
 }
 .bill-adjust input {
 	width: 100%;
@@ -1505,7 +1505,7 @@ h2 {
 .bill-adjust small {
 	display: block;
 	color: #877991;
-	font-size: 8px;
+	font-size: 10px;
 }
 .success-icon {
 	width: 42px;
@@ -1516,7 +1516,7 @@ h2 {
 	place-items: center;
 	color: #b7d2bd;
 	background: #a6d6b50b;
-	font-size: 18px;
+	font-size: 20px;
 	margin-bottom: 18px;
 }
 .scene-content .receipt-row:last-of-type {
@@ -1534,17 +1534,17 @@ h2 {
 	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid var(--line);
-	font-size: 10px;
+	font-size: 12px;
 }
 .wallet-heading > span {
-	font-size: 8px;
+	font-size: 10px;
 	color: #8f819f;
 }
 .wallet-total {
 	padding: 25px 20px 22px;
 }
 .wallet-total > span {
-	font-size: 9px;
+	font-size: 11px;
 	color: #a194af;
 }
 .wallet-total > strong {
@@ -1555,7 +1555,7 @@ h2 {
 }
 .wallet-total > strong small {
 	font-family: Inter, sans-serif;
-	font-size: 10px;
+	font-size: 12px;
 	letter-spacing: 0;
 	color: #8d7d9b;
 }
@@ -1583,13 +1583,13 @@ h2 {
 }
 .wallet-split > div > span {
 	color: #998aa7;
-	font-size: 8px;
+	font-size: 10px;
 	display: flex;
 	align-items: center;
 	gap: 6px;
 }
 .wallet-split strong {
-	font-size: 15px;
+	font-size: 17px;
 	margin-top: 7px;
 	display: block;
 }
@@ -1614,18 +1614,18 @@ h2 {
 }
 .wallet-hold > span {
 	display: block;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1px;
 	text-transform: uppercase;
 	color: #9c8baa;
 }
 .wallet-hold > strong {
 	display: block;
-	font-size: 12px;
+	font-size: 14px;
 	margin: 10px 0 4px;
 }
 .wallet-hold > p {
-	font-size: 9px;
+	font-size: 11px;
 	line-height: 1.8;
 	color: #9c8baa;
 }
@@ -1637,11 +1637,11 @@ h2 {
 }
 .wallet-policy > span {
 	color: #ac95cc;
-	font-size: 17px;
+	font-size: 19px;
 }
 .wallet-policy p {
 	color: #a392b3;
-	font-size: 9px;
+	font-size: 11px;
 	line-height: 1.8;
 }
 .wallet-policy p b {
@@ -1651,7 +1651,7 @@ h2 {
 .overspend-button {
 	background: transparent;
 	color: #b49acb;
-	font-size: 9px;
+	font-size: 11px;
 	margin: 0 20px 19px;
 	padding: 0 0 4px;
 	border-bottom: 1px dotted #a68bb754;
@@ -1666,13 +1666,13 @@ h2 {
 	padding: 16px;
 	margin-top: 20px;
 	border-radius: 5px;
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.8;
 	color: #a598b4;
 }
 .experience-insight > span {
 	color: #b298d6;
-	font-size: 16px;
+	font-size: 18px;
 }
 .experience-insight strong {
 	color: #d1c2e0;
@@ -1685,7 +1685,7 @@ h2 {
 	flex-wrap: wrap;
 	gap: 15px;
 	margin-top: 21px;
-	font-size: 7px;
+	font-size: 9px;
 	color: #6d607b;
 	letter-spacing: 0.7px;
 }
@@ -1698,7 +1698,7 @@ h2 {
 	padding: 15px 3%;
 	border-top: 1px solid var(--line);
 	color: #6e617c;
-	font-size: 7px;
+	font-size: 9px;
 	letter-spacing: 1px;
 }
 /* On-chain controls shared by replay evidence and the embedded live experience. */
@@ -1714,7 +1714,7 @@ h2 {
 }
 .lab-intro .eyebrow {
 	color: #a18cb8;
-	font-size: 8px;
+	font-size: 10px;
 }
 .lab-intro p {
 	font-family: Space, sans-serif;
@@ -1724,7 +1724,7 @@ h2 {
 }
 .lab-intro > span:last-child {
 	color: #92829f;
-	font-size: 10px;
+	font-size: 12px;
 }
 .section-heading {
 	display: flex;
@@ -1735,7 +1735,7 @@ h2 {
 }
 .section-index {
 	color: #9d85b7;
-	font-size: 8px;
+	font-size: 10px;
 }
 .section-heading h2 {
 	font-size: 34px;
@@ -1743,7 +1743,7 @@ h2 {
 }
 .section-heading > p {
 	max-width: 320px;
-	font-size: 11px;
+	font-size: 13px;
 	line-height: 1.8;
 	color: #a08fae;
 }
@@ -1766,7 +1766,7 @@ h2 {
 	display: flex;
 	gap: 8px;
 	align-items: center;
-	font-size: 10px;
+	font-size: 12px;
 	color: #b09bc4;
 }
 .mode-switch {
@@ -1779,7 +1779,7 @@ h2 {
 	border-radius: 5px;
 }
 .mode-switch button {
-	font-size: 10px;
+	font-size: 12px;
 	background: transparent;
 	padding: 8px 12px;
 	border-radius: 3px;
@@ -1796,7 +1796,7 @@ h2 {
 }
 .text-button {
 	background: transparent;
-	font-size: 10px;
+	font-size: 12px;
 	color: #ad98bf;
 }
 .run-button,
@@ -1804,7 +1804,7 @@ h2 {
 	padding: 11px 16px;
 	color: #f7f0ff;
 	background: #7454a1;
-	font-size: 10px;
+	font-size: 12px;
 	border-radius: 4px;
 }
 .run-icon {
@@ -1820,17 +1820,17 @@ h2 {
 }
 .judge-beat {
 	font-family: monospace;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a18ab8;
 	grid-row: span 2;
 	padding-top: 3px;
 }
 .judge-caption > strong {
-	font-size: 16px;
+	font-size: 18px;
 	letter-spacing: -0.3px;
 }
 .judge-caption > span:last-child {
-	font-size: 10px;
+	font-size: 12px;
 	color: #a08dae;
 	line-height: 1.8;
 }
@@ -1862,14 +1862,14 @@ h2 {
 	gap: 8px;
 }
 .live-kicker {
-	font-size: 8px;
+	font-size: 10px;
 	color: #ac93c5;
 }
 .live-session-copy > strong {
-	font-size: 16px;
+	font-size: 18px;
 }
 .live-session-copy > span:last-child {
-	font-size: 10px;
+	font-size: 12px;
 	color: #9e8bab;
 	line-height: 1.7;
 }
@@ -1893,7 +1893,7 @@ h2 {
 	border-bottom: 1px solid var(--line);
 	display: flex;
 	justify-content: space-between;
-	font-size: 8px;
+	font-size: 10px;
 	color: #c2afd4;
 }
 .address {
@@ -1904,7 +1904,7 @@ h2 {
 	padding: 26px 22px;
 }
 .balance-label {
-	font-size: 8px;
+	font-size: 10px;
 	color: #a18cad;
 }
 .balance-block > strong {
@@ -1916,7 +1916,7 @@ h2 {
 .balance-block > strong > small {
 	font-family: Inter, sans-serif;
 	margin-left: 8px;
-	font-size: 10px;
+	font-size: 12px;
 	color: #9c85af;
 	letter-spacing: 0;
 }
@@ -1941,7 +1941,7 @@ h2 {
 	justify-content: space-between;
 	gap: 12px;
 	margin-top: 17px;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a48bb5;
 }
 .balance-split b {
@@ -1949,7 +1949,7 @@ h2 {
 	margin-top: 7px;
 	color: #d9c8e8;
 	font-family: Space, sans-serif;
-	font-size: 17px;
+	font-size: 19px;
 }
 .dot {
 	width: 5px;
@@ -1973,16 +1973,16 @@ h2 {
 .promise-head {
 	display: flex;
 	justify-content: space-between;
-	font-size: 9px;
+	font-size: 11px;
 	color: #b39bc5;
 }
 .status-tag {
-	font-size: 8px;
+	font-size: 10px;
 	color: #c9aedc;
 }
 .empty-promise {
 	color: #84728f;
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.7;
 	margin-top: 17px;
 }
@@ -2007,16 +2007,16 @@ h2 {
 	flex: 1;
 }
 .promise-details strong {
-	font-size: 10px;
+	font-size: 12px;
 }
 .promise-details > div > span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #977ea5;
 	margin-top: 5px;
 }
 .promise-details > b {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 400;
 }
 .policy-card {
@@ -2030,12 +2030,12 @@ h2 {
 	flex-shrink: 0;
 }
 .policy-card strong {
-	font-size: 9px;
+	font-size: 11px;
 	color: #c0a6ce;
 }
 .policy-card > div > span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #897095;
 	margin-top: 6px;
 	line-height: 1.8;
@@ -2068,19 +2068,19 @@ h2 {
 	place-items: center;
 	width: 28px;
 	height: 28px;
-	font-size: 8px;
+	font-size: 10px;
 	border: 1px solid #a182ba20;
 	border-radius: 50%;
 	background: #101016;
 }
 .flow-step b {
-	font-size: 10px;
+	font-size: 12px;
 	font-weight: 400;
 }
 .flow-step small {
 	display: block;
 	margin-top: 4px;
-	font-size: 8px;
+	font-size: 10px;
 }
 .flow-step.is-current {
 	color: #dcc4ef;
@@ -2099,11 +2099,11 @@ h2 {
 	padding: 18px;
 }
 .merchant-header strong {
-	font-size: 14px;
+	font-size: 16px;
 }
 .merchant-header > div > span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	margin-top: 6px;
 	color: #92789e;
 }
@@ -2114,7 +2114,7 @@ h2 {
 	border-bottom: 1px solid var(--line);
 }
 .request-card > span {
-	font-size: 9px;
+	font-size: 11px;
 	color: #b297c2;
 }
 .request-card > strong {
@@ -2124,7 +2124,7 @@ h2 {
 	margin-top: 7px;
 }
 .request-card small {
-	font-size: 10px;
+	font-size: 12px;
 	color: #a68cb5;
 	letter-spacing: 0;
 }
@@ -2132,7 +2132,7 @@ h2 {
 	display: flex;
 	justify-content: space-between;
 	color: #93799f;
-	font-size: 8px;
+	font-size: 10px;
 	margin-top: 12px;
 }
 .request-builder {
@@ -2144,7 +2144,7 @@ h2 {
 .request-builder label > span,
 .capture-input > span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #a488b4;
 	margin-bottom: 7px;
 }
@@ -2157,7 +2157,7 @@ select {
 	border: 1px solid #a786bd30;
 	border-radius: 3px;
 	color: #dbc3ed;
-	font-size: 10px;
+	font-size: 12px;
 }
 .reference-input {
 	grid-column: 1 / -1;
@@ -2165,7 +2165,7 @@ select {
 .request-builder > button {
 	grid-column: 1 / -1;
 	padding: 10px;
-	font-size: 9px;
+	font-size: 11px;
 	color: #c9aadf;
 	background: #31213e;
 	border-radius: 3px;
@@ -2194,20 +2194,20 @@ select {
 .request-qr span,
 .settlement-handoff span {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #c7a6df;
 }
 .request-qr code,
 .settlement-handoff code {
 	display: block;
 	overflow-wrap: anywhere;
-	font-size: 7px;
+	font-size: 9px;
 	color: #8e6e9f;
 	margin-top: 6px;
 }
 .request-qr small {
 	display: block;
-	font-size: 8px;
+	font-size: 10px;
 	color: #9c7dae;
 	line-height: 1.6;
 	margin-top: 6px;
@@ -2217,10 +2217,10 @@ select {
 	background: transparent;
 	padding: 8px 0 0;
 	color: #c5a0e1;
-	font-size: 9px;
+	font-size: 11px;
 }
 .settlement-handoff strong {
-	font-size: 10px;
+	font-size: 12px;
 }
 .request-inbox {
 	margin: 18px;
@@ -2230,16 +2230,16 @@ select {
 	padding: 15px;
 }
 .request-inbox > span {
-	font-size: 9px;
+	font-size: 11px;
 	color: #b893cc;
 }
 .request-inbox strong {
 	display: block;
-	font-size: 13px;
+	font-size: 15px;
 	margin: 9px 0;
 }
 .request-inbox code {
-	font-size: 8px;
+	font-size: 10px;
 	color: #9c76b1;
 }
 .request-inbox > div {
@@ -2251,7 +2251,7 @@ select {
 	background: #62417f;
 	border-radius: 3px;
 	padding: 10px;
-	font-size: 9px;
+	font-size: 11px;
 }
 .request-inbox button:last-child {
 	background: #2b1e35;
@@ -2267,15 +2267,15 @@ select {
 }
 .guarantee-icon {
 	color: #8e719f;
-	font-size: 17px;
+	font-size: 19px;
 }
 .guarantee span {
-	font-size: 8px;
+	font-size: 10px;
 	color: #b597c9;
 }
 .guarantee strong {
 	display: block;
-	font-size: 10px;
+	font-size: 12px;
 	margin-top: 5px;
 	line-height: 1.7;
 }
@@ -2299,7 +2299,7 @@ select {
 	border-radius: 3px;
 	background: #33213f;
 	color: #d3b3e8;
-	font-size: 9px;
+	font-size: 11px;
 }
 .merchant-actions .primary-action {
 	background: #79559a;
@@ -2319,7 +2319,7 @@ select {
 	gap: 10px;
 	border-top: 1px solid var(--line);
 	padding: 15px 18px;
-	font-size: 8px;
+	font-size: 10px;
 	color: #a184b2;
 }
 .merchant-total b {
@@ -2355,11 +2355,11 @@ select {
 .console-status b {
 	display: block;
 	font-family: Space, sans-serif;
-	font-size: 12px;
+	font-size: 14px;
 }
 .console-status div > span {
 	display: block;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a387b5;
 	line-height: 1.7;
 	margin-top: 5px;
@@ -2369,11 +2369,11 @@ select {
 	padding: 10px 13px;
 	border-radius: 3px;
 	background: #423047;
-	font-size: 9px;
+	font-size: 11px;
 	color: #d6b5d9;
 }
 #tx-link {
-	font-size: 9px;
+	font-size: 11px;
 	color: #b999ce;
 	white-space: nowrap;
 }
@@ -2392,13 +2392,13 @@ select {
 .settlement-evidence span {
 	display: block;
 	color: #a584b7;
-	font-size: 8px;
+	font-size: 10px;
 }
 .decline-evidence b,
 .settlement-evidence b {
 	display: block;
 	font-weight: 400;
-	font-size: 10px;
+	font-size: 12px;
 	margin-top: 7px;
 }
 .proof-section {
@@ -2416,7 +2416,7 @@ select {
 	padding: 22px 16px;
 	border-bottom: 1px solid var(--line);
 	border-right: 1px solid var(--line);
-	font-size: 10px;
+	font-size: 12px;
 }
 .proof-ledger a:hover {
 	background: #a58bc00a;
@@ -2425,7 +2425,7 @@ select {
 	margin-left: auto;
 	font-family: monospace;
 	font-weight: 400;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a88bbe;
 }
 .proof-ledger i {
@@ -2448,18 +2448,18 @@ select {
 }
 .contract-row span {
 	display: block;
-	font-size: 9px;
+	font-size: 11px;
 	color: #ad8cbe;
 }
 .contract-row code {
-	font-size: 10px;
+	font-size: 12px;
 	display: block;
 	margin-top: 9px;
 	overflow-wrap: anywhere;
 	color: #cfb1dd;
 }
 .contract-row button {
-	font-size: 10px;
+	font-size: 12px;
 	color: #d0aee5;
 	background: #33223e;
 	padding: 10px 16px;
@@ -2508,7 +2508,7 @@ select {
 }
 .entry-transition .eyebrow {
 	color: #8c729f;
-	font-size: 7px;
+	font-size: 9px;
 	margin-top: 20px;
 }
 .transition-track {
@@ -2529,7 +2529,7 @@ select {
 	color: #a991ba;
 	background: transparent;
 	padding: 12px;
-	font-size: 10px;
+	font-size: 12px;
 }
 .toast {
 	position: fixed;
@@ -2545,7 +2545,7 @@ select {
 	padding: 15px 22px;
 	border-radius: 6px;
 	color: #ebd8f9;
-	font-size: 12px;
+	font-size: 14px;
 	line-height: 1.6;
 	transition:
 		opacity 0.25s,
@@ -2559,7 +2559,7 @@ select {
 }
 .noscript-notice {
 	padding: 20px;
-	font-size: 13px;
+	font-size: 15px;
 	background: #30263c;
 	text-align: center;
 }
@@ -2691,14 +2691,14 @@ select {
 	}
 	.hero-actions .quiet-link {
 		max-width: 125px;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.hero-actions .button {
 		gap: 20px;
 		padding: 0 18px;
 	}
 	.hero-copy > p {
-		font-size: 13px;
+		font-size: 15px;
 	}
 	.floating-receipt {
 		width: 245px;
@@ -2706,7 +2706,7 @@ select {
 		bottom: 55px;
 	}
 	.hero-note {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.scenario-card {
 		padding: 20px;
@@ -2765,7 +2765,7 @@ select {
 		gap: 7px;
 	}
 	.flow-step small {
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.demo-console {
 		grid-template-columns: 1fr auto;
@@ -2816,7 +2816,7 @@ select {
 	.how-heading > p,
 	.cases-heading > p {
 		max-width: 260px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 	.scenario-cards {
 		grid-template-columns: 1.2fr 1fr 1fr;
@@ -2826,14 +2826,14 @@ select {
 		padding: 15px;
 	}
 	.scenario-card-top {
-		font-size: 6px;
+		font-size: 8px;
 		letter-spacing: 0.6px;
 	}
 	.scenario-card h3 {
 		font-size: 28px;
 	}
 	.scenario-card-bottom > span {
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.manifesto-layout {
 		gap: 40px;
@@ -2868,7 +2868,7 @@ select {
 		background: #101016;
 	}
 	.hero-bottom {
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.section-pad {
 		padding: 60px 5%;
@@ -2897,7 +2897,7 @@ select {
 	.site-header > .button {
 		margin-left: auto;
 		min-height: 37px;
-		font-size: 10px;
+		font-size: 12px;
 		gap: 10px;
 		padding: 0 12px;
 	}
@@ -2918,11 +2918,11 @@ select {
 		padding: 25px 6% 0;
 	}
 	.hero-topline .eyebrow {
-		font-size: 7px;
+		font-size: 9px;
 		letter-spacing: 1px;
 	}
 	.hero-edition {
-		font-size: 7px;
+		font-size: 9px;
 		letter-spacing: 0.5px;
 	}
 	.hero-edition span {
@@ -2942,7 +2942,7 @@ select {
 		font-size: 0.67em;
 	}
 	.hero-copy > p {
-		font-size: 12px;
+		font-size: 14px;
 		line-height: 1.9;
 		margin-top: 19px;
 	}
@@ -2952,12 +2952,12 @@ select {
 	}
 	.hero-actions .button {
 		min-height: 49px;
-		font-size: 11px;
+		font-size: 13px;
 		gap: 22px;
 	}
 	.hero-actions .quiet-link {
 		max-width: 140px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.hero-note {
 		margin-top: 15px;
@@ -2974,7 +2974,7 @@ select {
 	}
 	.core-topline {
 		padding: 14px 16px;
-		font-size: 5px;
+		font-size: 7px;
 	}
 	.core-mark {
 		width: 64px;
@@ -3001,17 +3001,17 @@ select {
 	}
 	.core-footer {
 		padding: 10px 18px 12px;
-		font-size: 5px;
+		font-size: 7px;
 	}
 	.art-coordinate.top {
 		top: 22px;
 		right: 3%;
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.art-coordinate.bottom {
 		bottom: 16px;
 		left: 33%;
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.floating-receipt {
 		width: 210px;
@@ -3023,21 +3023,21 @@ select {
 	}
 	.floating-receipt > div {
 		padding: 11px 14px;
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.floating-receipt strong {
 		font-size: 25px;
 	}
 	.floating-receipt section > span {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.floating-receipt footer {
 		padding: 10px 14px;
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.hero-bottom {
 		padding: 20px 0;
-		font-size: 6px;
+		font-size: 8px;
 		letter-spacing: 0.6px;
 		gap: 15px;
 	}
@@ -3061,7 +3061,7 @@ select {
 		padding: 50px 6%;
 	}
 	.section-meta {
-		font-size: 7px;
+		font-size: 9px;
 		letter-spacing: 0.7px;
 		gap: 25px;
 	}
@@ -3079,7 +3079,7 @@ select {
 	.how-heading > p,
 	.cases-heading > p {
 		max-width: 100%;
-		font-size: 12px;
+		font-size: 14px;
 	}
 	h2 {
 		font-size: clamp(34px, 7.5vw, 48px);
@@ -3104,7 +3104,7 @@ select {
 	.step-num {
 		align-self: start;
 		margin: 0;
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.step-visual svg {
 		width: 85px;
@@ -3116,12 +3116,12 @@ select {
 		margin-bottom: 9px;
 	}
 	.how-step p {
-		font-size: 11px;
+		font-size: 13px;
 		max-width: 100%;
 	}
 	.step-detail {
 		margin-top: 15px;
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.scenario-cards {
 		grid-template-columns: 1fr;
@@ -3133,23 +3133,23 @@ select {
 		padding: 25px;
 	}
 	.scenario-card-top {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.scenario-card h3,
 	.scenario-card.featured h3 {
 		font-size: 42px;
 	}
 	.scenario-card-bottom > span {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.scenario-card-bottom > .scenario-try {
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.scenario-card > img {
 		object-position: center 55%;
 	}
 	.section-footnote {
-		font-size: 7px;
+		font-size: 9px;
 		line-height: 1.8;
 	}
 	.manifesto-layout {
@@ -3167,7 +3167,7 @@ select {
 		padding: 22px 0;
 	}
 	.principle-list h3 {
-		font-size: 18px;
+		font-size: 20px;
 	}
 	.testnet-disclosure {
 		align-items: start;
@@ -3181,12 +3181,12 @@ select {
 	}
 	.testnet-disclosure p {
 		flex: 1;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.testnet-disclosure a {
 		flex-basis: 100%;
 		margin-left: 18px;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.closing-section {
 		padding: 60px 20px 40px;
@@ -3195,11 +3195,11 @@ select {
 		font-size: clamp(54px, 12vw, 85px);
 	}
 	.closing-section .button {
-		font-size: 12px;
+		font-size: 14px;
 		min-height: 50px;
 	}
 	.closing-coordinate {
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.site-footer {
 		padding: 25px 6%;
@@ -3211,7 +3211,7 @@ select {
 	}
 	.site-footer > div {
 		gap: 17px;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.app-header {
 		padding: 0 5%;
@@ -3230,7 +3230,7 @@ select {
 	.app-header nav {
 		margin-left: auto;
 		gap: 18px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.app-header nav a {
 		gap: 5px;
@@ -3244,11 +3244,11 @@ select {
 	}
 	.scenario-link {
 		padding: 10px 8px;
-		font-size: 9px;
+		font-size: 11px;
 		gap: 8px;
 	}
 	.scenario-link > span:first-child {
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.scenario-link > span:last-child {
 		display: none;
@@ -3264,7 +3264,7 @@ select {
 		letter-spacing: -1px;
 	}
 	.experience-topline .eyebrow {
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.restart-button {
 		font-size: 22px;
@@ -3276,7 +3276,7 @@ select {
 		margin: 24px 0 20px;
 	}
 	.experience-step {
-		font-size: 8px;
+		font-size: 10px;
 		gap: 7px;
 	}
 	.experience-workspace {
@@ -3293,15 +3293,15 @@ select {
 		font-size: 26px;
 	}
 	.scene-content > p {
-		font-size: 12px;
+		font-size: 14px;
 	}
 	.scene-primary {
 		min-height: 48px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 	.scene-secondary-actions button,
 	.scene-secondary-actions a {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.experience-wallet {
 		display: grid;
@@ -3331,23 +3331,23 @@ select {
 		gap: 10px;
 	}
 	.wallet-split > div > span {
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.wallet-split strong {
-		font-size: 13px;
+		font-size: 15px;
 	}
 	.experience-insight {
 		padding: 14px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.experience-bottom {
-		font-size: 6px;
+		font-size: 8px;
 		line-height: 1.8;
 	}
 	.app-footer {
 		padding: 16px 5%;
 		gap: 20px;
-		font-size: 6px;
+		font-size: 8px;
 	}
 	.app-footer > span:last-child {
 		text-align: right;
@@ -3359,7 +3359,7 @@ select {
 		font-size: 19px;
 	}
 	.lab-intro > span:last-child {
-		font-size: 9px;
+		font-size: 11px;
 		line-height: 1.8;
 	}
 	.section-heading {
@@ -3371,7 +3371,7 @@ select {
 		font-size: 29px;
 	}
 	.section-heading > p {
-		font-size: 10px;
+		font-size: 12px;
 		max-width: none;
 	}
 	.demo-toolbar {
@@ -3380,21 +3380,21 @@ select {
 	}
 	.replay-label {
 		width: 100%;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.mode-switch button {
-		font-size: 9px;
+		font-size: 11px;
 		padding: 8px 10px;
 	}
 	.toolbar-actions {
 		gap: 10px;
 	}
 	.run-button {
-		font-size: 9px;
+		font-size: 11px;
 		padding: 11px;
 	}
 	.text-button {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.judge-caption {
 		padding: 20px 16px;
@@ -3403,13 +3403,13 @@ select {
 	}
 	.judge-beat {
 		grid-row: auto;
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.judge-caption > strong {
-		font-size: 16px;
+		font-size: 18px;
 	}
 	.judge-caption > span:last-child {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.demo-grid {
 		grid-template-columns: 1fr;
@@ -3420,12 +3420,12 @@ select {
 		gap: 4px;
 	}
 	.flow-step b {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.flow-step > span {
 		width: 25px;
 		height: 25px;
-		font-size: 7px;
+		font-size: 9px;
 	}
 	.flow-line {
 		top: 20px;
@@ -3436,44 +3436,44 @@ select {
 		align-items: stretch;
 	}
 	.live-session-copy > strong {
-		font-size: 15px;
+		font-size: 17px;
 	}
 	.wallet-button {
 		min-height: 42px;
 	}
 	.device-topline {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.merchant-header strong {
-		font-size: 16px;
+		font-size: 18px;
 	}
 	.request-builder label > span,
 	.capture-input > span {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	input:not([type="range"]),
 	select {
-		font-size: 16px;
+		font-size: 18px;
 	}
 	.request-builder > button,
 	.merchant-actions button {
 		min-height: 42px;
-		font-size: 10px;
-	}
-	.promise-details strong {
 		font-size: 12px;
 	}
+	.promise-details strong {
+		font-size: 14px;
+	}
 	.promise-details > div > span {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.policy-card strong {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.policy-card > div > span {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.merchant-total {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.request-qr canvas,
 	.settlement-handoff canvas {
@@ -3484,15 +3484,15 @@ select {
 	}
 	.request-qr code,
 	.settlement-handoff code {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.request-qr small {
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.request-qr button,
 	.settlement-handoff button {
 		min-height: 35px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.demo-console {
 		grid-template-columns: 1fr;
@@ -3513,7 +3513,7 @@ select {
 	.spend-test,
 	.retry-action {
 		min-height: 42px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.decline-evidence,
 	.settlement-evidence {
@@ -3530,11 +3530,11 @@ select {
 		gap: 12px;
 	}
 	.contract-row code {
-		font-size: 8px;
+		font-size: 10px;
 	}
 	.contract-row button {
 		padding: 10px 12px;
-		font-size: 9px;
+		font-size: 11px;
 	}
 }
 @media (max-width: 520px) {
@@ -3548,7 +3548,7 @@ select {
 	}
 	.hero-actions .quiet-link {
 		max-width: 108px;
-		font-size: 9px;
+		font-size: 11px;
 	}
 	.hero-art {
 		height: 360px;
@@ -3599,7 +3599,7 @@ select {
 		gap: 8px;
 	}
 	.run-button {
-		font-size: 8px;
+		font-size: 10px;
 		padding: 11px 9px;
 	}
 }
@@ -3633,7 +3633,7 @@ select {
 	border: 1px solid var(--line);
 	border-radius: 6px;
 	color: var(--muted);
-	font-size: 12px;
+	font-size: 14px;
 }
 .protocol-loading button {
 	margin-left: auto;
@@ -3667,7 +3667,7 @@ select {
 		0 0 18px #a7d8b88c;
 }
 .button.wallet-entry b {
-	font-size: 18px;
+	font-size: 20px;
 	font-weight: 400;
 }
 .button.wallet-entry .wallet-entry-label {
@@ -3718,7 +3718,7 @@ select {
 	background: linear-gradient(135deg, #f6efff 0%, #e6d7ff 52%, #cdb4f2 100%);
 	color: #352047;
 	font-family: Inter, sans-serif;
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: 600;
 	gap: 10px;
 	letter-spacing: -0.2px;
@@ -3820,7 +3820,7 @@ select {
 }
 .floating-receipt .reservation-switch-copy small {
 	color: #ada0c4;
-	font-size: 10px;
+	font-size: 12px;
 	font-weight: 400;
 }
 .reservation-switch-track {
@@ -3860,7 +3860,7 @@ select {
 .reservation-feedback {
 	padding: 13px 8px 0;
 	text-align: center;
-	font-size: 11px;
+	font-size: 13px;
 	color: #d2c4ed;
 }
 @keyframes switch-invitation {
@@ -3873,7 +3873,7 @@ select {
 	text-align: center;
 	color: #b5adc4;
 	font-family: Inter, sans-serif;
-	font-size: 10px;
+	font-size: 12px;
 	letter-spacing: 0;
 }
 .hero-art.is-latched .orbital-one {
@@ -3905,7 +3905,7 @@ select {
 	border-radius: 4px;
 	color: #d7c9ed;
 	background: #9a7bd10b;
-	font-size: 9px;
+	font-size: 11px;
 	transition:
 		background 0.2s,
 		border-color 0.2s;
@@ -3915,7 +3915,7 @@ select {
 	border-color: #b79be278;
 }
 .app-wallet-cta b {
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: 400;
 }
 .app-network {
@@ -4027,7 +4027,7 @@ select {
 	.receipt-action {
 		min-height: 48px;
 		padding: 0 10px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 	.reservation-switch-track { width: 56px; }
 	.receipt-action[aria-pressed="true"] .reservation-switch-thumb { transform: translateX(18px); }
@@ -4066,13 +4066,13 @@ select {
 	margin: 0;
 }
 .experience-modebar strong {
-	font-size: 11px;
+	font-size: 13px;
 	font-weight: 500;
 	color: #e2d8ee;
 }
 .experience-modebar p > span {
 	margin-top: 4px;
-	font-size: 8px;
+	font-size: 10px;
 	line-height: 1.5;
 	color: #887d91;
 }
@@ -4084,7 +4084,7 @@ select {
 	border-radius: 4px;
 	background: #8d6cea;
 	color: white;
-	font-size: 9px;
+	font-size: 11px;
 	transition:
 		background 0.2s,
 		transform 0.2s;
@@ -4096,7 +4096,7 @@ select {
 	transform: scale(0.98);
 }
 .experience-live-cta b {
-	font-size: 15px;
+	font-size: 17px;
 	font-weight: 400;
 }
 .experience-modebar.is-live {
@@ -4145,14 +4145,14 @@ select {
 .experience-layout .lab-intro > div > span:last-child {
 	display: block;
 	max-width: 650px;
-	font-size: 10px;
+	font-size: 12px;
 	line-height: 1.7;
 	color: #94879f;
 }
 .close-live-experience {
 	flex: 0 0 auto;
 	padding: 10px 0;
-	font-size: 9px;
+	font-size: 11px;
 	color: #a996bc;
 }
 .experience-layout .demo-section > .section-heading,
@@ -4197,6 +4197,6 @@ select {
 	}
 	.site-header > .wallet-entry .wallet-entry-label::after {
 		content: "Wallet";
-		font-size: 10px;
+		font-size: 12px;
 	}
 }
