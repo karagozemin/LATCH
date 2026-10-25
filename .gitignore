@@ -1,0 +1,41 @@
+# Rust / Soroban build output
+/target/
+**/target/
+*.wasm.d
+
+# JavaScript / frontend build output
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+identities/
+.stellar/
+
+# Generated deployment and temporary artifacts
+artifacts/
+tmp/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
