@@ -50,7 +50,7 @@ every overspend and unauthorized transition is rejected.
 
 ## M4 — Submission quality
 
-- [ ] Run contract tests, frontend tests, lint, format, and production builds in CI.
+- [x] Run contract tests, frontend tests, lint, format, and production builds in CI.
 - [x] Threat-model review and test evidence matrix against the PRD.
 - [ ] Rehearse the demo under poor network conditions; capture a backup video.
 - [x] Publish architecture, honest pre-event/build-window disclosure, testnet

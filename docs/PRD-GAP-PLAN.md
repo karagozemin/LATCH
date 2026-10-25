@@ -81,7 +81,7 @@ help, and the 12-second replay tells the same numerical story.
 - [x] Extract/test deterministic state and amount transitions.
 - [x] Test replay controls, live-mode state restoration, guarantee badge,
   decline evidence, retry safety, and responsive critical controls.
-- [ ] Add frontend test and lint commands to CI; do not mark them complete until
+- [x] Add frontend test and lint commands to CI; do not mark them complete until
   those commands execute on GitHub Actions.
 - [x] Keep the committed production bundle drift check.
 
@@ -92,9 +92,9 @@ only typechecking and bundling.
 
 - [ ] Run thirty complete rehearsals, including throttled/failed-network cases.
 - [ ] Record and verify the 90-second backup video from the final hosted build.
-- [ ] Produce the pitch deck, submission answers, QR/link sheet, and final Q&A
+- [x] Produce the pitch deck, submission answers, QR/link sheet, and final Q&A
   cards from the same claims and numbers.
-- [ ] Perform a clean-machine clone/build/demo rehearsal and archive its logs.
+- [x] Perform a clean-machine clone/build/demo rehearsal and archive its logs.
 - [ ] Freeze release commit, deployment URL, video, and Testnet proof manifest.
 
 **Exit:** repository, live demo, pitch, submission, and fallback recording tell
@@ -104,10 +104,8 @@ one verifiable story.
 
 - Live wallet intentionally remains the labeled one-wallet stage fallback; the
   canonical replay and public proof use the full two-merchant lifecycle.
-- CI includes the new frontend test/lint gates but their first GitHub Actions
-  execution must pass before P5 is closed.
-- Poor-network rehearsal, backup video, pitch deck, and submission answers are
-  not yet final artifacts.
+- Manual poor-network rehearsals, backup video, team/contact fields, track
+  confirmation, and judge access are not yet final.
 
 ## Closed deltas
 

@@ -23,6 +23,10 @@ technical foundation; the HackMeridian build sprint produces the submitted MVP.
 - [`docs/SECURITY-EVIDENCE.md`](./docs/SECURITY-EVIDENCE.md) — threat-to-control-to-test evidence matrix
 - [`docs/DEMO-RUNBOOK.md`](./docs/DEMO-RUNBOOK.md) — 60-second pitch, live flow, and failure ladder
 - [`docs/PRODUCT-DECISIONS.md`](./docs/PRODUCT-DECISIONS.md) — shipped signing, asset, and canonical-number decisions
+- [`docs/SUBMISSION-PACK.md`](./docs/SUBMISSION-PACK.md) — submission copy and 90-second video script
+- [`docs/PITCH-DECK.md`](./docs/PITCH-DECK.md) — eight-slide judge narrative
+- [`docs/JUDGE-QA.md`](./docs/JUDGE-QA.md) — technical and product Q&A cards
+- [`docs/REHEARSAL-LOG.md`](./docs/REHEARSAL-LOG.md) — automated and manual rehearsal evidence
 - `contracts/latch` — LATCH custom-account contract
 - `sites/latch-demo` — responsive payer + merchant judge demo
 - `spike-reentry` — SAC re-entry behavior inside `__check_auth`
