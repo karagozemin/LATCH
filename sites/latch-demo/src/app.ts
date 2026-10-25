@@ -27,7 +27,8 @@ const proof = {
 
 const PROOF_CONTRACT = "CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS";
 const WASM_HASH = "fad3dbe589ea30aaab85340fe651bc7049a7d6e853d96e68197ed1088a3960e9";
-const RPC_URL = "https://soroban-rpc.testnet.stellar.gateway.fm";
+const RPC_URL = "https://soroban-testnet.stellar.org";
+const FRIENDBOT_URL = "https://friendbot.stellar.org/";
 const NETWORK_PASSPHRASE = Networks.TESTNET;
 const SCALE = 10_000_000n;
 const STORAGE_PREFIX = "latch-live-v1:";
@@ -112,7 +113,12 @@ function shortAddress(address: string) {
 }
 
 function errorMessage(error: unknown) {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+    if (/failed to fetch|network error/i.test(error.message)) {
+      return "Stellar Testnet RPC could not be reached. Check the connection and retry.";
+    }
+    return error.message;
+  }
   if (typeof error === "string") return error;
   return "Unexpected wallet or network error";
 }
@@ -439,9 +445,10 @@ async function connectWallet() {
 async function ensureFunded() {
   try {
     await rpcServer.getAccount(walletAddress);
-  } catch {
+  } catch (error) {
+    if (!/account.*not found|not found/i.test(errorMessage(error))) throw error;
     els.liveTitle.textContent = "Funding your Testnet wallet";
-    await rpcServer.fundAddress(walletAddress);
+    await rpcServer.fundAddress(walletAddress, FRIENDBOT_URL);
   }
 }
 
