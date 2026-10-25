@@ -88,6 +88,28 @@ help, and the 12-second replay tells the same numerical story.
 **Exit:** the BUILD-PLAN CI checkbox is supported by actual frontend tests, not
 only typechecking and bundling.
 
+## P5.5 — Merchant product proof
+
+External judge review correctly identified the remaining gap between a secure
+contract proof and a merchant-ready product proof.
+
+- [x] Model payer and merchant as separate roles in the request/QR experience.
+- [x] Prove owner, payer, and merchant separation with isolated Testnet
+  identities in the reproducible bootstrap flow.
+- [x] Expose amount, asset, merchant, expiry, reference, authorization ID,
+  hold status, capture, and release in the judge interface.
+- [ ] Run the live browser flow across two separate wallet identities/profiles:
+  merchant request → payer hold → merchant verify → merchant capture/release.
+- [ ] Add a small merchant integration layer over the generated ABI client with
+  request, verification, capture, release, and status helpers.
+- [ ] Add indexer/event-backed merchant history using only the contract's real
+  event names: `HoldCreated`, `HoldCaptured`, and `HoldVoided`.
+- [ ] Extend the proof manifest with the active `verify_hold` snapshot before
+  terminal settlement and explicit merchant post-capture balance.
+
+**Exit:** a judge can see not only a secure primitive but also how a merchant
+integrates, verifies, and settles it without reading the raw contract ABI.
+
 ## P6 — Submission freeze and manual evidence
 
 - [ ] Run thirty complete rehearsals, including throttled/failed-network cases.

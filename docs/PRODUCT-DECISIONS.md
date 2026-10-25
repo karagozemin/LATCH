@@ -42,3 +42,37 @@ release B 15.00    -> balance 37.60, reserved  0.00, available 37.60
 
 The one-wallet live path remains a stage-safe fallback. The canonical replay
 and final two-party UX must use the full two-hold lifecycle above.
+
+## D4 — One-shot settlement
+
+**Decision:** a v1 hold has exactly one terminal settlement: capture once for an
+amount at or below the ceiling, or release once without payment.
+
+A capture below the maximum releases the unused reservation in the same
+transaction. Repeated partial capture is deliberately excluded. Supporting it
+would require residual reservation state, additional replay rules, rounding
+semantics, and clearer merchant-facing completion behavior. One-shot settlement
+keeps the authorization and accounting surface small enough to test and explain
+completely in the MVP.
+
+## D5 — Merchant release and deterministic expiry
+
+**Decision:** the payer cannot cancel an active hold in v1. The bound merchant
+may release it, or ledger expiry removes it from reserved capacity.
+
+Payer cancellation creates a race with merchant fulfillment: a payer could
+revoke capacity after a merchant has relied on a valid reservation but before
+capture. Resolving that race requires delivery evidence or dispute semantics,
+which are outside this prototype. Merchant release plus deterministic expiry is
+the narrowest rule that preserves the promise being demonstrated.
+
+## D6 — Judge narrative
+
+**Decision:** the primary product story is a hotel-style authorization where the
+final charge is unknown at check-in. The secondary fuel reservation exists to
+prove concurrent merchant claims against one balance; it is not a second product
+story.
+
+Final materials should lead with this single flow instead of claiming to solve
+every merchant vertical. Wallet, anchor, POS, and issuer adapters remain outside
+the Testnet MVP.

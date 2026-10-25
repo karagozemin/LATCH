@@ -1,8 +1,9 @@
 # Security evidence matrix
 
-This matrix connects the claims shown in the judge demo to executable evidence.
-The canonical tests live in `contracts/latch/src/test.rs`; CI also executes five
-isolated protocol-behavior spike crates against `soroban-env-host 27.0.1`.
+This matrix connects every security claim shown in the judge demo to a contract
+control and an executable artifact. The canonical tests live in
+[`contracts/latch/src/test.rs`](../contracts/latch/src/test.rs); CI also executes
+five isolated protocol-behavior spike crates against `soroban-env-host 27.0.1`.
 
 | Threat or invariant | Contract control | Executable evidence |
 |---|---|---|
@@ -19,6 +20,36 @@ isolated protocol-behavior spike crates against `soroban-env-host 27.0.1`.
 | Accounting claims cannot be reconstructed from events | Deposit, pay, capture, and sync events include their post-state or released-capacity facts. | `accounting_events_include_prd_evidence_fields` |
 | Failed nested execution mutates accounting | Soroban transaction rollback restores state when the outer operation fails. | `spike-s3`; `spike-reentry` |
 | Recording-mode simulation omits required state | Mirror writes happen in function bodies, while `__check_auth` remains storage-read-only. | `spike-s6` |
+
+## Public network evidence
+
+The checked-in [`Testnet proof manifest`](../deployments/testnet.json) records a
+fresh deployment with distinct owner, payer, and two merchant identities. Its
+canonical lifecycle provides public positive-path evidence for:
+
+- two merchant-bound holds of 30 and 15 against one 50 LUSD balance;
+- a safe 4 LUSD owner payment that preserves both reservations;
+- an 8.40 LUSD merchant capture that releases the unused 21.60 ceiling;
+- release of the second 15 LUSD hold;
+- final equality of mirror and real balance at 37.60 LUSD.
+
+The 10 LUSD overspend is negative-path evidence. It is rejected during typed
+simulation, so there is intentionally no failed transaction hash. The manifest
+records the same real balance and available capacity before and after the
+attempt. Wrong-merchant, replay, invalid-signature, clawback, and storage-limit
+cases are likewise best represented by deterministic tests rather than by
+publishing intentionally failing transactions.
+
+## Claim boundaries
+
+| Claim | Boundary |
+|---|---|
+| Reserved capacity is payer-side backed | Issuer freeze, clawback, and asset authorization remain outside the account policy. |
+| Merchant can rely on `verify_hold` | A fresh RPC read is required; network unavailability delays verification and settlement. |
+| Capture is merchant-bound | LATCH does not establish the merchant's real-world identity or adjudicate fulfillment. |
+| Owner authorization is key-safe in the app | Freighter and the browser remain part of the client trust boundary. |
+| Tests cover the documented threat model | The prototype has not undergone an independent production security audit. |
+| Testnet proof is reproducible | Testnet evidence is not a Mainnet deployment or production-readiness claim. |
 
 ## CI gate
 
