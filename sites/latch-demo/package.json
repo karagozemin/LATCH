@@ -4,10 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/app.ts --bundle --minify --format=iife --platform=browser --target=es2022 --outfile=dist/app.js",
+    "build": "node build.mjs",
     "check": "tsc --noEmit",
     "lint": "biome lint src",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev": "node dev.mjs"
   },
   "dependencies": {
     "@stellar/freighter-api": "6.0.1",

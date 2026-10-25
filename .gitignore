@@ -39,3 +39,7 @@ pnpm-debug.log*
 .vscode/
 *.swp
 *~
+
+# This demo intentionally commits its complete static build for preview and CI.
+!sites/latch-demo/dist/
+!sites/latch-demo/dist/**

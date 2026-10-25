@@ -149,7 +149,7 @@ describe("two-party settlement handoff", () => {
 
 describe("critical responsive controls", () => {
   it("keeps judge, payer, merchant, retry, and QR actions in the shipped HTML", () => {
-    const html = readFileSync("dist/index.html", "utf8");
+    const html = readFileSync("src/index.html", "utf8");
     for (const id of [
       "run-button",
       "hold-button",
@@ -169,9 +169,9 @@ describe("critical responsive controls", () => {
   });
 
   it("ships a mobile layout for the demo and evidence panels", () => {
-    const css = readFileSync("dist/styles.css", "utf8");
+    const css = readFileSync("src/styles.css", "utf8");
     expect(css).toContain("@media (max-width: 760px)");
-    expect(css).toContain(".demo-console { grid-template-columns: 1fr; }");
-    expect(css).toContain(".decline-evidence { grid-template-columns: 1fr; }");
+    expect(css).toMatch(/\.demo-console\s*\{\s*grid-template-columns: 1fr;/);
+    expect(css).toMatch(/\.decline-evidence\s*\{\s*grid-template-columns: 1fr;/);
   });
 });

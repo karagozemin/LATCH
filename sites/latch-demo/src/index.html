@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta
+			name="description"
+			content="Make a payment promise. Keep control of your funds. Experience merchant-bound payment reservations on Stellar with LATCH."
+		>
+		<meta name="theme-color" content="#08080c">
+		<meta property="og:image" content="./assets/latch1.png">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:image" content="./assets/latch1.png">
+		<title>LATCH</title>
+		<link rel="icon" type="image/png" href="./assets/latch1.png">
+		<link rel="apple-touch-icon" href="./assets/latch1.png">
+		<link
+			rel="preload"
+			href="./assets/space-grotesk-bold.ttf"
+			as="font"
+			type="font/ttf"
+			crossorigin
+		>
+		<link rel="stylesheet" href="./styles.css">
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+		<div class="grain" aria-hidden="true"></div>
+		<header class="site-header" id="site-header">
+			<a class="brand" href="#top" aria-label="LATCH home"
+				><span class="brand-logo-frame" aria-hidden="true"
+					><img src="./assets/latch1.png" alt="" width="500" height="500"></span
+				><span
+					>LATCH<span class="brand-period" aria-hidden="true">✳</span></span
+				></a
+			>
+			<nav class="desktop-nav" aria-label="Primary navigation">
+				<a href="#how-it-works">How it works</a
+				><a href="#use-cases">Use cases</a
+				><a href="#app/hotel/live">Live Testnet <span>↗</span></a>
+			</nav>
+			<a
+				class="button small light wallet-entry"
+				href="#app/hotel/live"
+				data-wallet-entry
+				><i class="wallet-entry-dot"></i
+				><span class="wallet-entry-label">Connect wallet</span><b>↗</b></a
+			>
+			<button
+				class="menu-toggle"
+				id="menu-toggle"
+				type="button"
+				aria-expanded="false"
+				aria-controls="mobile-nav"
+				aria-label="Open navigation"
+			>
+				<span></span><span></span>
+			</button>
+			<nav
+				id="mobile-nav"
+				class="mobile-nav"
+				aria-label="Mobile navigation"
+				hidden
+			>
+				<a href="#how-it-works">How it works</a
+				><a href="#use-cases">Use cases</a
+				><a href="#app/hotel/live">Live Testnet ↗</a
+				><a href="#app/hotel/live" class="wallet-entry" data-wallet-entry
+					><span class="wallet-entry-label">Connect Freighter</span>
+					↗</a
+				>
+			</nav>
+		</header>
+		<main id="main" tabindex="-1">
+			<div id="landing">
+				<section id="top" class="hero" aria-labelledby="hero-title">
+					<div class="hero-topline">
+						<span class="eyebrow"
+							><i class="status-dot"></i>
+							A NEW STATE OF PAYMENT</span
+						><span class="hero-edition">BUILT ON STELLAR <span>↗</span></span>
+					</div>
+					<div class="hero-layout">
+						<div class="hero-copy">
+							<h1 id="hero-title">
+								<span>MAKE A</span><span class="accent">PROMISE.</span
+								><span>KEEP CONTROL.</span>
+							</h1>
+							<p>
+								Reserve now. Settle what’s owed.<br>Your money stays yours until
+								the moment it matters.
+							</p>
+							<div class="hero-actions">
+								<a
+									class="button violet wallet-entry"
+									href="#app/hotel/live"
+									data-wallet-entry
+									><i class="wallet-entry-dot"></i
+									><span class="wallet-entry-label">Connect Freighter</span
+									><b>↗</b></a
+								><a class="quiet-link" href="#app/hotel"
+									>Try the experience <span>↗</span></a
+								>
+							</div>
+							<span class="hero-note"
+								><span class="tiny-star">✳</span>
+								Live on Testnet · or explore without a wallet.</span
+							>
+						</div>
+						<div class="hero-art" id="hero-art">
+							<div class="orbital orbital-one"></div>
+							<div class="orbital orbital-two"></div>
+							<div class="art-coordinate top">
+								FIG. 001 / OWNED PAYMENT CAPACITY
+							</div>
+							<div class="hero-logo-stage" aria-hidden="true">
+								<div class="hero-logo-aura"></div>
+								<div class="hero-core">
+									<div class="core-topline">
+										<span>LATCH / CONTROL LAYER</span>
+										<i>LIVE</i>
+									</div>
+									<div class="core-mark">
+										<img
+											class="hero-brand-logo"
+											src="./assets/latch1.png"
+											alt=""
+											width="500"
+											height="500"
+										>
+									</div>
+									<div class="core-balance">
+										<span>PAYMENT CAPACITY</span>
+										<strong>500.00 <small>LUSD</small></strong>
+										<p>In your account. Ready when promised.</p>
+									</div>
+									<div class="core-rule"><i></i><i></i><i></i></div>
+									<div class="core-footer">
+										<span>OWNER / YOU</span><span>NETWORK / STELLAR</span>
+									</div>
+								</div>
+							</div>
+							<div class="art-cross cross-one">+</div>
+							<div class="art-cross cross-two">+</div>
+							<div class="floating-receipt" id="hero-promise-card">
+								<button
+									type="button"
+									class="receipt-hit-area"
+									id="hero-promise-trigger"
+									aria-label="Interactive demo: click anywhere on this card to reserve 150 LUSD"
+									aria-pressed="false"
+								></button>
+								<div class="receipt-status">
+									<i class="status-dot"></i>
+									<span id="hero-promise-status">INTERACTIVE PREVIEW</span
+									><span>01 / PROMISE</span>
+								</div>
+								<section class="receipt-limit">
+									<span>PROMISE LIMIT</span>
+									<strong>150.00 <small>LUSD</small></strong>
+									<div class="capacity-track"><i></i></div>
+								</section>
+								<footer>
+									<span>Available <b><span id="hero-available-value">500.00</span></b></span>
+									<span>Reserved <b><span id="hero-reserved-value">0.00</span></b></span>
+								</footer>
+								<div class="receipt-action" aria-hidden="true">
+									<span class="receipt-action-copy">
+										<small><i></i> <span id="hero-promise-action-kicker">TRY THE FLOW</span></small>
+										<span id="hero-promise-action-label">RESERVE 150 LUSD</span>
+									</span>
+									<b class="receipt-action-icon">↗</b>
+								</div>
+								<small class="receipt-disclosure"
+									>SIMULATED PREVIEW · FUNDS NEVER LEAVE YOUR WALLET</small
+								>
+							</div>
+							<div class="art-coordinate bottom">
+								CUSTODY: YOURS <span>●</span> ALWAYS.
+							</div>
+						</div>
+					</div>
+					<div class="hero-bottom">
+						<span>PAYMENT CERTAINTY. WITHOUT THE HANDOVER.</span
+						><a href="#how-it-works">SCROLL TO DISCOVER <span>↓</span></a>
+					</div>
+				</section>
+				<div
+					class="promise-strip"
+					role="img"
+					aria-label="Reserve. Experience. Settle."
+				>
+					<div>
+						<span>YOUR FUNDS.</span><i>✳</i><span>YOUR CONTROL.</span><i>✳</i
+						><span>YOUR PROMISE.</span><i>✳</i
+						><span aria-hidden="true">YOUR FUNDS.</span
+						><i aria-hidden="true">✳</i
+						><span aria-hidden="true">YOUR CONTROL.</span
+						><i aria-hidden="true">✳</i>
+					</div>
+				</div>
+				<section
+					class="how-section section-pad"
+					id="how-it-works"
+					aria-labelledby="how-title"
+				>
+					<div class="section-meta">
+						<span>01 / THE IDEA</span
+						><span>A LITTLE SPACE BETWEEN YES AND PAID.</span>
+					</div>
+					<div class="how-heading reveal">
+						<h2 id="how-title">
+							Commit to a payment.<br>
+							<span class="text-muted">Keep your money.</span>
+						</h2>
+						<p>
+							Some things need a promise before they need a payment. LATCH gives
+							that promise a place to live — inside your own account.
+						</p>
+					</div>
+					<div class="how-steps">
+						<article class="how-step reveal">
+							<div class="step-visual">
+								<span class="step-num">01</span
+								><svg viewBox="0 0 180 90" fill="none" aria-hidden="true">
+									<rect
+										x="30"
+										y="15"
+										width="120"
+										height="60"
+										rx="8"
+										stroke="currentColor"
+									/>
+									<path
+										d="M48 35h30m-30 12h55m18-6 5 5 10-12"
+										stroke="currentColor"
+										stroke-width="2"
+									/>
+									<circle cx="127" cy="40" r="17" stroke="currentColor" />
+								</svg>
+							</div>
+							<h3>Make the promise.</h3>
+							<p>
+								Approve a merchant and a maximum amount. That capacity is
+								reserved. Zero tokens move.
+							</p>
+							<span class="step-detail">AUTHORIZE <span>↗</span></span>
+						</article>
+						<article class="how-step reveal">
+							<div class="step-visual">
+								<span class="step-num">02</span
+								><svg viewBox="0 0 180 90" fill="none" aria-hidden="true">
+									<circle cx="90" cy="45" r="29" stroke="currentColor" />
+									<circle
+										cx="90"
+										cy="45"
+										r="38"
+										stroke="currentColor"
+										stroke-dasharray="2 7"
+									/>
+									<path
+										d="m78 44 9 9 17-19"
+										stroke="currentColor"
+										stroke-width="2"
+									/>
+								</svg>
+							</div>
+							<h3>Get on with life.</h3>
+							<p>
+								Check in. Fill up. Get to work. Your merchant verifies the
+								reservation before delivering.
+							</p>
+							<span class="step-detail">EXPERIENCE <span>↗</span></span>
+						</article>
+						<article class="how-step reveal">
+							<div class="step-visual">
+								<span class="step-num">03</span
+								><svg viewBox="0 0 180 90" fill="none" aria-hidden="true">
+									<path
+										d="M30 45h120m-10-10 10 10-10 10M65 20v50m50-50v50"
+										stroke="currentColor"
+									/>
+									<circle
+										cx="90"
+										cy="45"
+										r="16"
+										fill="#111017"
+										stroke="currentColor"
+									/>
+									<path d="m84 45 4 4 8-9" stroke="currentColor" />
+								</svg>
+							</div>
+							<h3>Settle just enough.</h3>
+							<p>
+								The merchant captures the final bill once. Unused capacity
+								becomes available immediately.
+							</p>
+							<span class="step-detail">SETTLE <span>↗</span></span>
+						</article>
+					</div>
+				</section>
+				<section
+					class="use-cases-section section-pad"
+					id="use-cases"
+					aria-labelledby="cases-title"
+				>
+					<div class="section-meta">
+						<span>02 / THE POSSIBILITIES</span
+						><span>REAL LIFE DOESN’T HAVE A FIXED PRICE.</span>
+					</div>
+					<div class="cases-heading reveal">
+						<h2 id="cases-title">
+							Less friction.<br><span class="serif-word">More living.</span>
+						</h2>
+						<p>
+							Don’t just read about it.<br>Step into a scenario. Make the
+							promise yourself.
+						</p>
+					</div>
+					<div class="scenario-cards">
+						<a class="scenario-card featured reveal" href="#app/hotel"
+							><img
+								src="./assets/hotel.jpg"
+								alt="A warmly lit hotel room ready for check-in"
+								width="1200"
+								height="800"
+								loading="lazy"
+							>
+							<div class="scenario-card-top">
+								<span>01 / HOSPITALITY</span><span class="round-arrow">↗</span>
+							</div>
+							<div class="scenario-card-bottom">
+								<span>CHECK IN. EXHALE.</span>
+								<h3>A stay, without<br>the wait.</h3>
+								<span class="scenario-try"
+									>Experience a hotel hold <b>↗</b></span
+								>
+							</div></a
+						>
+						<a class="scenario-card reveal" href="#app/fuel"
+							><img
+								src="./assets/drive.jpg"
+								alt="A sports car ready for the open road"
+								width="1200"
+								height="800"
+								loading="lazy"
+							>
+							<div class="scenario-card-top">
+								<span>02 / MOBILITY</span><span class="round-arrow">↗</span>
+							</div>
+							<div class="scenario-card-bottom">
+								<span>THE ROAD IS CALLING.</span>
+								<h3>Fill up.<br>Move on.</h3>
+								<span class="scenario-try"
+									>Experience a fuel hold <b>↗</b></span
+								>
+							</div></a
+						>
+						<a class="scenario-card reveal" href="#app/studio"
+							><img
+								src="./assets/studio.jpg"
+								alt="A light-filled creative workspace"
+								width="1200"
+								height="800"
+								loading="lazy"
+							>
+							<div class="scenario-card-top">
+								<span>03 / SERVICES</span><span class="round-arrow">↗</span>
+							</div>
+							<div class="scenario-card-bottom">
+								<span>GREAT WORK STARTS HERE.</span>
+								<h3>Book time.<br>Build things.</h3>
+								<span class="scenario-try"
+									>Experience a service hold <b>↗</b></span
+								>
+							</div></a
+						>
+					</div>
+					<p class="section-footnote">
+						Interactive simulations. Illustrative merchants and amounts. Real
+						protocol underneath.
+					</p>
+				</section>
+				<section
+					class="manifesto-section section-pad"
+					aria-labelledby="manifesto-title"
+				>
+					<div class="section-meta">
+						<span>03 / BUILT DIFFERENTLY</span><span>STELLAR × SOROBAN</span>
+					</div>
+					<div class="manifesto-layout">
+						<div class="reveal">
+							<span class="big-asterisk" aria-hidden="true">✳</span>
+							<h2 id="manifesto-title">
+								Trust the promise.<br>
+								<span class="text-muted">Verify the code.</span>
+							</h2>
+							<a class="quiet-link" href="#app/hotel/live"
+								>Run the experience on Testnet <span>↗</span></a
+							>
+						</div>
+						<div class="principle-list">
+							<article class="reveal">
+								<span>01</span>
+								<div>
+									<h3>Your account. Your custody.</h3>
+									<p>
+										A reservation lives inside your LATCH smart account.
+										Creating it sends nothing to the merchant.
+									</p>
+								</div>
+							</article>
+							<article class="reveal">
+								<span>02</span>
+								<div>
+									<h3>One promise. One merchant.</h3>
+									<p>
+										Only the named merchant can capture or release. Reserved
+										capacity cannot be spent elsewhere.
+									</p>
+								</div>
+							</article>
+							<article class="reveal">
+								<span>03</span>
+								<div>
+									<h3>Every outcome, accounted for.</h3>
+									<p>
+										Capture once, release, or let it expire. No reservation
+										lasts forever. Every successful transition is inspectable.
+									</p>
+								</div>
+							</article>
+						</div>
+					</div>
+					<div class="testnet-disclosure">
+						<i class="status-dot"></i>
+						<p>
+							Built and demonstrated on Stellar Testnet. LATCH is an unaudited
+							prototype; issuer freeze or clawback can affect backing, and
+							verification requires network access.
+						</p>
+						<a
+							href="https://github.com/karagozemin/Latch"
+							target="_blank"
+							rel="noreferrer"
+							>Read the source ↗</a
+						>
+					</div>
+				</section>
+				<section class="closing-section">
+					<span class="eyebrow">THE NEXT MOVE IS YOURS.</span>
+					<h2>A promise<br>worth <span class="serif-word">keeping.</span></h2>
+					<a class="button light" href="#app/hotel"
+						>Step inside LATCH <span>↗</span></a
+					><span class="closing-coordinate">RESERVE / EXPERIENCE / SETTLE</span>
+				</section>
+				<footer class="site-footer">
+					<a class="brand" href="#top"
+						><span class="brand-logo-frame" aria-hidden="true"
+							><img src="./assets/latch1.png" alt="" width="500" height="500"></span
+						><span>LATCH</span></a
+					><span>A NEW STATE OF PAYMENT.</span>
+					<div>
+						<a
+							href="https://github.com/karagozemin/Latch"
+							target="_blank"
+							rel="noreferrer"
+							>GitHub ↗</a
+						><a href="#app/hotel/live">Stellar Testnet ↗</a>
+					</div>
+					<small>BUILT FOR HACKMERIDIAN · LISBON</small>
+				</footer>
+			</div>
+			<section
+				id="application"
+				class="application"
+				aria-label="LATCH interactive app"
+				hidden
+			>
+				<header class="app-header">
+					<a class="brand" href="#top" aria-label="LATCH home"
+						><span class="brand-logo-frame" aria-hidden="true"
+							><img src="./assets/latch1.png" alt="" width="500" height="500"></span
+						><span>LATCH</span></a
+					>
+					<nav aria-label="Application">
+						<a href="#app/hotel" id="experience-tab">Experience</a
+						><a href="#proof" id="proof-tab" hidden>Proof</a>
+					</nav>
+					<a
+						class="app-wallet-cta wallet-entry"
+						href="#app/hotel/live"
+						data-wallet-entry
+						><i class="wallet-entry-dot"></i
+						><span class="wallet-entry-label">Connect Freighter</span
+						><b>↗</b></a
+					>
+					<a
+						id="network-link"
+						class="app-network"
+						href="#proof"
+						target="_blank"
+						rel="noreferrer"
+						><i class="status-dot"></i>
+						Stellar Testnet ↗</a
+					><a class="app-home" href="#top" aria-label="Back to home">↗</a>
+				</header>
+				<div id="experience-view" class="experience-layout">
+					<aside class="experience-sidebar">
+						<span class="eyebrow">THE PLAYGROUND</span>
+						<h2>Make it<br>your experience.</h2>
+						<nav aria-label="Choose a scenario" id="scenario-nav"></nav>
+						<div class="sidebar-note">
+							<span>✳</span>
+							<p>A little less theory.<br>A lot more possibility.</p>
+							<small>Interactive simulation<br>No wallet. No real funds.</small>
+						</div>
+						<a
+							href="#app/hotel/live"
+							class="sidebar-proof wallet-entry"
+							data-wallet-entry
+							>Ready for the real thing?<br>
+							<b
+								><span class="wallet-entry-label">Connect Freighter</span>
+								↗</b
+							></a
+						>
+					</aside>
+					<div class="experience-main">
+						<div class="experience-topline">
+							<div>
+								<span class="eyebrow" id="scenario-category"
+									>01 / HOSPITALITY</span
+								>
+								<h1 id="experience-title" tabindex="-1">
+									A stay, without the wait.
+								</h1>
+							</div>
+							<button
+								type="button"
+								class="restart-button"
+								id="restart-experience"
+								aria-label="Restart scenario"
+							>
+								↺ <span>Start over</span>
+							</button>
+						</div>
+						<ol
+							class="experience-progress"
+							id="experience-progress"
+							aria-label="Reservation progress"
+						></ol>
+						<div class="experience-modebar" id="experience-modebar">
+							<div>
+								<i class="status-dot"></i>
+								<p>
+									<strong id="experience-mode-title">Guided experience</strong>
+									<span id="experience-mode-copy"
+										>Learn the flow here, then perform this same use case on
+										Stellar Testnet.</span
+									>
+								</p>
+							</div>
+							<a
+								class="experience-live-cta wallet-entry"
+								href="#app/hotel/live"
+								data-wallet-entry
+								><i class="wallet-entry-dot"></i
+								><span class="wallet-entry-label">Use Freighter on Testnet</span
+								><b>↗</b></a
+							>
+						</div>
+						<div class="experience-workspace">
+							<article class="experience-scene" id="experience-scene"></article>
+							<aside
+								class="experience-wallet"
+								id="experience-wallet"
+								aria-label="Your simulated LATCH account"
+							></aside>
+						</div>
+						<div
+							class="experience-insight"
+							id="experience-insight"
+							role="status"
+							aria-live="polite"
+						></div>
+						<div class="experience-bottom">
+							<span>ILLUSTRATIVE EXPERIENCE · LUSD DEMO UNITS</span
+							><a href="#app/hotel/live">Run this experience on Testnet ↗</a>
+						</div>
+					</div>
+				</div>
+				<div id="protocol-view" class="protocol-view" hidden>
+					<div class="lab-intro">
+						<div>
+							<span class="eyebrow">LIVE INSIDE THIS EXPERIENCE</span>
+							<p id="live-experience-title">Take this use case to Testnet.</p>
+							<span id="live-experience-copy"
+								>Connect Freighter, create the reservation, and settle it
+								without leaving the experience.</span
+							>
+						</div>
+						<a
+							class="close-live-experience"
+							id="close-live-experience"
+							href="#app/hotel"
+							>Back to guided mode ×</a
+						>
+					</div>
+					<div id="protocol-loading" class="protocol-loading" role="status">
+						<span class="status-dot"></span>
+						<p id="protocol-loading-message">
+							Opening live Testnet inside this experience…
+						</p>
+						<button type="button" id="retry-protocol-load" hidden>
+							Try again ↗
+						</button>
+					</div>
+					<div id="protocol-controls" hidden>
+						<section
+							class="demo-section"
+							id="demo"
+							aria-labelledby="demo-title"
+						>
+							<div class="section-heading">
+								<div>
+									<span class="section-index">REAL STELLAR TESTNET</span>
+									<h2 id="demo-title">Perform the promise on-chain.</h2>
+								</div>
+								<p>
+									The same reserve, verify, capture, and release flow now uses
+									Freighter and real Testnet transactions.
+								</p>
+							</div>
+
+							<div class="demo-shell">
+								<div class="demo-toolbar">
+									<div class="replay-label" id="mode-label">
+										<span class="pulse"></span>
+										Verified Testnet replay
+									</div>
+									<fieldset class="mode-switch" aria-label="Demo mode">
+										<button
+											class="is-active"
+											type="button"
+											id="replay-mode"
+											aria-pressed="true"
+										>
+											Replay
+										</button>
+										<button type="button" id="live-mode" aria-pressed="false">
+											Live wallet
+										</button>
+									</fieldset>
+									<div class="toolbar-actions">
+										<button class="text-button" type="button" id="reset-button">
+											Reset
+										</button>
+										<button class="run-button" type="button" id="run-button">
+											<span class="run-icon">▶</span>
+											Run the full proof
+										</button>
+									</div>
+								</div>
+
+								<div
+									class="judge-caption"
+									id="judge-caption"
+									aria-live="polite"
+								>
+									<div class="judge-progress" aria-hidden="true">
+										<span id="judge-progress"></span>
+									</div>
+									<span class="judge-beat" id="judge-beat">STEP 1 / 7</span>
+									<strong id="judge-title">The payer keeps custody.</strong>
+									<span id="judge-copy"
+										>All 50 LUSD remains available until the account itself
+										records a merchant promise.</span
+									>
+								</div>
+
+								<div class="live-session" id="live-session" hidden>
+									<div class="live-session-copy">
+										<span class="live-kicker" id="live-kicker"
+											>Live Testnet · two-party handoff</span
+										>
+										<strong id="live-title">Connect Freighter to begin</strong>
+										<span id="live-copy"
+											>Your wallet signs every state change. No private key
+											leaves Freighter.</span
+										>
+									</div>
+									<button
+										class="wallet-button"
+										type="button"
+										id="wallet-button"
+									>
+										Connect Freighter
+									</button>
+								</div>
+
+								<div class="demo-grid">
+									<article
+										class="device payer-device"
+										aria-label="Payer wallet"
+									>
+										<div class="device-topline">
+											<span>Payer</span>
+											<span class="address" id="payer-address">GAQ6…SALV</span>
+										</div>
+										<div class="balance-block">
+											<span class="balance-label">LATCH balance</span>
+											<strong
+												><span id="payer-balance">50.00</span
+												><small class="asset-unit">LUSD</small></strong
+											>
+											<div
+												class="capacity-bar"
+												role="img"
+												aria-label="Available and reserved capacity"
+											>
+												<span id="available-bar"></span
+												><i id="reserved-bar"></i>
+											</div>
+											<div class="balance-split">
+												<div>
+													<span class="dot available-dot"></span>Available
+													<b id="available-value">50.00</b>
+												</div>
+												<div>
+													<span class="dot reserved-dot"></span>Reserved
+													<b id="reserved-value">0.00</b>
+												</div>
+											</div>
+										</div>
+
+										<div class="promise-card" id="promise-card">
+											<div class="promise-head">
+												<span>Active promise</span>
+												<span class="status-tag" id="payer-status">None</span>
+											</div>
+											<div class="empty-promise" id="empty-promise">
+												No funds are currently reserved.
+											</div>
+											<div
+												class="promise-details"
+												id="promise-details-primary"
+												hidden
+											>
+												<div class="merchant-mark">M</div>
+												<div>
+													<strong>Meridian Hotel</strong
+													><span>Stay · Ref 6F97…8B9E</span>
+												</div>
+												<b><span id="promise-amount">30.00</span></b>
+											</div>
+											<div
+												class="promise-details"
+												id="promise-details-secondary"
+												hidden
+											>
+												<div class="merchant-mark secondary-mark">F</div>
+												<div>
+													<strong>Atlantic Fuel</strong
+													><span>Fuel · Ref 35AA…155C</span>
+												</div>
+												<b>15.00</b>
+											</div>
+										</div>
+
+										<div class="request-inbox" id="request-inbox" hidden>
+											<span>Incoming hold request</span>
+											<strong id="inbox-title"
+												>Meridian Hotel · 30.00 LUSD</strong
+											>
+											<code id="inbox-auth-id">auth —</code>
+											<div>
+												<button type="button" id="approve-request">
+													Authorize hold
+												</button><button type="button" id="decline-request">
+													Decline
+												</button>
+											</div>
+										</div>
+
+										<div
+											class="settlement-handoff"
+											id="settlement-handoff"
+											hidden
+										>
+											<canvas
+												id="settlement-qr-canvas"
+												aria-label="Merchant settlement link QR"
+											></canvas>
+											<div>
+												<span>Return to merchant</span>
+												<strong>Hold created · settlement link ready</strong>
+												<code id="settlement-hold-id">Hold —</code>
+												<button type="button" id="copy-settlement-link">
+													Copy merchant link
+												</button>
+											</div>
+										</div>
+
+										<div class="policy-card">
+											<svg viewBox="0 0 24 24" aria-hidden="true">
+												<path
+													d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5zm0 4a3 3 0 0 1 3 3v1h1v6H8v-6h1V9a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1v1h2V9a1 1 0 0 0-1-1"
+												/>
+											</svg>
+											<div>
+												<strong>Policy enforced by your account</strong
+												><span>Reserved capacity cannot be double-spent.</span>
+											</div>
+										</div>
+									</article>
+
+									<section
+										class="flow-column"
+										aria-label="Transaction sequence"
+									>
+										<div class="flow-line" aria-hidden="true"></div>
+										<div class="flow-step is-current" data-step="0">
+											<span>00</span>
+											<div><b>Fund</b><small>50 LUSD deposited</small></div>
+										</div>
+										<div class="flow-step" data-step="1">
+											<span>01</span>
+											<div><b>Hold A</b><small>30 LUSD · hotel</small></div>
+										</div>
+										<div class="flow-step" data-step="2">
+											<span>02</span>
+											<div><b>Hold B</b><small>15 LUSD · fuel</small></div>
+										</div>
+										<div class="flow-step" data-step="3">
+											<span>03</span>
+											<div><b>Block</b><small>10 rejected</small></div>
+										</div>
+										<div class="flow-step" data-step="4">
+											<span>04</span>
+											<div><b>Pay</b><small>4 LUSD safe</small></div>
+										</div>
+										<div class="flow-step" data-step="5">
+											<span>05</span>
+											<div><b>Capture</b><small>8.40 settled</small></div>
+										</div>
+										<div class="flow-step" data-step="6">
+											<span>06</span>
+											<div><b>Release</b><small>15 returned</small></div>
+										</div>
+									</section>
+
+									<article
+										class="device merchant-device"
+										aria-label="Merchant terminal"
+									>
+										<div class="device-topline">
+											<span>Merchant terminal</span>
+											<span class="address" id="merchant-address"
+												>GCXT…CDHF</span
+											>
+										</div>
+										<div class="merchant-header">
+											<div class="merchant-logo" id="merchant-logo">M</div>
+											<div>
+												<strong id="merchant-name">Meridian Hotel</strong
+												><span>Connected · Testnet</span>
+											</div>
+										</div>
+										<div class="request-card">
+											<span>Requested capacity</span>
+											<strong
+												><span id="request-amount">30.00</span>
+												<small class="asset-unit">LUSD</small></strong
+											>
+											<div class="request-meta">
+												<span>Expiry set by request</span
+												><span id="request-reference">#H-0001</span>
+											</div>
+										</div>
+										<div class="request-builder">
+											<label
+												><span>Amount</span>
+												<input
+													id="request-amount-input"
+													type="number"
+													min="0.0000001"
+													step="0.01"
+													value="30.00"
+												></label
+											>
+											<label
+												><span>Expires</span
+												><select id="request-expiry">
+													<option value="5000">~7 hours</option>
+													<option value="1000">~1.5 hours</option>
+													<option value="100">~8 minutes</option>
+												</select></label
+											>
+											<label class="reference-input"
+												><span>Reference</span>
+												<input
+													id="request-reference-input"
+													maxlength="64"
+													value="H-0001 · Meridian stay"
+												></label
+											>
+											<button type="button" id="generate-request">
+												Generate request + QR
+											</button>
+										</div>
+										<div class="request-qr" id="request-qr" hidden>
+											<canvas
+												id="request-qr-canvas"
+												aria-label="Scannable hold request QR"
+											></canvas>
+											<div>
+												<span>Authorization ID</span
+												><code id="request-auth-id">—</code
+												><small
+													>Scan to open this exact merchant, amount, expiry, and
+													reference.</small
+												><button type="button" id="copy-request-link">
+													Copy payer link
+												</button>
+											</div>
+										</div>
+										<div class="guarantee" id="guarantee">
+											<div class="guarantee-icon">✓</div>
+											<div>
+												<span id="guarantee-label">Ready to request</span
+												><strong id="guarantee-copy"
+													>Waiting for payer authorization</strong
+												>
+											</div>
+										</div>
+										<div class="merchant-actions">
+											<button
+												type="button"
+												class="primary-action"
+												id="hold-button"
+											>
+												Request 30 LUSD hold
+											</button>
+											<button
+												type="button"
+												class="verify-action"
+												id="verify-button"
+												disabled
+											>
+												Verify hold on-chain
+											</button>
+											<label class="capture-input"
+												><span>Final capture</span>
+												<input
+													id="capture-amount-input"
+													type="number"
+													min="0"
+													step="0.01"
+													value="8.00"
+												></label
+											>
+											<div class="split-actions">
+												<button type="button" id="capture-button" disabled>
+													Capture 8.40
+												</button>
+												<button type="button" id="void-button" disabled>
+													Release
+												</button>
+											</div>
+										</div>
+										<div class="merchant-total">
+											<span>Received in this session</span
+											><b
+												><span id="merchant-received">0.00</span>
+												<span class="asset-unit">LUSD</span></b
+											>
+										</div>
+									</article>
+								</div>
+
+								<div class="demo-console">
+									<div class="console-status">
+										<span class="console-icon" id="console-icon">✓</span>
+										<div>
+											<b id="console-title">Account funded</b
+											><span id="console-copy"
+												>50 LUSD is available. No promises are active.</span
+											>
+										</div>
+									</div>
+									<div class="decline-evidence" id="decline-evidence" hidden>
+										<div>
+											<span>Before · available</span
+											><b id="decline-before">—</b>
+										</div>
+										<div>
+											<span>Attempt · simulation</span
+											><b id="decline-attempt">—</b>
+										</div>
+										<div>
+											<span>After · unchanged</span><b id="decline-after">—</b>
+										</div>
+									</div>
+									<div
+										class="settlement-evidence"
+										id="settlement-evidence"
+										hidden
+									>
+										<div>
+											<span>Paid to merchant</span><b id="settlement-paid">—</b>
+										</div>
+										<div>
+											<span>Released from hold</span
+											><b id="settlement-released">—</b>
+										</div>
+										<div>
+											<span>Available before → after</span
+											><b id="settlement-available">—</b>
+										</div>
+									</div>
+									<button
+										type="button"
+										class="spend-test"
+										id="spend-button"
+										disabled
+									>
+										Try to spend 10 LUSD
+									</button>
+									<button
+										type="button"
+										class="retry-action"
+										id="retry-button"
+										hidden
+									>
+										Retry action
+									</button>
+									<a id="tx-link" href="#proof" target="_blank" rel="noreferrer"
+										>View transaction ↗</a
+									>
+								</div>
+							</div>
+						</section>
+
+						<section
+							class="proof-section"
+							id="proof"
+							aria-labelledby="proof-title"
+						>
+							<div class="section-heading proof-heading">
+								<div>
+									<span class="section-index">PUBLIC EVIDENCE</span>
+									<h2 id="proof-title">The proof is public.</h2>
+								</div>
+								<p>
+									Every successful transition below is anchored to the exact
+									Testnet run shipped in the repository.
+								</p>
+							</div>
+							<div class="proof-ledger">
+								<a
+									data-proof="deposit"
+									href="#top"
+									target="_blank"
+									rel="noreferrer"
+									><span>Deposit</span><b>Loading…</b><i>↗</i></a
+								>
+								<a
+									data-proof="hold"
+									href="#top"
+									target="_blank"
+									rel="noreferrer"
+									><span>Create hold</span><b>Loading…</b><i>↗</i></a
+								>
+								<a
+									data-proof="holdSecondary"
+									href="#top"
+									target="_blank"
+									rel="noreferrer"
+									><span>Second hold</span><b>Loading…</b><i>↗</i></a
+								>
+								<a data-proof="pay" href="#top" target="_blank" rel="noreferrer"
+									><span>Direct pay</span><b>Loading…</b><i>↗</i></a
+								>
+								<a
+									data-proof="capture"
+									href="#top"
+									target="_blank"
+									rel="noreferrer"
+									><span>Capture</span><b>Loading…</b><i>↗</i></a
+								>
+								<a
+									data-proof="release"
+									href="#top"
+									target="_blank"
+									rel="noreferrer"
+									><span>Release</span><b>Loading…</b><i>↗</i></a
+								>
+							</div>
+							<div class="contract-row">
+								<div>
+									<span id="contract-label">Deployed proof contract</span
+									><code id="contract-address">Loading Testnet proof…</code>
+								</div>
+								<button
+									type="button"
+									id="copy-contract"
+									aria-label="Copy contract address"
+								>
+									Copy
+								</button>
+							</div>
+						</section>
+					</div>
+				</div>
+				<footer class="app-footer">
+					<span>LATCH / A PROMISE WORTH KEEPING.</span
+					><span>TESTNET PROTOTYPE · NOT AUDITED</span>
+				</footer>
+			</section>
+		</main>
+		<div
+			class="entry-transition"
+			id="entry-transition"
+			hidden
+			aria-hidden="true"
+		>
+			<div class="transition-mark">
+				<img src="./assets/latch1.png" alt="" width="500" height="500">
+			</div>
+			<p>YOUR MONEY.<br><span>STILL YOURS.</span></p>
+			<div class="transition-track"><span></span></div>
+			<span class="eyebrow">ENTERING THE EXPERIENCE</span
+			><button type="button" id="skip-transition">Skip intro ↗</button>
+		</div>
+		<div class="toast" id="toast" role="status" aria-live="polite"></div>
+		<div class="fx-layer" id="fx-layer" aria-hidden="true"></div>
+		<noscript
+			><p class="noscript-notice">
+				Enable JavaScript to enter the interactive app. You can still explore
+				how LATCH works above.
+			</p></noscript
+		>
+		<script type="module" src="./app.js"></script>
+	</body>
+</html>

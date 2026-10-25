@@ -43,7 +43,7 @@ const browser = spawn(
     "--remote-allow-origins=*",
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${profile}`,
-    `http://127.0.0.1:${address.port}/`,
+    `http://127.0.0.1:${address.port}/#proof`,
   ],
   { stdio: "ignore" },
 );
@@ -107,7 +107,7 @@ try {
     const readiness = await call("Runtime.evaluate", {
       returnByValue: true,
       expression:
-        'document.readyState === "complete" && Boolean(document.querySelector("#run-button")) && Boolean(document.querySelector("#live-kicker"))',
+        'document.readyState === "complete" && document.documentElement.dataset.protocolReady === "true" && Boolean(document.querySelector("#run-button")) && Boolean(document.querySelector("#live-kicker"))',
     });
     if (readiness.result?.value) break;
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -134,11 +134,11 @@ try {
         document.querySelector("#run-button").click();
         await new Promise((resolve) => originalTimeout(resolve, 160));
         const actual = {
-          balance: document.querySelector("#payer-balance").textContent,
-          available: document.querySelector("#available-value").textContent,
-          reserved: document.querySelector("#reserved-value").textContent,
-          received: document.querySelector("#merchant-received").textContent,
-          console: document.querySelector("#console-title").textContent,
+          balance: document.querySelector("#payer-balance").textContent?.trim(),
+          available: document.querySelector("#available-value").textContent?.trim(),
+          reserved: document.querySelector("#reserved-value").textContent?.trim(),
+          received: document.querySelector("#merchant-received").textContent?.trim(),
+          console: document.querySelector("#console-title").textContent?.trim(),
         };
         if (JSON.stringify(actual) !== JSON.stringify(expected)) {
           throw new Error("Replay " + run + " diverged: " + JSON.stringify(actual));
@@ -173,9 +173,9 @@ try {
     requestHandoff = await call("Runtime.evaluate", {
       returnByValue: true,
       expression: `({
-        kicker: document.querySelector("#live-kicker")?.textContent,
-        title: document.querySelector("#inbox-title")?.textContent,
-        wallet: document.querySelector("#wallet-button")?.textContent,
+        kicker: document.querySelector("#live-kicker")?.textContent?.trim(),
+        title: document.querySelector("#inbox-title")?.textContent?.trim(),
+        wallet: document.querySelector("#wallet-button")?.textContent?.trim(),
         approveDisabled: document.querySelector("#approve-request")?.disabled,
       })`,
     });
@@ -219,13 +219,13 @@ try {
     handoff = await call("Runtime.evaluate", {
       returnByValue: true,
       expression: `({
-        title: document.querySelector("#live-title")?.textContent,
-        wallet: document.querySelector("#wallet-button")?.textContent,
-        contract: document.querySelector("#contract-address")?.textContent,
+        title: document.querySelector("#live-title")?.textContent?.trim(),
+        wallet: document.querySelector("#wallet-button")?.textContent?.trim(),
+        contract: document.querySelector("#contract-address")?.textContent?.trim(),
         verifyDisabled: document.querySelector("#verify-button")?.disabled,
         captureDisabled: document.querySelector("#capture-button")?.disabled,
-        diagnostic: document.querySelector("#console-copy")?.textContent,
-        toast: document.querySelector("#toast")?.textContent,
+        diagnostic: document.querySelector("#console-copy")?.textContent?.trim(),
+        toast: document.querySelector("#toast")?.textContent?.trim(),
       })`,
     });
     if (handoff.result?.value?.title === "Settlement for hold #1") break;

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./latch1.png" alt="LATCH" width="180">
+</p>
+
 # LATCH
 
 **Merchant-bound payment reservations for Stellar.**
@@ -14,7 +18,7 @@ account prevents the reserved capacity from being spent elsewhere.
 ![Stellar Testnet](https://img.shields.io/badge/network-Stellar%20Testnet-6c63ff)
 ![Soroban SDK](https://img.shields.io/badge/soroban--sdk-27.0.6-111827)
 ![Contract tests](https://img.shields.io/badge/contract%20tests-15%20passing-22c55e)
-![Frontend tests](https://img.shields.io/badge/frontend%20tests-15%20passing-22c55e)
+![Frontend tests](https://img.shields.io/badge/frontend%20tests-28%20passing-22c55e)
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
 
@@ -125,7 +129,7 @@ owner, payer, and merchant identities. It is not a UI-only simulation.
 | On-chain actors | Distinct owner, payer, primary merchant, and secondary merchant addresses |
 | Contract suite | 15 lifecycle, authorization, event, attack, and invariant tests |
 | Host assumptions | 14 tests across five isolated Soroban spike crates |
-| Frontend suite | 15 state, request, settlement, retry, persistence, and responsive-control tests |
+| Frontend suite | 28 scenario accounting, lifecycle, request, settlement, retry, persistence, and responsive-control tests |
 | Rehearsal | 30/30 automated seven-state judge replays passed |
 | Reproduction | `npm run testnet:bootstrap` rebuilds, deploys, executes, verifies, and rewrites the manifest |
 
@@ -164,6 +168,13 @@ All named tests live in
 control, test, and known boundary.
 
 ## Demo and roles
+
+The frontend opens with a black-and-violet landing page and three interactive
+experiences: hotel check-in, fuel authorization, and a studio booking. These
+clearly labeled local simulations let visitors authorize, adjust a final bill,
+settle, release, or simulate expiry without a wallet. The separate **Protocol
+lab** retains the recorded Testnet proof and live Freighter flow below.
+See the [frontend guide](./sites/latch-demo/README.md) for development and routes.
 
 The product models two distinct roles:
 
