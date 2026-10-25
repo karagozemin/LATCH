@@ -24,11 +24,11 @@
       <nav aria-label="Primary navigation">
         <a href="#demo">Demo</a>
         <a href="#proof">Proof</a>
-        <a href="#protocol">Protocol</a>
+        <a href="#architecture">Architecture</a>
       </nav>
       <a
         class="network-pill"
-        href="https://stellar.expert/explorer/testnet/contract/CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS"
+        href="https://stellar.expert/explorer/testnet/contract/CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS"
         target="_blank"
         rel="noreferrer"
       >
@@ -50,6 +50,12 @@
             Replay the proof
             <span aria-hidden="true">↘</span>
           </a>
+        </div>
+        <div class="hero-evidence" aria-label="LATCH proof summary">
+          <div><strong>12 sec</strong><span>full judge replay</span></div>
+          <div><strong>0 moved</strong><span>when a hold is created</span></div>
+          <div><strong>14 tests</strong><span>contract attack + invariant suite</span></div>
+          <div><strong>Testnet</strong><span>every successful transition linked</span></div>
         </div>
         <div class="hero-rule" aria-hidden="true"><span></span></div>
       </section>
@@ -77,9 +83,16 @@
               <button class="text-button" type="button" id="reset-button">Reset</button>
               <button class="run-button" type="button" id="run-button">
                 <span class="run-icon">▶</span>
-                Run 12-second demo
+                Run 12-second judge proof
               </button>
             </div>
+          </div>
+
+          <div class="judge-caption" id="judge-caption" aria-live="polite">
+            <div class="judge-progress" aria-hidden="true"><span id="judge-progress"></span></div>
+            <span class="judge-beat" id="judge-beat">Judge beat 1 / 5</span>
+            <strong id="judge-title">The payer keeps custody.</strong>
+            <span id="judge-copy">All 50 LUSD remains available until the account itself records a merchant promise.</span>
           </div>
 
           <div class="live-session" id="live-session" hidden>
@@ -195,8 +208,29 @@
         </div>
       </section>
 
+      <section class="architecture-section" id="architecture" aria-labelledby="architecture-title">
+        <div class="section-heading architecture-heading">
+          <div><span class="section-index">03 / Account-level architecture</span><h2 id="architecture-title">The account is<br />the payment rail.</h2></div>
+          <p>LATCH is not a merchant escrow. It is the payer’s Stellar contract account enforcing one shared capacity rule.</p>
+        </div>
+        <div class="architecture-flow" aria-label="LATCH transaction architecture">
+          <article><span>01</span><small>Control</small><h3>Owner signs</h3><p>Freighter signs a domain-separated authorization payload.</p></article>
+          <i aria-hidden="true">→</i>
+          <article class="architecture-core"><span>02</span><small>Policy</small><h3>LATCH account</h3><p>Default-deny auth permits only exact pay and hold call shapes.</p></article>
+          <i aria-hidden="true">→</i>
+          <article><span>03</span><small>Capacity</small><h3>Hold registry</h3><p>Merchant, ceiling, expiry, and backing are verifiable on-chain.</p></article>
+          <i aria-hidden="true">→</i>
+          <article><span>04</span><small>Settlement</small><h3>Stellar SAC</h3><p>Only available funds move; capture releases the unused remainder atomically.</p></article>
+        </div>
+        <div class="architecture-claims">
+          <div><b>Default deny</b><span>Unknown calls and direct token operations are rejected.</span></div>
+          <div><b>Atomic failure</b><span>A rejected transaction leaves balance and reservations unchanged.</span></div>
+          <div><b>Honest backing</b><span><code>verify_hold</code> stops claiming a guarantee if backing is lost.</span></div>
+        </div>
+      </section>
+
       <section class="protocol-section" id="protocol" aria-labelledby="protocol-title">
-        <span class="section-index">03 / Why LATCH</span>
+        <span class="section-index">04 / Why LATCH</span>
         <h2 id="protocol-title">A primitive,<br />not another wallet.</h2>
         <div class="principles">
           <article><span>01</span><h3>Account-native</h3><p>The policy lives inside the smart account. Funds never move into a merchant escrow before settlement.</p></article>

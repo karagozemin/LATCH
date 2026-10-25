@@ -90,6 +90,11 @@ const els = {
   spendButton: $("#spend-button") as HTMLButtonElement,
   runButton: $("#run-button") as HTMLButtonElement,
   resetButton: $("#reset-button") as HTMLButtonElement,
+  judgeCaption: $("#judge-caption") as HTMLElement,
+  judgeProgress: $("#judge-progress") as HTMLElement,
+  judgeBeat: $("#judge-beat"),
+  judgeTitle: $("#judge-title"),
+  judgeCopy: $("#judge-copy"),
   consoleIcon: $("#console-icon"),
   consoleTitle: $("#console-title"),
   consoleCopy: $("#console-copy"),
@@ -265,9 +270,17 @@ function setGuarantee(active: boolean, label: string, copy: string) {
   els.guaranteeCopy.textContent = copy;
 }
 
+function setJudgeBeat(beat: number, title: string, copy: string) {
+  els.judgeBeat.textContent = `Judge beat ${beat} / 5`;
+  els.judgeTitle.textContent = title;
+  els.judgeCopy.textContent = copy;
+  els.judgeProgress.style.width = `${beat * 20}%`;
+}
+
 function render(nextState: DemoState, hash?: string | null) {
   state = nextState;
   if (state === "funded") {
+    setJudgeBeat(1, "The payer keeps custody.", "All 50 LUSD stays in the payer's account; creating a hold transfers nothing to the merchant.");
     setBalances(50, 0);
     setPromise(false);
     setGuarantee(false, "Ready to request", "Waiting for payer authorization");
@@ -284,6 +297,11 @@ function render(nextState: DemoState, hash?: string | null) {
     els.spendButton.disabled = true;
   }
   if (state === "held" || state === "blocked") {
+    if (state === "blocked") {
+      setJudgeBeat(3, "The promise cannot be double-spent.", "A 25 LUSD payment is rejected because only 20 remains available. The 30 LUSD hold stays intact.");
+    } else {
+      setJudgeBeat(2, "The merchant gets certainty, not custody.", "The account records 30 LUSD as reserved and the merchant can verify its backing on-chain.");
+    }
     setBalances(50, 30);
     setPromise(true, "Reserved");
     setGuarantee(true, "Guaranteed", `30 ${mode === "live" ? "XLM" : "LUSD"} is reserved on-chain`);
@@ -310,6 +328,7 @@ function render(nextState: DemoState, hash?: string | null) {
     els.spendButton.textContent = state === "blocked" && mode === "live" ? "Pay 5 XLM safely" : `Try to spend 25 ${mode === "live" ? "XLM" : "LUSD"}`;
   }
   if (state === "paid") {
+    setJudgeBeat(4, "Unreserved money remains useful.", "A 5 LUSD payment succeeds while the merchant's full 30 LUSD guarantee remains untouched.");
     setBalances(45, 30);
     setPromise(true, "Reserved");
     setGuarantee(true, "Still guaranteed", "Direct payment preserved the hold");
@@ -325,6 +344,7 @@ function render(nextState: DemoState, hash?: string | null) {
     els.spendButton.disabled = true;
   }
   if (state === "captured") {
+    setJudgeBeat(5, "Only the final amount settles.", "The merchant captures 8 LUSD; the unused 22 is released atomically back to available capacity.");
     setBalances(37, 0, 8);
     setPromise(false, "Captured");
     setGuarantee(false, "Settled", `8 ${mode === "live" ? "XLM" : "LUSD"} captured · 22 released`);
@@ -341,6 +361,7 @@ function render(nextState: DemoState, hash?: string | null) {
     els.spendButton.disabled = true;
   }
   if (state === "released") {
+    setJudgeBeat(5, "The promise ends without settlement.", "Release returns the full reserved capacity without a merchant transfer.");
     setBalances(mode === "live" ? 45 : 50, 0);
     setPromise(false, "Released");
     setGuarantee(false, "Released", "No funds were captured");
@@ -723,6 +744,7 @@ function setMode(nextMode: DemoMode) {
   els.replayMode.classList.toggle("is-active", !isLive);
   els.liveMode.classList.toggle("is-active", isLive);
   els.liveSession.hidden = !isLive;
+  els.judgeCaption.hidden = isLive;
   els.runButton.hidden = isLive;
   els.modeLabel.innerHTML = isLive
     ? '<span class="pulse"></span> Live Stellar Testnet'
@@ -814,7 +836,7 @@ els.resetButton.addEventListener("click", () => {
   }
   running = false;
   els.runButton.disabled = false;
-  els.runButton.innerHTML = '<span class="run-icon">▶</span> Run 12-second demo';
+  els.runButton.innerHTML = '<span class="run-icon">▶</span> Run 12-second judge proof';
   render("funded");
 });
 
@@ -839,7 +861,7 @@ els.runButton.addEventListener("click", async () => {
   await wait(800);
   running = false;
   els.runButton.disabled = false;
-  els.runButton.innerHTML = '<span class="run-icon">↻</span> Replay demo';
+  els.runButton.innerHTML = '<span class="run-icon">↻</span> Replay judge proof';
 });
 
 $("#copy-contract").addEventListener("click", async () => {
