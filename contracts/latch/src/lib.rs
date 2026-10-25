@@ -22,6 +22,8 @@ const MAX_STORED_HOLDS: u32 = 64;
 const MAX_HOLD_LEDGERS: u32 = 120_960;
 const INSTANCE_TTL_THRESHOLD: u32 = 518_400;
 const INSTANCE_TTL_EXTEND_TO: u32 = 2_073_600;
+const SIGNED_MESSAGE_PREFIX: &[u8] = b"Stellar Signed Message:\nLATCH authorization\nPayload: ";
+const HEX: &[u8; 16] = b"0123456789abcdef";
 
 #[contract]
 pub struct Latch;
@@ -276,9 +278,14 @@ impl CustomAccountInterface for Latch {
     ) -> Result<(), LatchError> {
         // SDK 27 rejects an invalid Ed25519 signature with a host error. It does
         // not return a contract error, so this call intentionally runs first.
-        let message = Bytes::from(signature_payload);
+        // Freighter intentionally refuses to sign a CAP-71 auth preimage for
+        // a C-address while the active wallet is the owner G-address. Ask it
+        // to sign the same auth payload through SEP-53 instead, then recreate
+        // that digest here. The Soroban payload still binds the network,
+        // nonce, contract address, invocation, and expiration ledger.
+        let message = owner_signature_digest(&env, &signature_payload);
         env.crypto()
-            .ed25519_verify(&owner(&env), &message, &signature);
+            .ed25519_verify(&owner(&env), &Bytes::from(message), &signature);
 
         let self_address = env.current_contract_address();
         let token_address = token(&env);
@@ -327,6 +334,15 @@ impl CustomAccountInterface for Latch {
         }
         Ok(())
     }
+}
+
+fn owner_signature_digest(env: &Env, payload: &Hash<32>) -> Hash<32> {
+    let mut message = Bytes::from_slice(env, SIGNED_MESSAGE_PREFIX);
+    for byte in Bytes::from(payload.clone()).iter() {
+        message.push_back(HEX[(byte >> 4) as usize]);
+        message.push_back(HEX[(byte & 0x0f) as usize]);
+    }
+    env.crypto().sha256(&message)
 }
 
 fn owner(env: &Env) -> BytesN<32> {

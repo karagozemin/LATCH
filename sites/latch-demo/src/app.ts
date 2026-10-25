@@ -3,7 +3,7 @@ import {
   getNetwork,
   isConnected,
   requestAccess,
-  signAuthEntry,
+  signMessage,
   signTransaction,
 } from "@stellar/freighter-api";
 import {
@@ -19,19 +19,19 @@ import {
 } from "@stellar/stellar-sdk";
 
 const proof = {
-  deposit: "8b1c3f1464633d060be25f5216d89fefdff572a764e7073093e881f849bc2c5e",
-  hold: "e32feceb96ea6d8d5122b51c141bd1e53f0b63e5ea3d34188850195b2b6ecfb9",
-  pay: "ed7a2eab8d49b96aaa5f3af7861d753e47382f8d6ff9cb0f0b6da4281859da6e",
-  capture: "cee7f80908dd667ccb61353cae29af4c5d40f8436ea07415555e8da3addde9f4",
+  deposit: "da805dc64f9c3aca3b936f6a7f603efd68e32dc8f80466f7be3e02695dccdb53",
+  hold: "00c4f1b17485961fd39a736d675431b0fc5c3401bbbc4f95e159174916b8ce7b",
+  pay: "afb7b736f7d96c8b916e32169001178c7e8c6fd76e302fc45531cee4097ec921",
+  capture: "fee70c5d51af5ce9ec4e2907bf95c5266d2ef5117e7c5c6f929c7e1fc807cb9a",
 };
 
-const PROOF_CONTRACT = "CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS";
-const WASM_HASH = "fad3dbe589ea30aaab85340fe651bc7049a7d6e853d96e68197ed1088a3960e9";
+const PROOF_CONTRACT = "CANMN7PU2HNWVZHOVN7EHO7EGKZFIJXHKHKO2XEFLKFCIJDAP7MPBAXR";
+const WASM_HASH = "36091aa64aaaa74b4a2cd1d91487ce1f9e3c445c0ca549993726c0a6e2f1e7a6";
 const RPC_URL = "https://soroban-testnet.stellar.org";
 const FRIENDBOT_URL = "https://friendbot.stellar.org/";
 const NETWORK_PASSPHRASE = Networks.TESTNET;
 const SCALE = 10_000_000n;
-const STORAGE_PREFIX = "latch-live-v1:";
+const STORAGE_PREFIX = "latch-live-v2:";
 const rpcServer = new rpc.Server(RPC_URL);
 
 type DemoState = "funded" | "held" | "blocked" | "paid" | "captured" | "released";
@@ -355,17 +355,21 @@ async function signLatchAuth(assembled: any) {
     authorizeEntry: (entry: xdr.SorobanAuthorizationEntry, _signer: unknown, validUntil: number, network: string) =>
       authorizeEntry(
         entry,
-        async (preimage) => {
-          const result = await signAuthEntry(preimage.toXdr("base64"), {
+        async (_preimage, payload) => {
+          const message = `LATCH authorization\nPayload: ${Buffer.from(payload).toString("hex")}`;
+          const result = await signMessage(message, {
             address: walletAddress,
             networkPassphrase: NETWORK_PASSPHRASE,
           });
           if (result.error) throw new Error(result.error.message);
-          if (!result.signedAuthEntry) throw new Error("Freighter returned an empty authorization signature");
+          if (!result.signedMessage) throw new Error("Freighter returned an empty authorization signature");
           if (result.signerAddress && result.signerAddress !== walletAddress) {
             throw new Error("Freighter signed with a different account");
           }
-          return { signatureScVal: xdr.ScVal.scvBytes(Buffer.from(result.signedAuthEntry, "base64")) };
+          const signature = typeof result.signedMessage === "string"
+            ? Buffer.from(result.signedMessage, "base64")
+            : Buffer.from(result.signedMessage);
+          return { signatureScVal: xdr.ScVal.scvBytes(signature) };
         },
         validUntil,
         network,

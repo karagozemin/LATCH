@@ -5,10 +5,10 @@ use soroban_sdk::{
     auth::{Context, ContractContext, ContractExecutable, CreateContractHostFnContext},
     testutils::{Address as _, IssuerFlags, Ledger, MockAuth, MockAuthInvoke},
     token::{StellarAssetClient, TokenClient},
-    vec, Address, BytesN, Env, IntoVal, MuxedAddress, Symbol, Val, Vec,
+    vec, Address, Bytes, BytesN, Env, IntoVal, MuxedAddress, Symbol, Val, Vec,
 };
 
-use crate::{HoldStatus, Latch, LatchClient, LatchError};
+use crate::{owner_signature_digest, HoldStatus, Latch, LatchClient, LatchError};
 
 struct Fixture {
     env: Env,
@@ -65,11 +65,15 @@ fn check_auth(
     fixture: &Fixture,
     contexts: Vec<Context>,
 ) -> Result<(), Result<LatchError, soroban_sdk::InvokeError>> {
-    let payload_array = [42_u8; 32];
-    let payload = BytesN::from_array(&fixture.env, &payload_array);
+    let payload_hash = fixture
+        .env
+        .crypto()
+        .sha256(&Bytes::from_slice(&fixture.env, &[42_u8; 32]));
+    let payload = payload_hash.to_bytes();
+    let digest = owner_signature_digest(&fixture.env, &payload_hash);
     let signature = BytesN::from_array(
         &fixture.env,
-        &fixture.signing_key.sign(&payload_array).to_bytes(),
+        &fixture.signing_key.sign(&digest.to_array()).to_bytes(),
     );
     fixture.env.try_invoke_contract_check_auth::<LatchError>(
         &fixture.latch,

@@ -210,9 +210,11 @@ function customAccountAuthorizer(owner) {
   return (entry, _signer, validUntilLedgerSeq, networkPassphrase) =>
     authorizeEntry(
       entry,
-      async (_preimage, payload) => ({
-        signatureScVal: xdr.ScVal.scvBytes(owner.sign(payload)),
-      }),
+      async (_preimage, payload) => {
+        const message = `Stellar Signed Message:\nLATCH authorization\nPayload: ${Buffer.from(payload).toString("hex")}`;
+        const digest = createHash("sha256").update(message, "utf8").digest();
+        return { signatureScVal: xdr.ScVal.scvBytes(owner.sign(digest)) };
+      },
       validUntilLedgerSeq,
       networkPassphrase,
     );

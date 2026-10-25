@@ -19,7 +19,7 @@ when its exit test passes.
 - [x] Defend reservations against stale mirror state and external SAC clawback
   by checking `min(mirror balance, real balance)` in execution.
 - [x] Pass lifecycle, invariant, authorization-context, and attack tests.
-- [x] Build an optimized WASM artifact (14,622 bytes; 17,225 bytes before
+- [x] Build an optimized WASM artifact (14,849 bytes; 17,481 bytes before
   `stellar contract optimize`).
 
 **Exit test:** a merchant can reserve, partially capture, and void funds while

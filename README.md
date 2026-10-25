@@ -40,7 +40,7 @@ The spike projects use `soroban-sdk 27.0.6` and exercise behavior against
 The production suite currently has 14 focused tests covering lifecycle,
 authorization policy, merchant binding, expiry, reservation bounds, external
 clawback/backing loss, sync, and bounded state retention. The optimized WASM is
-14,622 bytes (17,225 bytes before Stellar CLI optimization).
+14,849 bytes (17,481 bytes before Stellar CLI optimization).
 
 ## Build the contract
 
@@ -76,7 +76,9 @@ to keep setup reliable; the contract still enforces merchant-bound settlement.
 
 Freighter must be set to Testnet. The app can fund a new Testnet address through
 Friendbot, stores only the resulting public contract ID in browser storage, and
-never receives or persists a private key.
+never receives or persists a private key. Owner approvals use a domain-separated
+SEP-53 message signature so Freighter signs with the controlling G-account while
+the LATCH C-account verifies the exact Soroban authorization payload on-chain.
 
 ```sh
 npm ci --prefix sites/latch-demo
