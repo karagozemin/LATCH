@@ -145,7 +145,7 @@ try {
     for (let i = 0; i < 100; i++) {
       if (
         await evaluate(
-          `document.readyState==='complete'&&Boolean(document.querySelector('#experience-balance'))&&(!(location.hash.includes('proof')||location.hash.endsWith('/live'))||document.documentElement.dataset.protocolReady==='true')`,
+          `document.readyState==='complete'&&Boolean(document.querySelector('#experience-balance'))&&(!(location.hash.includes('proof')||location.hash.includes('demo')||location.hash.startsWith('#app'))||document.documentElement.dataset.protocolReady==='true')`,
         )
       )
         return;
@@ -160,118 +160,40 @@ try {
   await call("Runtime.enable");
   await call("Page.enable");
   await navigate("");
-  const heroStart = await evaluate(
-    `({reserved:document.querySelector('#hero-reserved-value').textContent,available:document.querySelector('#hero-available-value').textContent,pressed:document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')})`,
-  );
   assert(
-    heroStart.reserved === "0.00" &&
-      heroStart.available === "500.00" &&
-      heroStart.pressed === "false",
-    "Hero promise preview did not start released",
+    await evaluate(`document.querySelector('#hero-available-value').textContent==='500.00'&&document.querySelector('#hero-reserved-value').textContent==='0.00'&&!document.querySelector('#hero-promise-trigger').hasAttribute('data-wallet-entry')`),
+    "Landing preview must be separate from wallet entry",
   );
   await click("#hero-promise-trigger");
   await wait(650);
   assert(
-    await evaluate(`getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'`),
-    "Hero tap hint did not stop after interaction",
-  );
-  assert(
-    await evaluate(
-      `document.querySelector('#hero-reserved-value').textContent==='150.00'&&document.querySelector('#hero-available-value').textContent==='350.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='true'&&document.querySelector('#hero-promise-card').classList.contains('is-latched')`,
-    ),
-    "Hero promise preview did not reserve funds",
+    await evaluate(`location.hash===''&&document.querySelector('#application').hidden&&getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'&&document.querySelector('#hero-available-value').textContent==='350.00'&&document.querySelector('#hero-reserved-value').textContent==='150.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='true'`),
+    "Hero reserve must stay on the landing page",
   );
   await click("#hero-promise-trigger");
   await wait(650);
   assert(
-    await evaluate(
-      `document.querySelector('#hero-reserved-value').textContent==='0.00'&&document.querySelector('#hero-available-value').textContent==='500.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='false'`,
-    ),
-    "Hero promise preview did not release funds",
+    await evaluate(`location.hash===''&&document.querySelector('#hero-available-value').textContent==='500.00'&&document.querySelector('#hero-reserved-value').textContent==='0.00'&&document.querySelector('#hero-promise-trigger').getAttribute('aria-pressed')==='false'&&getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'`),
+    "Hero release must restore the preview without navigation",
   );
   assert(
-    await evaluate(`getComputedStyle(document.querySelector('.receipt-tap-hint')).display==='none'`),
-    "Hero tap hint restarted after release",
+    await evaluate(`!performance.getEntriesByType('resource').some(r=>r.name.includes('/protocol-'))`),
+    "Landing preview must not load the wallet bundle",
   );
-  assert(
-    await evaluate(`!performance.getEntriesByType('resource').some(r => /protocol-.*\\.js/.test(r.name))`),
-    "Landing eagerly loaded the wallet bundle",
-  );
-  const scenarios = [
-    ["hotel", 150, 84],
-    ["fuel", 100, 62.4],
-    ["studio", 200, 135],
-  ];
   const lifecycle = [];
-  for (const [name, maximum, actual] of scenarios) {
-    await navigate(`#app/${name}`);
+  for (const route of ["#app/hotel", "#app/fuel", "#app/studio", "#app/live", "#proof", "#demo"]) {
+    await navigate(route);
+    assert(
+      await evaluate(`!document.querySelector('#protocol-view').hidden&&!document.querySelector('#live-session').hidden&&document.querySelector('.simulation-tag').textContent.includes('LIVE')&&document.querySelector('#experience-balance').textContent==='—'&&document.querySelector('#payer-balance').textContent==='—'&&!document.querySelector('#replay-mode')&&!document.querySelector('#run-button')&&!document.querySelector('[data-action="expire"]')`),
+      "Walletless route survived: " + route,
+    );
     await click('[data-action="authorize"]');
-    let snap = await balance();
+    await wait(100);
     assert(
-      snap.balance === "500.00" &&
-        snap.reserved === maximum.toFixed(2) &&
-        snap.available === (500 - maximum).toFixed(2),
-      `${name}: hold accounting`,
+      await evaluate(`document.querySelector('#experience-progress [aria-current="step"] span').textContent==='Make a promise'&&document.querySelector('#experience-balance').textContent==='—'`),
+      "Authorization advanced without a wallet: " + route,
     );
-    await click('[data-action="overspend"]');
-    assert(
-      JSON.stringify(await balance()) === JSON.stringify(snap),
-      `${name}: overspend mutated balance`,
-    );
-    assert(
-      await evaluate(
-        `document.querySelector('#experience-insight').textContent.includes('Spend blocked')`,
-      ),
-      `${name}: overspend feedback`,
-    );
-    await click('[data-action="deliver"]');
-    await evaluate(
-      `(()=>{const slider=document.querySelector('#bill-slider');slider.value=${actual * 100};slider.dispatchEvent(new Event('input',{bubbles:true}));})()`,
-    );
-    await click('[data-action="capture"]');
-    snap = await balance();
-    assert(
-      snap.balance === (500 - actual).toFixed(2) && snap.reserved === "0.00",
-      `${name}: capture accounting`,
-    );
-    assert(
-      await evaluate(
-        `document.querySelector('#experience-released').textContent.includes('${(maximum - actual).toFixed(2)}')`,
-      ),
-      `${name}: release remainder`,
-    );
-    for (const action of ["release", "expire"]) {
-      await click("#restart-experience");
-      await click('[data-action="authorize"]');
-      await click(`[data-action="${action}"]`);
-      snap = await balance();
-      assert(
-        snap.balance === "500.00" &&
-          snap.available === "500.00" &&
-          snap.reserved === "0.00",
-        `${name}: ${action} accounting`,
-      );
-    }
-    lifecycle.push(
-      `${name}: authorize, overspend block, capture, release, expiry passed`,
-    );
-  }
-  // Arbitrary slider amount, zero and exact ceiling all conserve funds.
-  await navigate("#app/hotel");
-  for (const amount of [0, 9370, 15000]) {
-    await click("#restart-experience");
-    await click('[data-action="authorize"]');
-    await click('[data-action="deliver"]');
-    await evaluate(
-      `(()=>{const slider=document.querySelector('#bill-slider');slider.value=${amount};slider.dispatchEvent(new Event('input',{bubbles:true}));})()`,
-    );
-    await click('[data-action="capture"]');
-    const snap = await balance();
-    assert(
-      snap.balance === ((50000 - amount) / 100).toFixed(2) &&
-        snap.reserved === "0.00",
-      `slider ${amount}`,
-    );
+    lifecycle.push(route + ": live-only, wallet-gated");
   }
   const responsive = [];
   for (const width of [320, 390, 768, 1024, 1440]) {
@@ -300,10 +222,10 @@ try {
       );
       assert(metrics.broken.length === 0, `Broken image ${metrics.broken}`);
     }
-    responsive.push(`${width}px: landing, guided and embedded live experience fit`);
+    responsive.push(`${width}px: landing, live experience and legacy routes fit`);
   }
   await navigate("");
-  await click('a[href="#app/hotel"]');
+  await click('a[href="#app/hotel/live"]');
   await wait(50);
   assert(
     await evaluate(
@@ -322,7 +244,7 @@ try {
     features: [{ name: "prefers-reduced-motion", value: "reduce" }],
   });
   await navigate("");
-  await click('a[href="#app/hotel"]');
+  await click('a[href="#app/hotel/live"]');
   await wait(40);
   assert(
     await evaluate(
@@ -380,27 +302,6 @@ try {
     ),
     "Studio scenario did not configure its embedded live flow",
   );
-  await navigate("#proof");
-  await click("#run-button");
-  await wait(50);
-  await click("#live-mode");
-  await wait(1100);
-  assert(
-    await evaluate(
-      `document.querySelector('#payer-balance').textContent==='—'&&!document.querySelector('#live-session').hidden`,
-    ),
-    "Old replay contaminated live mode",
-  );
-  await click("#replay-mode");
-  await click("#hold-button");
-  assert(await evaluate(`document.querySelector('#capture-button').disabled && document.querySelector('#void-button').disabled`), "Replay permits out-of-order settlement");
-  await click("#hold-button");
-  await click("#spend-button");
-  await click("#spend-button");
-  await click("#capture-button");
-  await click("#void-button");
-  assert(await evaluate(`document.querySelector('#payer-balance').textContent === '37.60' && document.querySelector('#reserved-value').textContent === '0.00'`), "Manual canonical proof diverged");
-
   await call("Network.enable");
   await call("Network.setCacheDisabled", { cacheDisabled: true });
   await call("Network.setBlockedURLs", { urls: ["*protocol-*.js"] });
@@ -422,13 +323,11 @@ try {
   const result = {
     lifecycle,
     responsive,
-    slider: "zero, arbitrary amount, and ceiling passed",
     intro: "skip and reduced motion passed",
-    replayCancellation: "switch to live cancels pending replay",
+    replayRemoval: "legacy routes are live-only; no replay controls",
     runtimeErrors: runtimeExceptions.length,
     lazyLoading: "landing stays light; protocol failure offers reload; recovery passed",
-    manualReplay: "canonical controls preserve the recorded sequence",
-    heroInteraction: "reserve and release preview passed",
+    heroInteraction: "local reserve/release stays on landing; wallet bundle not loaded",
     walletEntry:
       "primary CTA embeds live mode, requests Freighter, and preserves scenario context",
   };

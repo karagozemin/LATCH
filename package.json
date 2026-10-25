@@ -9,7 +9,7 @@
     "dev": "npm run dev --prefix sites/latch-demo",
     "build:client": "npm run build --workspace latch-client && node scripts/sync-site-client.mjs",
     "generate:client": "node scripts/generate-client.mjs",
-    "rehearse:replay": "node scripts/rehearse-replay.mjs",
+    "rehearse:live": "node scripts/rehearse-live.mjs",
     "sync:testnet-config": "node scripts/sync-testnet-config.mjs",
     "build:site": "npm run check --prefix sites/latch-demo && npm run build --prefix sites/latch-demo",
     "testnet:bootstrap": "node scripts/testnet/bootstrap.mjs",

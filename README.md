@@ -170,10 +170,11 @@ control, test, and known boundary.
 ## Demo and roles
 
 The frontend opens with a black-and-violet landing page and three interactive
-experiences: hotel check-in, fuel authorization, and a studio booking. These
-clearly labeled local simulations let visitors authorize, adjust a final bill,
-settle, release, or simulate expiry without a wallet. The separate **Protocol
-lab** retains the recorded Testnet proof and live Freighter flow below.
+experiences: hotel check-in, fuel authorization, and a studio booking. All three
+use real Stellar Testnet transactions signed through Freighter. Walletless
+app simulations and replay controls have been removed; old demo links open the
+live flow. App balances are not populated until a live account has been read.
+The landing card remains a separate, labeled local preview with no wallet or navigation.
 See the [frontend guide](./sites/latch-demo/README.md) for development and routes.
 
 The product models two distinct roles:
@@ -196,13 +197,11 @@ The live interface implements a two-party handoff without a trusted backend:
 The links are transports, not authority. Freighter signatures and fresh
 contract reads remain the authorization and verification boundaries.
 
-It exposes two honest proof modes:
-
-- **Verified replay:** the canonical two-merchant LUSD flow, backed by the public
-  transaction manifest.
-- **Live wallet:** separate merchant and payer browser profiles exchange request
-  and settlement links while Freighter submits real Testnet XLM calls. A
-  one-wallet path remains available only as a labeled stage-recovery option.
+The frontend exposes only the **live wallet** flow. Separate merchant and payer
+browser profiles exchange request and settlement links while Freighter submits
+real Testnet XLM calls. Direct scenario entry also supports a one-wallet path;
+use two separate wallets to test independent merchant authorization. The public
+transaction manifest remains historical evidence, not an interactive replay.
 
 The final public frontend will be deployed to Vercel after the release build is
 frozen. Until then, run it locally.

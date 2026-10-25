@@ -20,7 +20,6 @@ import QRCode from "qrcode";
 import {
 	SCALE,
 	amountToUnits,
-	canonicalSnapshot,
 	decodeRequest,
 	decodeSettlement,
 	encodeRequest,
@@ -111,7 +110,6 @@ const els = {
 	captureButton: $("#capture-button") as HTMLButtonElement,
 	voidButton: $("#void-button") as HTMLButtonElement,
 	spendButton: $("#spend-button") as HTMLButtonElement,
-	runButton: $("#run-button") as HTMLButtonElement,
 	resetButton: $("#reset-button") as HTMLButtonElement,
 	judgeCaption: $("#judge-caption") as HTMLElement,
 	judgeProgress: $("#judge-progress") as HTMLElement,
@@ -124,8 +122,6 @@ const els = {
 	txLink: $("#tx-link") as HTMLAnchorElement,
 	retryButton: $("#retry-button") as HTMLButtonElement,
 	toast: $("#toast"),
-	replayMode: $("#replay-mode") as HTMLButtonElement,
-	liveMode: $("#live-mode") as HTMLButtonElement,
 	liveSession: $("#live-session") as HTMLElement,
 	liveKicker: $("#live-kicker"),
 	liveTitle: $("#live-title"),
@@ -166,10 +162,9 @@ const els = {
 	captureAmountInput: $<HTMLInputElement>("#capture-amount-input"),
 };
 
-let mode: DemoMode = "replay";
+let mode: DemoMode = "live";
 let state: DemoState = "funded";
 let running = false;
-let replayGeneration = 0;
 let busy = false;
 let walletAddress = "";
 let liveClient: LatchClient | null = null;
@@ -305,8 +300,7 @@ async function generateHoldRequest() {
 	amountToUnits(amount);
 	const reference = els.requestReferenceInput.value.trim();
 	if (!reference) throw new Error("A merchant reference is required");
-	const merchant =
-		mode === "live" ? walletAddress : TESTNET.actors.merchantPrimary;
+	const merchant = walletAddress;
 	if (!merchant)
 		throw new Error(
 			"Connect the merchant wallet before creating a live request",
@@ -314,7 +308,7 @@ async function generateHoldRequest() {
 	await showHoldRequest({
 		version: 1,
 		network: "testnet",
-		asset: mode === "live" ? "XLM" : "LUSD",
+		asset: "XLM",
 		merchant,
 		merchantName: els.merchantName.textContent ?? "Merchant",
 		amount,
@@ -334,6 +328,7 @@ async function loadHoldRequestFromUrl() {
 	const encoded = new URL(window.location.href).searchParams.get("request");
 	if (!encoded) return;
 	const payload = decodeRequest(encoded);
+	if (payload.asset !== "XLM") throw new Error("Only live Testnet XLM requests are supported");
 	if (!StrKey.isValidEd25519PublicKey(payload.merchant)) {
 		throw new Error("Hold request merchant is not a valid Stellar account");
 	}
@@ -491,6 +486,7 @@ async function runLiveAction(label: string, action: () => Promise<void>) {
 	try {
 		await action();
 		clearRetry();
+		await refreshLiveState();
 	} catch (error) {
 		reportError(error);
 	}
@@ -545,15 +541,6 @@ function maskLiveBalances() {
 	els.reserved.textContent = "—";
 	els.availableBar.style.width = "0%";
 	els.reservedBar.style.width = "0%";
-}
-
-function setCanonicalBalances(nextState: DemoState) {
-	const snapshot = canonicalSnapshot(nextState);
-	setBalances(
-		units(snapshot.balance),
-		units(snapshot.reserved),
-		units(snapshot.received),
-	);
 }
 
 function setMerchant(
@@ -645,7 +632,7 @@ function setSettlementEvidence(visible: boolean) {
 	els.settlementAvailable.textContent = isLiveFallback
 		? pendingSettlement
 			? "Refreshed from payer contract"
-			: `15.00 → 37.00 ${asset}`
+			: "Refresh to read current available capacity"
 		: `1.00 → 22.60 ${asset}`;
 }
 
@@ -676,8 +663,7 @@ function render(nextState: DemoState, hash?: string | null) {
 			"The payer keeps custody.",
 			"All 50 LUSD stays in the payer's account; creating a hold transfers nothing to the merchant.",
 		);
-		if (mode === "replay") setCanonicalBalances(state);
-		else setBalances(50, 0);
+		maskLiveBalances();
 		setPromise(false, false);
 		setGuarantee("idle", "Ready to request", "Waiting for payer authorization");
 		setDeclineEvidence();
@@ -686,7 +672,7 @@ function render(nextState: DemoState, hash?: string | null) {
 			title: mode === "live" ? "Live account funded" : "Account funded",
 			copy:
 				mode === "live"
-					? "50 XLM is now controlled by this LATCH account."
+					? "Read the current account balance from Stellar Testnet."
 					: "50 LUSD is available. No promises are active.",
 			hash: hash ?? (mode === "replay" ? proof.deposit : null),
 		});
@@ -709,8 +695,7 @@ function render(nextState: DemoState, hash?: string | null) {
 			"The merchant gets certainty, not custody.",
 			"The first 30 LUSD promise is merchant-bound; zero moves at authorization.",
 		);
-		if (mode === "replay") setCanonicalBalances(state);
-		else setBalances(50, liveHoldMaximum);
+		maskLiveBalances();
 		setPromise(true, false, "1 active");
 		const primaryMaximum = mode === "live" ? liveHoldMaximum : 30;
 		setGuarantee(
@@ -758,8 +743,7 @@ function render(nextState: DemoState, hash?: string | null) {
 				"A second 15 LUSD hold leaves only 5 available without transferring custody.",
 			);
 		}
-		if (isLiveFallback) setBalances(50, reserved);
-		else setCanonicalBalances(state);
+		maskLiveBalances();
 		setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
 		setGuarantee(
 			"guaranteed",
@@ -817,8 +801,7 @@ function render(nextState: DemoState, hash?: string | null) {
 			"Unreserved money remains useful.",
 			"A 4 LUSD payment succeeds while both merchant guarantees remain untouched.",
 		);
-		if (isLiveFallback) setBalances(45, liveHoldMaximum);
-		else setCanonicalBalances(state);
+		maskLiveBalances();
 		setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
 		setGuarantee(
 			"guaranteed",
@@ -854,7 +837,7 @@ function render(nextState: DemoState, hash?: string | null) {
 		if (isLiveFallback) {
 			maskLiveBalances();
 			els.merchantReceived.textContent = money(lastCaptureAmount);
-		} else setCanonicalBalances(state);
+		}
 		setPromise(
 			false,
 			!isLiveFallback,
@@ -893,7 +876,7 @@ function render(nextState: DemoState, hash?: string | null) {
 		);
 		if (mode === "live") {
 			maskLiveBalances();
-		} else setCanonicalBalances(state);
+		}
 		setPromise(false, false, "Released");
 		setGuarantee("idle", "Released", "No funds were captured");
 		setDeclineEvidence();
@@ -913,19 +896,7 @@ function render(nextState: DemoState, hash?: string | null) {
 		els.voidButton.disabled = true;
 		els.spendButton.disabled = true;
 	}
-	if (mode === "replay") {
-		// The public evidence belongs to this exact sequence. Do not present a
-		// later snapshot before the actions that produced it have happened.
-		els.holdButton.disabled =
-			running || !["funded", "heldPrimary"].includes(state);
-		els.spendButton.disabled = running || !["held", "blocked"].includes(state);
-		els.captureButton.disabled = running || state !== "paid";
-		els.voidButton.disabled = running || state !== "captured";
-		els.generateRequest.disabled = running;
-		els.approveRequest.disabled = running;
-		els.captureAmountInput.disabled = true;
-		els.captureAmountInput.value = "8.40";
-	}
+
 }
 
 function toast(message: string) {
@@ -1420,32 +1391,15 @@ function clearPendingRequest() {
 async function approvePendingRequest() {
 	if (!pendingRequest) throw new Error("Generate or scan a hold request first");
 	const { payload, authorizationId: requestId } = pendingRequest;
-	if (mode === "live") {
-		if (!liveClient || !walletAddress)
-			throw new Error("Create the live LATCH account before authorizing");
-		if (payload.asset !== "XLM")
-			throw new Error("Live mode accepts Testnet XLM requests");
-		if (payload.merchant === walletAddress)
-			throw new Error("Open this request with a separate payer wallet");
-		await createLiveHold(payload, requestId);
-		clearPendingRequest();
-		return;
-	}
-
-	const requested = units(amountToUnits(payload.amount));
-	if (state === "funded" && requested === 30) {
-		clearPendingRequest();
-		render("heldPrimary", proof.hold);
-		return;
-	}
-	if (state === "heldPrimary" && requested === 15) {
-		clearPendingRequest();
-		render("held", proof.holdSecondary);
-		return;
-	}
-	throw new Error(
-		"Replay expects the canonical 30 LUSD request followed by the 15 LUSD request",
-	);
+	if (!liveClient || !walletAddress)
+		throw new Error("Create the live LATCH account before authorizing");
+	if (payload.asset !== "XLM")
+		throw new Error("Live mode accepts Testnet XLM requests");
+	if (payload.merchant === walletAddress)
+		throw new Error("Open this request with a separate payer wallet");
+	await createLiveHold(payload, requestId);
+	clearPendingRequest();
+	await refreshLiveState();
 }
 
 function declinePendingRequest() {
@@ -1623,6 +1577,21 @@ async function voidLiveHold() {
 	}
 }
 
+export async function readExperienceBalances() {
+	if (!liveClient || !liveSession) return null;
+	const [balance, available, reserved] = await Promise.all([
+		liveClient.real_balance(), liveClient.available(), liveClient.total_reserved(),
+	]);
+	const snapshot = {
+		balance: Math.round(units(unwrapResult<bigint>(balance.result)) * 100),
+		available: Math.round(units(unwrapResult<bigint>(available.result)) * 100),
+		reserved: Math.round(units(unwrapResult<bigint>(reserved.result)) * 100),
+	};
+	setBalances(snapshot.balance / 100, snapshot.reserved / 100, liveSession.phase === "captured" ? lastCaptureAmount : 0);
+	els.available.textContent = money(snapshot.available / 100);
+	return snapshot;
+}
+
 async function refreshLiveState() {
 	if (!liveClient || !liveSession) return;
 	const availableTx = await liveClient.available();
@@ -1766,62 +1735,41 @@ function updateLiveContract() {
 	els.contractAddress.textContent = liveSession.contractId;
 }
 
-function setMode(nextMode: DemoMode) {
+export function enableLiveMode() {
+	setMode("live");
+}
+
+function setMode(nextMode: "live") {
 	if (busy) return;
-	replayGeneration += 1;
 	running = false;
-	els.runButton.disabled = false;
-	els.runButton.innerHTML =
-		'<span class="run-icon">▶</span> Run the full proof';
 	clearRetry();
 	mode = nextMode;
-	const isLive = mode === "live";
-	els.replayMode.classList.toggle("is-active", !isLive);
-	els.liveMode.classList.toggle("is-active", isLive);
-	els.replayMode.setAttribute("aria-pressed", String(!isLive));
-	els.liveMode.setAttribute("aria-pressed", String(isLive));
-	els.liveSession.hidden = !isLive;
-	els.judgeCaption.hidden = isLive;
-	els.runButton.hidden = isLive;
-	els.modeLabel.innerHTML = isLive
-		? '<span class="pulse"></span> Live Stellar Testnet'
-		: '<span class="pulse"></span> Verified Testnet replay';
-	els.resetButton.textContent = isLive ? "Refresh" : "Reset";
-	setAsset(isLive ? "XLM" : "LUSD");
+	els.liveSession.hidden = false;
+	els.judgeCaption.hidden = true;
+	els.modeLabel.innerHTML = '<span class="pulse"></span> Live Stellar Testnet';
+	els.resetButton.textContent = "Refresh";
+	setAsset("XLM");
 	els.generateRequest.disabled = false;
 	els.approveRequest.disabled = false;
-	els.captureAmountInput.disabled = !isLive;
-	if (isLive) els.captureAmountInput.value = money(lastCaptureAmount);
-	if (isLive) {
-		els.contractLabel.textContent = liveSession
-			? "Your live LATCH contract"
-			: "Proof contract · connect wallet for yours";
-		els.contractAddress.textContent = liveSession?.contractId ?? PROOF_CONTRACT;
-		currentContractAddress = liveSession?.contractId ?? PROOF_CONTRACT;
-		if (liveSession && liveClient) {
-			void refreshLiveState().catch(reportError);
-		} else {
-			render("funded");
-			maskLiveBalances();
-			setGuarantee(
-				"idle",
-				"Connect wallet",
-				"No live balance claim is shown before a LATCH account is deployed or restored",
-			);
-			setConsole({
-				title: "No live account loaded",
-				copy: "Connect Freighter on Testnet to create a merchant request or restore a payer account.",
-			});
-			els.holdButton.disabled = true;
-			els.txLink.hidden = true;
-		}
+	els.captureAmountInput.disabled = false;
+	els.captureAmountInput.value = money(lastCaptureAmount);
+	els.contractLabel.textContent = liveSession
+		? "Your live LATCH contract"
+		: "Proof contract · connect wallet for yours";
+	els.contractAddress.textContent = liveSession?.contractId ?? PROOF_CONTRACT;
+	currentContractAddress = liveSession?.contractId ?? PROOF_CONTRACT;
+	if (liveSession && liveClient) {
+		void refreshLiveState().catch(reportError);
 	} else {
-		currentContractAddress = PROOF_CONTRACT;
-		els.contractLabel.textContent = "Deployed proof contract";
-		els.contractAddress.textContent = PROOF_CONTRACT;
-		els.payerAddress.textContent = "GAQ6…SALV";
-		els.merchantAddress.textContent = "GCXT…CDHF";
 		render("funded");
+		maskLiveBalances();
+		setGuarantee("idle", "Connect wallet", "No live balance claim is shown before a LATCH account is deployed or restored");
+		setConsole({
+			title: "No live account loaded",
+			copy: "Connect Freighter on Testnet to create a merchant request or restore a payer account.",
+		});
+		els.holdButton.disabled = true;
+		els.txLink.hidden = true;
 	}
 }
 
@@ -1858,8 +1806,6 @@ function reportError(error: unknown) {
 	}
 }
 
-els.replayMode.addEventListener("click", () => setMode("replay"));
-els.liveMode.addEventListener("click", () => setMode("live"));
 
 els.walletButton.addEventListener("click", () => {
 	const action =
@@ -1868,7 +1814,7 @@ els.walletButton.addEventListener("click", () => {
 			: walletAddress && !liveClient
 				? createLiveAccount()
 				: connectWallet();
-	action.catch(reportError);
+	void action.then(() => refreshLiveState()).catch(reportError);
 });
 
 els.generateRequest.addEventListener("click", () => {
@@ -1899,23 +1845,19 @@ els.verifyButton.addEventListener("click", () => {
 
 els.holdButton.addEventListener("click", () => {
 	if (running) return;
-	if (mode === "replay") render(state === "funded" ? "heldPrimary" : "held");
-	else void runLiveAction("30 XLM hold", createLiveHold);
+	void runLiveAction("XLM hold", createLiveHold);
 });
 
 els.spendButton.addEventListener("click", () => {
 	if (running) return;
-	if (mode === "replay") render(state === "blocked" ? "paid" : "blocked");
-	else if (state === "blocked")
+	if (state === "blocked")
 		void runLiveAction("5 XLM payment", makeSafePayment);
 	else void runLiveAction("overspend proof", proveOverspendBlocked);
 });
 
 els.captureButton.addEventListener("click", () => {
 	if (running) return;
-	if (mode === "replay") render("captured");
-	else
-		void runLiveAction(
+	void runLiveAction(
 			`${els.captureAmountInput.value} XLM capture`,
 			captureLiveHold,
 		);
@@ -1923,8 +1865,7 @@ els.captureButton.addEventListener("click", () => {
 
 els.voidButton.addEventListener("click", () => {
 	if (running) return;
-	if (mode === "replay") render("released");
-	else void runLiveAction("hold release", voidLiveHold);
+	void runLiveAction("hold release", voidLiveHold);
 });
 
 els.retryButton.addEventListener("click", () => {
@@ -1934,50 +1875,7 @@ els.retryButton.addEventListener("click", () => {
 });
 
 els.resetButton.addEventListener("click", () => {
-	if (mode === "live") {
-		refreshLiveState().catch(reportError);
-		return;
-	}
-	replayGeneration += 1;
-	running = false;
-	els.runButton.disabled = false;
-	els.runButton.innerHTML =
-		'<span class="run-icon">▶</span> Run the full proof';
-	render("funded");
-});
-
-els.runButton.addEventListener("click", async () => {
-	if (running || mode === "live") return;
-	running = true;
-	const generation = ++replayGeneration;
-	els.runButton.disabled = true;
-	els.runButton.textContent = "Running proof…";
-	render("funded");
-	await wait(900);
-	if (!running || generation !== replayGeneration) return;
-	render("heldPrimary");
-	await wait(1200);
-	if (!running || generation !== replayGeneration) return;
-	render("held");
-	await wait(1200);
-	if (!running || generation !== replayGeneration) return;
-	render("blocked");
-	await wait(1500);
-	if (!running || generation !== replayGeneration) return;
-	render("paid");
-	await wait(1300);
-	if (!running || generation !== replayGeneration) return;
-	render("captured");
-	await wait(1400);
-	if (!running || generation !== replayGeneration) return;
-	render("released");
-	await wait(700);
-	if (generation !== replayGeneration) return;
-	running = false;
-	els.runButton.disabled = false;
-	els.generateRequest.disabled = false;
-	els.approveRequest.disabled = false;
-	els.runButton.innerHTML = '<span class="run-icon">↻</span> Replay the proof';
+	void refreshLiveState().catch(reportError);
 });
 
 $("#copy-contract").addEventListener("click", async () => {
@@ -1994,7 +1892,7 @@ window.setInterval(() => {
 }, 12_000);
 
 configureProofEvidence();
-render("funded");
+setMode("live");
 export const ready = loadSettlementFromUrl()
 	.then((loaded) => {
 		if (!loaded) return loadHoldRequestFromUrl();

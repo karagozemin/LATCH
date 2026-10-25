@@ -25,7 +25,7 @@ npm run build:site
 npm test --prefix sites/latch-demo
 npm run lint --prefix sites/latch-demo
 npm run rehearse:experience
-npm run rehearse:replay
+npm run rehearse:live
 ```
 
 The browser rehearsals use an isolated headless Chrome profile and start their
@@ -34,24 +34,31 @@ own static server. Set `CHROME_BIN` when Chrome is installed elsewhere.
 ## Experiences and evidence
 
 - `/` — landing, payment lifecycle, scenarios, and protocol principles.
-- `/#app/hotel` — authorize 150 LUSD, review an 84 LUSD bill, release the remainder.
-- `/#app/fuel` — authorize 100 LUSD and settle the amount actually dispensed.
-- `/#app/studio` — authorize 200 LUSD before a studio session and settle the bill.
+- `/#app/hotel` — live Testnet hotel flow with a 30 XLM maximum reservation.
+- `/#app/fuel` — live Testnet fuel flow with a 15 XLM maximum reservation.
+- `/#app/studio` — live Testnet studio flow with a 20 XLM maximum reservation.
 - `/#app/hotel/live` — open the hotel experience with its embedded live Freighter flow.
 - `/#app/fuel/live` and `/#app/studio/live` — keep the selected use case visible while
   configuring its merchant, amount, and settlement context on Testnet.
 - Existing `?request=…#demo` and `?settlement=…#demo` links open the embedded live
   layer and retain the original payer/merchant verification boundaries.
 
-The guided portion of each experience is explicitly labeled **local simulation**.
-It uses illustrative merchants, 500 LUSD demo balances, and integer-cent
-accounting. Users can authorize a hold, attempt an overspend, adjust a final bill,
-capture, release, or simulate expiry. The live layer beside it is clearly labeled
-Stellar Testnet and uses Freighter for signed transactions. Terminal outcomes
-cannot settle twice.
+All demo routes now use **live Stellar Testnet** and require Freighter for signed
+transactions. Inside the app there is no walletless simulator, simulated expiry
+action, or replay mode. The landing card remains a clearly labeled, local
+reserve/release preview: it never opens Freighter or navigates into the app.
+Legacy `#proof` and `#demo` routes open the live flow as well.
 
-The embedded live layer retains the canonical LUSD replay, public transaction
-links, Freighter Testnet XLM operations, QR requests, and merchant settlement links.
+Merchants and scenarios remain illustrative, but hold creation, capture, and
+release submit real Testnet XLM transactions. The overspend check is a real RPC
+simulation: rejection submits no transaction. QR requests, merchant settlement
+links, and historical public transaction evidence remain available.
+
+The browser rehearsals check wallet gating, routing, handoff screens, responsive
+layout, and loading recovery; they do not sign or submit transactions. Complete
+a separate Freighter Testnet check with payer and merchant profiles before a live
+presentation. Model tests retain historical accounting fixtures as unit tests,
+not as an interactive walletless frontend.
 
 ## Source layout
 
@@ -59,13 +66,13 @@ links, Freighter Testnet XLM operations, QR requests, and merchant settlement li
 - `src/experience.ts`: navigation, app entry, and scenario interactions.
 - `src/experience-model.ts`: scenario data and reservation accounting.
 - `src/app.ts`: lightweight entry point; loads the protocol only when requested.
-- `src/protocol.ts`: wallet, proof replay, and settlement integration.
+- `src/protocol.ts`: wallet, on-chain evidence, and settlement integration.
 - `public/assets`: local photography, fonts, favicon, and font licenses.
 - `build.mjs`: copies HTML, CSS, and public assets, then bundles TypeScript as split ES modules.
 - `dist/`: production output. Make changes in `src/` and `public/`, then rebuild.
 
-The landing and guided experiences load without the Stellar SDK. Opening live
-Testnet inside an experience loads the wallet bundle on demand, with a visible
+The landing loads without the Stellar SDK. Opening any demo experience
+loads the wallet bundle on demand, with a visible
 loading state and reload action if the network fails. The complete static output
 is committed, matching the repository’s existing preview convention.
 

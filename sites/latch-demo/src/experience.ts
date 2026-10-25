@@ -1,7 +1,6 @@
 import {
 	SCENARIOS,
 	scenarioById,
-	experienceSnapshot,
 	transitionExperience,
 	type ExperiencePhase,
 	type Scenario,
@@ -29,8 +28,9 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 	const insight = $("#experience-insight");
 	const transition = $("#entry-transition");
 	const main = $("#main");
-	const heroArt = $("#hero-art");
 	const heroTrigger = $("#hero-promise-trigger") as HTMLButtonElement;
+	let heroLatched = false;
+	const numberAnimations = new WeakMap<HTMLElement, number>();
 	const fxLayer = $("#fx-layer");
 	const toast = $("#toast");
 	let scenario: Scenario = SCENARIOS[0];
@@ -38,11 +38,12 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 	let finalAmount = scenario.actual;
 	let transitionTimer = 0;
 	let lastRoute = "";
-	let heroLatched = false;
 	let toastTimer = 0;
-	let liveModeActive = false;
+	const liveModeActive = true;
+	let liveSnapshot: Awaited<ReturnType<ProtocolModule["readExperienceBalances"]>> = null;
 	let livePrepared = false;
 	let walletConnected = false;
+	let liveActionPending = false;
 	experienceMain.append(protocolView);
 
 	const liveAmounts: Record<
@@ -86,17 +87,12 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 	}
 
 	function currentSnapshot() {
-		if (!liveModeActive)
-			return experienceSnapshot(scenario, phase, finalAmount);
 		const maximum = flowMaximum();
-		const startingBalance = 5_000;
-		const reserved =
-			phase === "reserved" || phase === "delivered" ? maximum : 0;
 		const paid = phase === "settled" ? finalAmount : 0;
 		return {
-			balance: startingBalance - paid,
-			available: startingBalance - paid - reserved,
-			reserved,
+			balance: liveSnapshot?.balance ?? 0,
+			available: liveSnapshot?.available ?? 0,
+			reserved: liveSnapshot?.reserved ?? 0,
 			paid,
 			released:
 				phase === "settled"
@@ -112,22 +108,6 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		toast.textContent = message;
 		toast.classList.add("show");
 		toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
-	}
-
-	function animateNumber(element: HTMLElement, from: number, to: number) {
-		if (reducedMotion.matches) {
-			element.textContent = to.toFixed(2);
-			return;
-		}
-		const started = performance.now();
-		const duration = 520;
-		const tick = (now: number) => {
-			const progress = Math.min(1, (now - started) / duration);
-			const eased = 1 - (1 - progress) ** 3;
-			element.textContent = (from + (to - from) * eased).toFixed(2);
-			if (progress < 1) requestAnimationFrame(tick);
-		};
-		requestAnimationFrame(tick);
 	}
 
 	function burst(rect: DOMRect, blocked = false) {
@@ -157,32 +137,35 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		showToast(message);
 	}
 
+	function animatePreviewNumber(element: HTMLElement, to: number) {
+		cancelAnimationFrame(numberAnimations.get(element) ?? 0);
+		const from = Number(element.textContent);
+		if (reducedMotion.matches) {
+			element.textContent = to.toFixed(2);
+			return;
+		}
+		const started = performance.now();
+		const tick = (now: number) => {
+			const progress = Math.min(1, (now - started) / 520);
+			element.textContent = (from + (to - from) * (1 - (1 - progress) ** 3)).toFixed(2);
+			if (progress < 1) numberAnimations.set(element, requestAnimationFrame(tick));
+		};
+		numberAnimations.set(element, requestAnimationFrame(tick));
+	}
+
 	heroTrigger.addEventListener("click", () => {
 		heroTrigger.classList.add("has-interacted");
-		const rect = heroTrigger.getBoundingClientRect();
-		const reserved = $("#hero-reserved-value");
-		const available = $("#hero-available-value");
 		heroLatched = !heroLatched;
 		heroTrigger.setAttribute("aria-pressed", String(heroLatched));
-		heroArt.classList.toggle("is-latched", heroLatched);
+		$("#hero-art").classList.toggle("is-latched", heroLatched);
 		$("#hero-promise-card").classList.toggle("is-latched", heroLatched);
-		$("#hero-promise-status").textContent = heroLatched
-			? "PROMISE SECURED"
-			: "INTERACTIVE PREVIEW";
-		$("#hero-promise-action-label").textContent = heroLatched
-			? "Release 150"
-			: "Try reserving 150";
-		$("#hero-preview-feedback").textContent = heroLatched
-			? "150 reserved. Nothing transferred."
-			: "Try it here. Tap again to release.";
-		animateNumber(reserved, heroLatched ? 0 : 150, heroLatched ? 150 : 0);
-		animateNumber(available, heroLatched ? 500 : 350, heroLatched ? 350 : 500);
-		reward(
-			rect,
-			heroLatched
-				? "150.00 LUSD reserved · 0 moved"
-				: "150.00 LUSD available again",
-		);
+		$("#hero-promise-status").textContent = heroLatched ? "PROMISE SECURED" : "INTERACTIVE PREVIEW";
+		$("#hero-promise-action-label").textContent = heroLatched ? "Release 150" : "Try reserving 150";
+		$("#hero-preview-feedback").textContent = heroLatched ? "150 reserved. Nothing transferred." : "Try it here. Tap again to release.";
+		animatePreviewNumber($("#hero-available-value"), heroLatched ? 350 : 500);
+		animatePreviewNumber($("#hero-reserved-value"), heroLatched ? 150 : 0);
+		burst(heroTrigger.getBoundingClientRect());
+		showToast(heroLatched ? "150.00 LUSD reserved · 0 moved" : "150.00 LUSD available again");
 	});
 
 	document
@@ -198,6 +181,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			);
 			entry.addEventListener("click", async (event) => {
 				event.preventDefault();
+				if (entry.classList.contains("is-connecting")) return;
 				entry.classList.add("is-connecting");
 				const label = entry.querySelector<HTMLElement>(".wallet-entry-label");
 				const original = label?.textContent;
@@ -282,6 +266,10 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 	});
 
 	function renderInsight() {
+		if (phase !== "ready" && liveSnapshot === null) {
+			insight.innerHTML = '<span aria-hidden="true">⌑</span><p>Check the confirmed transaction below. Refresh your account to load current on-chain balances.</p>';
+			return;
+		}
 		const snap = currentSnapshot();
 		const asset = flowAsset();
 		const source = liveModeActive ? " on Stellar Testnet" : "";
@@ -302,7 +290,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		const snap = currentSnapshot();
 		const active = phase === "reserved" || phase === "delivered";
 		const asset = flowAsset();
-		const showLiveBalance = !liveModeActive || livePrepared;
+		const showLiveBalance = livePrepared && liveSnapshot !== null;
 		const balance = showLiveBalance ? format(snap.balance) : "—";
 		const available = showLiveBalance ? format(snap.available) : "—";
 		const reserved = showLiveBalance ? format(snap.reserved) : "—";
@@ -403,6 +391,8 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		action: "authorize" | "overspend" | "capture" | "release",
 		button: HTMLButtonElement,
 	) {
+		if (liveActionPending) return false;
+		liveActionPending = true;
 		const original = button.innerHTML;
 		button.disabled = true;
 		button.classList.add("is-pending");
@@ -435,19 +425,41 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			const result = await module.runLiveExperienceAction(action, {
 				capture: action === "capture" ? finalAmount / 100 : undefined,
 			});
-			if (result.ok) livePrepared = true;
+			if (result.ok) {
+				liveSnapshot = null;
+				try {
+					liveSnapshot = await module.readExperienceBalances();
+				} catch {
+					showToast("Transaction confirmed. Balance refresh unavailable; check the transaction link.");
+				}
+				livePrepared = true;
+			}
 			return result.ok;
 		} catch {
 			showToast("The live action couldn’t start · try again");
 			return false;
 		} finally {
+			liveActionPending = false;
 			button.disabled = false;
 			button.classList.remove("is-pending");
 			button.innerHTML = original;
 		}
 	}
 
-	$("#restart-experience").addEventListener("click", reset);
+	async function refreshAccount() {
+		try {
+			const module = await loadProtocol();
+			liveSnapshot = await module.readExperienceBalances();
+			livePrepared = liveSnapshot !== null;
+			renderExperience();
+			showToast(livePrepared ? "Live balances refreshed" : "Connect Freighter to load your account");
+		} catch {
+			liveSnapshot = null;
+			renderWallet();
+			showToast("Could not refresh live balances. Please try again.");
+		}
+	}
+	$("#restart-experience").addEventListener("click", () => void refreshAccount());
 	experienceView.addEventListener("click", async (event) => {
 		const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
 			"button[data-action]",
@@ -455,7 +467,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		if (!button) return;
 		const action = button.dataset.action;
 		if (action === "restart") {
-			reset();
+			void refreshAccount();
 			return;
 		}
 		if (action === "next") {
@@ -521,10 +533,9 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			initial && (params.has("request") || params.has("settlement"));
 		const routeParts = hash.replace(/^#/, "").split("/");
 		const isLegacyProof = hash === "#proof" || hash === "#demo";
-		const isLiveExperience =
-			handoff || hash === "#app/live" || routeParts[2] === "live";
-		const hasEmbeddedProtocol = isLegacyProof || isLiveExperience;
 		const isExperience = hash.startsWith("#app") || isLegacyProof || handoff;
+		const isLiveExperience = isExperience;
+		const hasEmbeddedProtocol = isExperience;
 		const isApp = isExperience;
 		const wasApp = !application.hidden;
 		if (!transition.hidden) finishEntry();
@@ -550,7 +561,6 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			const scenarioChanged = selected.id !== scenario.id;
 			const modeChanged = liveModeActive !== isLiveExperience;
 			scenario = selected;
-			liveModeActive = isLiveExperience;
 			if (scenarioChanged || modeChanged || !lastRoute) {
 				if (modeChanged || scenarioChanged) livePrepared = false;
 				reset();
@@ -574,7 +584,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			$("#live-experience-copy").textContent =
 				`Connect Freighter and run ${scenario.merchant} through the same reserve, verify, and settle lifecycle.`;
 			const closeLive = $("#close-live-experience") as HTMLAnchorElement;
-			closeLive.href = `#app/${scenario.id}`;
+			closeLive.href = "#top";
 			document
 				.querySelectorAll<HTMLAnchorElement>(".experience-bottom a")
 				.forEach((link) => {
@@ -586,7 +596,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 				.then((module) => {
 					if (!handoff) {
 						configureLiveExperience(module);
-						$(isLiveExperience ? "#live-mode" : "#replay-mode").click();
+						module.enableLiveMode();
 					}
 				})
 				.catch(() => {});

@@ -148,10 +148,10 @@ describe("two-party settlement handoff", () => {
 });
 
 describe("critical responsive controls", () => {
-  it("keeps judge, payer, merchant, retry, and QR actions in the shipped HTML", () => {
+  it("keeps live payer, merchant, retry, and QR actions without replay controls", () => {
     const html = readFileSync("src/index.html", "utf8");
     for (const id of [
-      "run-button",
+      "wallet-button",
       "hold-button",
       "spend-button",
       "capture-button",
@@ -166,6 +166,9 @@ describe("critical responsive controls", () => {
     ]) {
       expect(html).toContain(`id="${id}"`);
     }
+    expect(html).not.toContain('id="run-button"');
+    expect(html).not.toContain('id="replay-mode"');
+    expect(html.slice(html.indexOf('id="application"'))).not.toContain("No wallet needed");
   });
 
   it("ships a mobile layout for the demo and evidence panels", () => {

@@ -7,9 +7,8 @@ import { extname, join, normalize } from "node:path";
 const chrome =
   process.env.CHROME_BIN ??
   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const repetitions = Number(process.env.LATCH_REHEARSALS ?? 30);
 const dist = normalize(join(process.cwd(), "sites/latch-demo/dist"));
-const profile = mkdtempSync(join(tmpdir(), "latch-rehearsal-"));
+const profile = mkdtempSync(join(tmpdir(), "latch-live-rehearsal-"));
 const debugPort = 9_200 + Math.floor(Math.random() * 400);
 
 const contentTypes = {
@@ -107,7 +106,7 @@ try {
     const readiness = await call("Runtime.evaluate", {
       returnByValue: true,
       expression:
-        'document.readyState === "complete" && document.documentElement.dataset.protocolReady === "true" && Boolean(document.querySelector("#run-button")) && Boolean(document.querySelector("#live-kicker"))',
+        'document.readyState === "complete" && document.documentElement.dataset.protocolReady === "true" && Boolean(document.querySelector("#live-kicker"))',
     });
     if (readiness.result?.value) break;
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -116,41 +115,15 @@ try {
     throw new Error(`Browser initialization failed: ${runtimeExceptions.join("\n")}`);
   }
   const result = await call("Runtime.evaluate", {
-    awaitPromise: true,
     returnByValue: true,
-    expression: `(async () => {
-      const originalTimeout = window.setTimeout.bind(window);
-      window.setTimeout = (callback, delay, ...args) =>
-        originalTimeout(callback, Math.min(Number(delay) || 0, 5), ...args);
-      const expected = {
-        balance: "37.60",
-        available: "37.60",
-        reserved: "0.00",
-        received: "8.40",
-        console: "Promise released",
-      };
-      for (let run = 1; run <= ${repetitions}; run += 1) {
-        document.querySelector("#reset-button").click();
-        document.querySelector("#run-button").click();
-        await new Promise((resolve) => originalTimeout(resolve, 160));
-        const actual = {
-          balance: document.querySelector("#payer-balance").textContent?.trim(),
-          available: document.querySelector("#available-value").textContent?.trim(),
-          reserved: document.querySelector("#reserved-value").textContent?.trim(),
-          received: document.querySelector("#merchant-received").textContent?.trim(),
-          console: document.querySelector("#console-title").textContent?.trim(),
-        };
-        if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-          throw new Error("Replay " + run + " diverged: " + JSON.stringify(actual));
-        }
-      }
-      return { repetitions: ${repetitions}, final: expected };
-    })()`,
+    expression: `({
+      liveOnly: !document.querySelector("#replay-mode") && !document.querySelector("#run-button"),
+      walletRequired: document.querySelector("#payer-balance").textContent === "—",
+      liveVisible: !document.querySelector("#live-session").hidden
+    })`,
   });
-
-  if (result.exceptionDetails) {
-    throw new Error(result.exceptionDetails.exception?.description ?? "Replay rehearsal failed");
-  }
+  if (!result.result.value.liveOnly || !result.result.value.walletRequired || !result.result.value.liveVisible)
+    throw new Error("Legacy proof route did not open the real wallet flow");
 
   runtimeExceptions.length = 0;
   const requestPayload = Buffer.from(
