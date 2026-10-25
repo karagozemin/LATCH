@@ -105,16 +105,25 @@ impl Latch {
             .ok_or(LatchError::ArithmeticOverflow)?;
         set_mirror_balance(&env, next);
         bump_ttl(&env);
-        Deposited { from, amount }.publish(&env);
+        Deposited {
+            from,
+            amount,
+            new_mirror: next,
+        }
+        .publish(&env);
         Ok(())
     }
 
     pub fn pay(env: Env, to: MuxedAddress, amount: i128) -> Result<(), LatchError> {
         positive(amount)?;
         env.current_contract_address().require_auth();
-        if amount > effective_available(&env)? {
+        let available = effective_available(&env)?;
+        if amount > available {
             return Err(LatchError::ReservedBalanceViolation);
         }
+        let new_available = available
+            .checked_sub(amount)
+            .ok_or(LatchError::ArithmeticOverflow)?;
 
         let next = mirror_balance(&env)
             .checked_sub(amount)
@@ -126,7 +135,12 @@ impl Latch {
             &amount,
         );
         bump_ttl(&env);
-        Paid { to, amount }.publish(&env);
+        Paid {
+            to,
+            amount,
+            new_available,
+        }
+        .publish(&env);
         Ok(())
     }
 
@@ -232,6 +246,10 @@ impl Latch {
             id,
             merchant: hold.merchant,
             amount,
+            released: hold
+                .maximum
+                .checked_sub(amount)
+                .ok_or(LatchError::ArithmeticOverflow)?,
         }
         .publish(&env);
         Ok(())
@@ -257,10 +275,15 @@ impl Latch {
     }
 
     pub fn sync(env: Env) -> i128 {
+        let old_mirror = mirror_balance(&env);
         let balance = real_balance(&env);
         set_mirror_balance(&env, balance);
         bump_ttl(&env);
-        BalanceSynced { balance }.publish(&env);
+        BalanceSynced {
+            old_mirror,
+            new_mirror: balance,
+        }
+        .publish(&env);
         balance
     }
 }

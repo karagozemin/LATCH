@@ -3,11 +3,12 @@ extern crate std;
 use ed25519_dalek::{Signer, SigningKey};
 use soroban_sdk::{
     auth::{Context, ContractContext, ContractExecutable, CreateContractHostFnContext},
-    testutils::{Address as _, IssuerFlags, Ledger, MockAuth, MockAuthInvoke},
+    testutils::{Address as _, Events as _, IssuerFlags, Ledger, MockAuth, MockAuthInvoke},
     token::{StellarAssetClient, TokenClient},
-    vec, Address, Bytes, BytesN, Env, IntoVal, MuxedAddress, Symbol, Val, Vec,
+    vec, Address, Bytes, BytesN, Env, Event, IntoVal, MuxedAddress, Symbol, Val, Vec,
 };
 
+use crate::events::{BalanceSynced, Deposited, HoldCaptured, HoldCreated, Paid};
 use crate::{owner_signature_digest, HoldStatus, Latch, LatchClient, LatchError};
 
 struct Fixture {
@@ -121,6 +122,69 @@ fn full_hold_lifecycle_preserves_capacity() {
     assert_eq!(client.available(), 38);
     assert_eq!(client.get_hold(&first).status, HoldStatus::Captured);
     assert_eq!(client.get_hold(&second).status, HoldStatus::Voided);
+}
+
+#[test]
+fn accounting_events_include_prd_evidence_fields() {
+    let f = fixture(50);
+    let client = LatchClient::new(&f.env, &f.latch);
+    assert_eq!(
+        f.env.events().all().filter_by_contract(&f.latch),
+        std::vec![Deposited {
+            from: f.payer.clone(),
+            amount: 50,
+            new_mirror: 50,
+        }
+        .to_xdr(&f.env, &f.latch)]
+    );
+
+    let recipient = Address::generate(&f.env);
+    let recipient_muxed = MuxedAddress::from(recipient);
+    client.pay(&recipient_muxed, &5);
+    assert_eq!(
+        f.env.events().all().filter_by_contract(&f.latch),
+        std::vec![Paid {
+            to: recipient_muxed,
+            amount: 5,
+            new_available: 45,
+        }
+        .to_xdr(&f.env, &f.latch)]
+    );
+
+    let expiry = f.env.ledger().sequence() + 100;
+    let id = client.create_hold(&f.merchant, &30, &expiry, &reference(&f.env, 42));
+    assert_eq!(
+        f.env.events().all().filter_by_contract(&f.latch),
+        std::vec![HoldCreated {
+            id,
+            merchant: f.merchant.clone(),
+            maximum: 30,
+            expires_at: expiry,
+        }
+        .to_xdr(&f.env, &f.latch)]
+    );
+
+    client.capture(&id, &8);
+    assert_eq!(
+        f.env.events().all().filter_by_contract(&f.latch),
+        std::vec![HoldCaptured {
+            id,
+            merchant: f.merchant.clone(),
+            amount: 8,
+            released: 22,
+        }
+        .to_xdr(&f.env, &f.latch)]
+    );
+
+    client.sync();
+    assert_eq!(
+        f.env.events().all().filter_by_contract(&f.latch),
+        std::vec![BalanceSynced {
+            old_mirror: 37,
+            new_mirror: 37,
+        }
+        .to_xdr(&f.env, &f.latch)]
+    );
 }
 
 #[test]

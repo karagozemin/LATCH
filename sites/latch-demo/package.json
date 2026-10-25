@@ -10,7 +10,8 @@
   "dependencies": {
     "@stellar/freighter-api": "6.0.1",
     "@stellar/stellar-sdk": "17.2.1",
-    "buffer": "6.0.3"
+    "buffer": "6.0.3",
+    "latch-client": "file:vendor/latch-client"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

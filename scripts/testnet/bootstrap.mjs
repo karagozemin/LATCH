@@ -1,12 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import {
   Asset,
   BASE_FEE,
   Horizon,
   Keypair,
-  Networks,
   Operation,
   SorobanDataBuilder,
   TransactionBuilder,
@@ -15,12 +14,12 @@ import {
   rpc,
   xdr,
 } from "@stellar/stellar-sdk";
+import { TESTNET_NETWORK } from "../../config/testnet.mjs";
 
-const NETWORK = "testnet";
-const NETWORK_PASSPHRASE = Networks.TESTNET;
-const RPC_URL =
-  process.env.STELLAR_RPC_URL ?? "https://soroban-rpc.testnet.stellar.gateway.fm";
-const HORIZON_URL = "https://horizon-testnet.stellar.org";
+const NETWORK = TESTNET_NETWORK.name;
+const NETWORK_PASSPHRASE = TESTNET_NETWORK.passphrase;
+const RPC_URL = process.env.STELLAR_RPC_URL ?? TESTNET_NETWORK.rpcUrl;
+const HORIZON_URL = TESTNET_NETWORK.horizonUrl;
 const WASM_PATH = "artifacts/latch_contract.wasm";
 const DEPLOYMENT_PATH = "deployments/testnet.json";
 const ASSET_CODE = "LUSD";
@@ -288,11 +287,11 @@ function assertSuccessful(sent, label) {
 }
 
 function explorerTx(hash) {
-  return `https://stellar.expert/explorer/testnet/tx/${hash}`;
+  return `${TESTNET_NETWORK.explorerBaseUrl}/tx/${hash}`;
 }
 
 function explorerContract(contractId) {
-  return `https://stellar.expert/explorer/testnet/contract/${contractId}`;
+  return `${TESTNET_NETWORK.explorerBaseUrl}/contract/${contractId}`;
 }
 
 async function main() {
@@ -307,6 +306,7 @@ async function main() {
     "--locked",
     "--optimize",
   ]);
+  run("npm", ["run", "generate:client"]);
   run("npm", ["run", "build:client"]);
   const { Client } = await import("../../packages/latch-client/dist/index.js");
 
@@ -385,6 +385,7 @@ async function main() {
     pay: txHash(paySent),
     capture: txHash(captureSent),
   };
+  const wasm = readFileSync(WASM_PATH);
   const deployment = {
     generatedAt: new Date().toISOString(),
     network: NETWORK,
@@ -400,6 +401,8 @@ async function main() {
     latch: {
       contractId: latchId,
       ownerPublicKey: identities.owner.publicKey(),
+      wasmSha256: createHash("sha256").update(wasm).digest("hex"),
+      wasmBytes: statSync(WASM_PATH).size,
       explorer: explorerContract(latchId),
     },
     actors: {
@@ -432,6 +435,7 @@ async function main() {
     `${JSON.stringify(deployment, (_key, value) =>
       typeof value === "bigint" ? value.toString() : value, 2)}\n`,
   );
+  run("npm", ["run", "sync:testnet-config"]);
 
   console.log(`\n✓ Full lifecycle proved on Testnet`);
   console.log(`  LATCH: ${latchId}`);

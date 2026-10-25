@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T19:21:10.434Z",
+  "generatedAt": "2026-10-20T14:25:14.667Z",
   "network": "testnet",
   "networkPassphrase": "Test SDF Network ; September 2015",
   "rpcUrl": "https://soroban-rpc.testnet.stellar.gateway.fm",
@@ -11,9 +11,11 @@
     "explorer": "https://stellar.expert/explorer/testnet/contract/CBJCAPZTEORM3HU3RU53GQAMM5X5KOQI7KAW3N4525J4642443ARHTU5"
   },
   "latch": {
-    "contractId": "CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS",
+    "contractId": "CD5EUSHPXPBBXJ3G7EZASIVI3GENJZUJYWG5Z4FSEP5TFAJPICYPZUIC",
     "ownerPublicKey": "GDFTXQPMZ57FIAR5XBM2XGTKMGF33WGB7MPZNR54KFXD47DJJJQLZUAV",
-    "explorer": "https://stellar.expert/explorer/testnet/contract/CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS"
+    "wasmSha256": "d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d",
+    "wasmBytes": 15156,
+    "explorer": "https://stellar.expert/explorer/testnet/contract/CD5EUSHPXPBBXJ3G7EZASIVI3GENJZUJYWG5Z4FSEP5TFAJPICYPZUIC"
   },
   "actors": {
     "deployer": "GAGF2Y5GDDDSSXOAQDR5UHXVN3BZIP52FCLKEHCPO5O3TF2MAMF6YPMZ",
@@ -22,14 +24,14 @@
   },
   "proof": {
     "holdId": "1",
-    "referenceHex": "1038ee78e450d6c4dc5247d4e2974495b68834a4be61c33d777ef8cf1d748628",
+    "referenceHex": "a72479839850fc3d8cb842033c86920af96c8061eefa6f9f3991c0bebbe88014",
     "verification": {
       "active": false,
-      "expiresAt": 5287812,
+      "expiresAt": 5301540,
       "guaranteed": false,
       "maximum": "300000000",
       "merchant": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
-      "referenceHex": "1038ee78e450d6c4dc5247d4e2974495b68834a4be61c33d777ef8cf1d748628"
+      "referenceHex": "a72479839850fc3d8cb842033c86920af96c8061eefa6f9f3991c0bebbe88014"
     },
     "balances": {
       "available": "370000000",
@@ -38,18 +40,18 @@
       "reserved": "0"
     },
     "transactionHashes": {
-      "issuance": "08f55d85e332dfed8d2d4a854b0c96a89872375819cac63d126fffdf1f4029f7",
-      "deposit": "4b8f3cfb39783fcd07f29e620da6795f45c21a2e51f86e993698647baadb4b3c",
-      "createHold": "b85112560fcef7ae519afdf7fc81d4e8fc833f37e64b4c00763da0aae83fff82",
-      "pay": "dabb600e8df6908b36596bc7e2e5fb87f94182d1307b5f5ef14a6092fe103e99",
-      "capture": "80a26e60ac70959e0be748cc2a0dd0053d27f4e8136cf4eb9f5224fcdfd9b505"
+      "issuance": "8203cb1666b4804f4ee9edf8031c9eb20b2a49e828ada00d615e338cd876212c",
+      "deposit": "415bd5b94aeb5405c050110daaa4004c321bd20b3b485b9803c779b5915a620c",
+      "createHold": "2da988f6272c48245bb457023c8cd8ca04bd9c7f711c54c94a4844bd8a3ee820",
+      "pay": "4f964bead00d43a85bbe857a07b0ce059420dd9b4d90e4a14d888b62414a0004",
+      "capture": "7be75231124d5d2e90e6fed0b0f330e579ddfbcd34ed431007ff2d51ab5388f4"
     },
     "explorerTransactions": {
-      "issuance": "https://stellar.expert/explorer/testnet/tx/08f55d85e332dfed8d2d4a854b0c96a89872375819cac63d126fffdf1f4029f7",
-      "deposit": "https://stellar.expert/explorer/testnet/tx/4b8f3cfb39783fcd07f29e620da6795f45c21a2e51f86e993698647baadb4b3c",
-      "createHold": "https://stellar.expert/explorer/testnet/tx/b85112560fcef7ae519afdf7fc81d4e8fc833f37e64b4c00763da0aae83fff82",
-      "pay": "https://stellar.expert/explorer/testnet/tx/dabb600e8df6908b36596bc7e2e5fb87f94182d1307b5f5ef14a6092fe103e99",
-      "capture": "https://stellar.expert/explorer/testnet/tx/80a26e60ac70959e0be748cc2a0dd0053d27f4e8136cf4eb9f5224fcdfd9b505"
+      "issuance": "https://stellar.expert/explorer/testnet/tx/8203cb1666b4804f4ee9edf8031c9eb20b2a49e828ada00d615e338cd876212c",
+      "deposit": "https://stellar.expert/explorer/testnet/tx/415bd5b94aeb5405c050110daaa4004c321bd20b3b485b9803c779b5915a620c",
+      "createHold": "https://stellar.expert/explorer/testnet/tx/2da988f6272c48245bb457023c8cd8ca04bd9c7f711c54c94a4844bd8a3ee820",
+      "pay": "https://stellar.expert/explorer/testnet/tx/4f964bead00d43a85bbe857a07b0ce059420dd9b4d90e4a14d888b62414a0004",
+      "capture": "https://stellar.expert/explorer/testnet/tx/7be75231124d5d2e90e6fed0b0f330e579ddfbcd34ed431007ff2d51ab5388f4"
     }
   }
 }

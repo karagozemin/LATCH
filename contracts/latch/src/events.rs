@@ -11,6 +11,7 @@ pub struct Deposited {
     #[topic]
     pub from: Address,
     pub amount: i128,
+    pub new_mirror: i128,
 }
 
 #[contractevent]
@@ -18,6 +19,7 @@ pub struct Paid {
     #[topic]
     pub to: MuxedAddress,
     pub amount: i128,
+    pub new_available: i128,
 }
 
 #[contractevent]
@@ -37,6 +39,7 @@ pub struct HoldCaptured {
     #[topic]
     pub merchant: Address,
     pub amount: i128,
+    pub released: i128,
 }
 
 #[contractevent]
@@ -49,5 +52,6 @@ pub struct HoldVoided {
 
 #[contractevent]
 pub struct BalanceSynced {
-    pub balance: i128,
+    pub old_mirror: i128,
+    pub new_mirror: i128,
 }

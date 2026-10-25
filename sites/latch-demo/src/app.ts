@@ -8,35 +8,28 @@ import {
 } from "@stellar/freighter-api";
 import {
   Asset,
-  Networks,
   SorobanDataBuilder,
   StrKey,
   TransactionBuilder,
   authorizeEntry,
-  contract,
   rpc,
   xdr,
 } from "@stellar/stellar-sdk";
+import { Client as LatchClient } from "latch-client";
+import { TESTNET } from "./testnet-config";
 
-const proof = {
-  deposit: "4b8f3cfb39783fcd07f29e620da6795f45c21a2e51f86e993698647baadb4b3c",
-  hold: "b85112560fcef7ae519afdf7fc81d4e8fc833f37e64b4c00763da0aae83fff82",
-  pay: "dabb600e8df6908b36596bc7e2e5fb87f94182d1307b5f5ef14a6092fe103e99",
-  capture: "80a26e60ac70959e0be748cc2a0dd0053d27f4e8136cf4eb9f5224fcdfd9b505",
-};
-
-const PROOF_CONTRACT = "CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS";
-const WASM_HASH = "36091aa64aaaa74b4a2cd1d91487ce1f9e3c445c0ca549993726c0a6e2f1e7a6";
-const RPC_URL = "https://soroban-testnet.stellar.org";
-const FRIENDBOT_URL = "https://friendbot.stellar.org/";
-const NETWORK_PASSPHRASE = Networks.TESTNET;
+const proof = TESTNET.proof;
+const PROOF_CONTRACT = TESTNET.proofContract;
+const WASM_HASH = TESTNET.wasmHash;
+const RPC_URL = TESTNET.rpcUrl;
+const FRIENDBOT_URL = TESTNET.friendbotUrl;
+const NETWORK_PASSPHRASE = TESTNET.passphrase;
 const SCALE = 10_000_000n;
 const STORAGE_PREFIX = "latch-live-v2:";
 const rpcServer = new rpc.Server(RPC_URL);
 
 type DemoState = "funded" | "held" | "blocked" | "paid" | "captured" | "released";
 type DemoMode = "replay" | "live";
-type DynamicLatch = contract.Client & Record<string, (...args: any[]) => Promise<any>>;
 
 interface LiveSession {
   contractId: string;
@@ -67,7 +60,9 @@ const $ = <T extends Element = HTMLElement>(selector: string): T => {
   if (!element) throw new Error(`Missing element: ${selector}`);
   return element;
 };
-const $$ = (selector: string) => [...document.querySelectorAll<HTMLElement>(selector)];
+const $$ = <T extends Element = HTMLElement>(selector: string) => [
+  ...document.querySelectorAll<T>(selector),
+];
 const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 const els = {
@@ -112,6 +107,7 @@ const els = {
   merchantAddress: $("#merchant-address"),
   contractLabel: $("#contract-label"),
   contractAddress: $("#contract-address"),
+  networkLink: $<HTMLAnchorElement>("#network-link"),
 };
 
 let mode: DemoMode = "replay";
@@ -119,9 +115,9 @@ let state: DemoState = "funded";
 let running = false;
 let busy = false;
 let walletAddress = "";
-let liveClient: DynamicLatch | null = null;
+let liveClient: LatchClient | null = null;
 let liveSession: LiveSession | null = null;
-let currentContractAddress = PROOF_CONTRACT;
+let currentContractAddress: string = PROOF_CONTRACT;
 let retryAction: RetryAction | null = null;
 
 function money(value: number) {
@@ -134,6 +130,22 @@ function units(value: bigint) {
 
 function shortAddress(address: string) {
   return address.length > 12 ? `${address.slice(0, 5)}…${address.slice(-4)}` : address;
+}
+
+function explorerUrl(kind: "contract" | "tx", value: string) {
+  return `${TESTNET.explorerBaseUrl}/${kind}/${value}`;
+}
+
+function configureProofEvidence() {
+  els.networkLink.href = explorerUrl("contract", PROOF_CONTRACT);
+  els.contractAddress.textContent = PROOF_CONTRACT;
+  $$<HTMLAnchorElement>("[data-proof]").forEach((link) => {
+    const step = link.dataset.proof as keyof typeof proof;
+    const hash = proof[step];
+    link.href = explorerUrl("tx", hash);
+    const label = link.querySelector("b");
+    if (label) label.textContent = `${hash.slice(0, 6)}…${hash.slice(-6)}`;
+  });
 }
 
 function errorMessage(error: unknown) {
@@ -239,7 +251,7 @@ function setConsole({
   els.consoleTitle.textContent = title;
   els.consoleCopy.textContent = copy;
   if (hash) {
-    els.txLink.href = `https://stellar.expert/explorer/testnet/tx/${hash}`;
+    els.txLink.href = explorerUrl("tx", hash);
     els.txLink.hidden = false;
   } else {
     els.txLink.hidden = true;
@@ -511,13 +523,13 @@ async function connectWallet() {
     els.merchantAddress.textContent = shortAddress(walletAddress);
     liveSession = loadLiveSession(walletAddress);
     if (liveSession) {
-      liveClient = (await contract.Client.from({
+      liveClient = new LatchClient({
         contractId: liveSession.contractId,
         networkPassphrase: NETWORK_PASSPHRASE,
         publicKey: walletAddress,
         rpcUrl: RPC_URL,
         signTransaction: walletSigner,
-      })) as DynamicLatch;
+      });
       currentContractAddress = liveSession.contractId;
       els.walletButton.textContent = "Wallet connected";
       els.walletButton.classList.add("is-ready");
@@ -553,7 +565,7 @@ async function createLiveAccount() {
   setBusy(true, "Deploying your LATCH account");
   try {
     await ensureFunded();
-    const deployTx = await contract.Client.deploy(
+    const deployTx = await LatchClient.deploy(
       {
         owner: Buffer.from(StrKey.decodeEd25519PublicKey(walletAddress)),
         token: Asset.native().contractId(NETWORK_PASSPHRASE),
@@ -568,14 +580,15 @@ async function createLiveAccount() {
       },
     );
     const deployed = assertSuccessful(await deployTx.signAndSend(), "LATCH deployment");
-    liveClient = (deployed.result ?? deployTx.result) as DynamicLatch;
-    const contractId = liveClient.options.contractId;
+    const deployedClient = deployed.result ?? deployTx.result;
+    liveClient = deployedClient;
+    const contractId = deployedClient.options.contractId;
     liveSession = { contractId, phase: "funded", lastHash: txHash(deployed) };
     currentContractAddress = contractId;
     saveLiveSession();
 
     els.liveTitle.textContent = "Depositing 50 Testnet XLM";
-    const depositTx = await liveClient.deposit({ from: walletAddress, amount: 50n * SCALE });
+    const depositTx = await deployedClient.deposit({ from: walletAddress, amount: 50n * SCALE });
     unwrapResult(depositTx.result);
     const deposited = assertSuccessful(await depositTx.signAndSend(), "Deposit");
     liveSession.lastHash = txHash(deposited);
@@ -873,4 +886,5 @@ $("#copy-contract").addEventListener("click", async () => {
   }
 });
 
+configureProofEvidence();
 render("funded");

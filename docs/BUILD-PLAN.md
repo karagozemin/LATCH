@@ -3,6 +3,9 @@
 This plan is ordered by demo risk, not by feature count. A stage is only done
 when its exit test passes.
 
+The detailed remaining-work order and acceptance criteria live in
+[`PRD-GAP-PLAN.md`](./PRD-GAP-PLAN.md).
+
 ## M0 — Protocol proof (complete before product build)
 
 - [x] Validate custom-account auth contexts, nested auth, rollback, recording,
@@ -19,7 +22,7 @@ when its exit test passes.
 - [x] Defend reservations against stale mirror state and external SAC clawback
   by checking `min(mirror balance, real balance)` in execution.
 - [x] Pass lifecycle, invariant, authorization-context, and attack tests.
-- [x] Build an optimized WASM artifact (14,849 bytes; 17,481 bytes before
+- [x] Build an optimized WASM artifact (15,156 bytes; 17,814 bytes before
   `stellar contract optimize`).
 
 **Exit test:** a merchant can reserve, partially capture, and void funds while
@@ -38,7 +41,7 @@ every overspend and unauthorized transition is rejected.
 
 - [x] Payer mobile view: balance, reserved/available split, active hold timeline.
 - [x] Merchant terminal: create/verify/capture/void with clear transaction state.
-- [ ] Shared typed contract client and network configuration.
+- [x] Shared typed contract client and network configuration.
 - [x] Add the three-second judge flow and a reset button for repeated demos.
 - [x] Add a Freighter-signed Testnet mode that deploys a user-owned LATCH
   account, deposits native XLM, proves overspend rejection, and settles a hold.
@@ -47,7 +50,7 @@ every overspend and unauthorized transition is rejected.
 
 ## M4 — Submission quality
 
-- [x] Run contract tests, frontend tests, lint, format, and production builds in CI.
+- [ ] Run contract tests, frontend tests, lint, format, and production builds in CI.
 - [x] Threat-model review and test evidence matrix against the PRD.
 - [ ] Rehearse the demo under poor network conditions; capture a backup video.
 - [x] Publish architecture, honest pre-event/build-window disclosure, testnet

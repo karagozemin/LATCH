@@ -34,10 +34,10 @@ technical foundation; the HackMeridian build sprint produces the submitted MVP.
 
 | Proof | Current artifact |
 |---|---|
-| Production contract | 14 focused lifecycle, authorization, attack, and invariant tests |
+| Production contract | 15 focused lifecycle, authorization, event, attack, and invariant tests |
 | Host assumptions | Five isolated Soroban behavior spike suites |
 | Real network lifecycle | Deposit → hold → owner-signed pay → merchant capture on Stellar Testnet |
-| Public contract | [`CCPJN44A…LNGXS`](https://stellar.expert/explorer/testnet/contract/CCPJN44AUOEAMWGTQ7ZEKZ6WPINRXH6PPPXL2SXVSEAMPIJJEHLLNGXS) |
+| Public contract | [`CD5EUSHP…PZUIC`](https://stellar.expert/explorer/testnet/contract/CD5EUSHPXPBBXJ3G7EZASIVI3GENJZUJYWG5Z4FSEP5TFAJPICYPZUIC) |
 | Judge product | [Private hosted demo](https://latch-meridian-demo.lemonyswan1024.chatgpt.site) with deterministic replay and Freighter mode |
 | Reproducibility | CI builds the contract, client, site, all tests, and the optimized WASM on every push |
 
@@ -70,10 +70,10 @@ done
 The spike projects use `soroban-sdk 27.0.6` and exercise behavior against
 `soroban-env-host 27.0.1`.
 
-The production suite currently has 14 focused tests covering lifecycle,
+The production suite currently has 15 focused tests covering lifecycle,
 authorization policy, merchant binding, expiry, reservation bounds, external
-clawback/backing loss, sync, and bounded state retention. The optimized WASM is
-14,849 bytes (17,481 bytes before Stellar CLI optimization).
+clawback/backing loss, sync, event evidence, and bounded state retention. The
+optimized WASM is 15,156 bytes (17,814 bytes before Stellar CLI optimization).
 
 ## Build the contract
 

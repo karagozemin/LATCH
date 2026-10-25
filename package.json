@@ -6,7 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build:client": "npm run build --workspace latch-client",
+    "build:client": "npm run build --workspace latch-client && node scripts/sync-site-client.mjs",
+    "generate:client": "node scripts/generate-client.mjs",
+    "sync:testnet-config": "node scripts/sync-testnet-config.mjs",
     "build:site": "npm run check --prefix sites/latch-demo && npm run build --prefix sites/latch-demo",
     "testnet:bootstrap": "node scripts/testnet/bootstrap.mjs"
   },

@@ -16,12 +16,13 @@ isolated protocol-behavior spike crates against `soroban-env-host 27.0.1`.
 | State grows without bound | Active holds are capped and terminal history is compacted before new holds are admitted. | `active_hold_count_is_bounded`; `terminal_history_is_compacted_when_the_bounded_map_fills` |
 | Invalid owner signature reaches contract policy | Host crypto verification rejects the signature before successful authorization. | `invalid_signature_is_rejected_by_the_host_crypto_boundary` |
 | External inflow desynchronizes accounting | Anyone may reconcile a positive real-balance delta through `sync`. | `permissionless_sync_reconciles_external_inflow` |
+| Accounting claims cannot be reconstructed from events | Deposit, pay, capture, and sync events include their post-state or released-capacity facts. | `accounting_events_include_prd_evidence_fields` |
 | Failed nested execution mutates accounting | Soroban transaction rollback restores state when the outer operation fails. | `spike-s3`; `spike-reentry` |
 | Recording-mode simulation omits required state | Mirror writes happen in function bodies, while `__check_auth` remains storage-read-only. | `spike-s6` |
 
 ## CI gate
 
-Every push runs formatting, Clippy with warnings denied, the 14-test production
+Every push runs formatting, Clippy with warnings denied, the 15-test production
 suite, all five spike suites, an optimized WASM build, the typed client build,
 the demo typecheck/build, and a committed-bundle consistency check.
 
