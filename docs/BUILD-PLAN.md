@@ -36,10 +36,10 @@ every overspend and unauthorized transition is rejected.
 
 ## M3 — Demo product
 
-- [ ] Payer mobile view: balance, reserved/available split, active hold timeline.
-- [ ] Merchant terminal: create/verify/capture/void with clear transaction state.
+- [x] Payer mobile view: balance, reserved/available split, active hold timeline.
+- [x] Merchant terminal: create/verify/capture/void with clear transaction state.
 - [ ] Shared typed contract client and network configuration.
-- [ ] Add the three-second judge flow and a reset button for repeated demos.
+- [x] Add the three-second judge flow and a reset button for repeated demos.
 
 **Exit test:** a first-time user completes the scripted flow without CLI help.
 

@@ -19,6 +19,7 @@ technical foundation; the HackMeridian build sprint produces the submitted MVP.
 - [`LATCH-PRD.md`](./LATCH-PRD.md) — product, contract, security, test, and demo specification
 - [`docs/BUILD-PLAN.md`](./docs/BUILD-PLAN.md) — milestone plan and objective exit tests
 - `contracts/latch` — LATCH custom-account contract
+- `sites/latch-demo` — responsive payer + merchant judge demo
 - `spike-reentry` — SAC re-entry behavior inside `__check_auth`
 - `spike-s1` — invoker-contract authorization for nested self-transfers
 - `spike-s2` — relay/intermediary authorization contexts
@@ -63,3 +64,17 @@ npm run testnet:bootstrap
 
 The public contract IDs, final balances, and Stellar Expert transaction links
 are written to `deployments/testnet.json`.
+
+## Open the judge demo
+
+The first M3 interface replays the verified Testnet lifecycle and links every
+successful transition to its public transaction. It includes payer capacity,
+merchant verification, overspend rejection, capture/release, an automated
+12-second judge flow, and a reset path for repeated demos.
+
+```sh
+python3 -m http.server 4173 -d sites/latch-demo/dist
+```
+
+The hosted preview is private by default at
+https://latch-meridian-demo.lemonyswan1024.chatgpt.site.
