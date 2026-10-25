@@ -163,23 +163,17 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		const available = $("#hero-available-value");
 		heroLatched = !heroLatched;
 		heroTrigger.setAttribute("aria-pressed", String(heroLatched));
-		heroTrigger.setAttribute(
-			"aria-label",
-			heroLatched
-				? "Interactive demo: click anywhere on this card to release the reservation"
-				: "Interactive demo: click anywhere on this card to reserve 150 LUSD",
-		);
 		heroArt.classList.toggle("is-latched", heroLatched);
 		$("#hero-promise-card").classList.toggle("is-latched", heroLatched);
 		$("#hero-promise-status").textContent = heroLatched
 			? "PROMISE SECURED"
 			: "INTERACTIVE PREVIEW";
-		$("#hero-promise-action-kicker").textContent = heroLatched
-			? "RESERVATION ACTIVE"
-			: "TRY THE FLOW";
 		$("#hero-promise-action-label").textContent = heroLatched
-			? "RELEASE RESERVATION"
-			: "RESERVE 150 LUSD";
+			? "Release 150"
+			: "Reserve 150";
+		$("#hero-preview-feedback").textContent = heroLatched
+			? "150 reserved. Nothing transferred."
+			: "See your balance change.";
 		animateNumber(reserved, heroLatched ? 0 : 150, heroLatched ? 150 : 0);
 		animateNumber(available, heroLatched ? 500 : 350, heroLatched ? 350 : 500);
 		reward(

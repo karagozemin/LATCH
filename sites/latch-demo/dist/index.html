@@ -143,13 +143,6 @@
 							<div class="art-cross cross-one">+</div>
 							<div class="art-cross cross-two">+</div>
 							<div class="floating-receipt" id="hero-promise-card">
-								<button
-									type="button"
-									class="receipt-hit-area"
-									id="hero-promise-trigger"
-									aria-label="Interactive demo: click anywhere on this card to reserve 150 LUSD"
-									aria-pressed="false"
-								></button>
 								<div class="receipt-status">
 									<i class="status-dot"></i>
 									<span id="hero-promise-status">INTERACTIVE PREVIEW</span
@@ -164,16 +157,13 @@
 									<span>Available <b><span id="hero-available-value">500.00</span></b></span>
 									<span>Reserved <b><span id="hero-reserved-value">0.00</span></b></span>
 								</footer>
-								<div class="receipt-action" aria-hidden="true">
-									<span class="receipt-action-copy">
-										<small><i></i> <span id="hero-promise-action-kicker">TRY THE FLOW</span></small>
-										<span id="hero-promise-action-label">RESERVE 150 LUSD</span>
-									</span>
-									<b class="receipt-action-icon">↗</b>
-								</div>
-								<small class="receipt-disclosure"
-									>SIMULATED PREVIEW · FUNDS NEVER LEAVE YOUR WALLET</small
-								>
+								<button type="button" class="receipt-action" id="hero-promise-trigger"
+									aria-pressed="false" aria-describedby="hero-preview-hint">
+									<span class="reservation-switch-copy"><span id="hero-promise-action-label">Reserve 150</span><small>Toggle to try</small></span>
+									<span class="reservation-switch-track" aria-hidden="true"><span class="reservation-switch-thumb">✓</span></span>
+								</button>
+								<p class="reservation-feedback" id="hero-preview-feedback" aria-live="polite">See your balance change.</p>
+								<small class="receipt-disclosure" id="hero-preview-hint">Simulation · No wallet needed</small>
 							</div>
 							<div class="art-coordinate bottom">
 								CUSTODY: YOURS <span>●</span> ALWAYS.
