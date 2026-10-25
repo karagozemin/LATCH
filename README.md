@@ -11,11 +11,14 @@ This repository is being prepared for the **Genesis** category at
 
 ## Current status
 
-The repository currently contains the locked product requirements document and
-five Soroban protocol-behavior spikes. The production LATCH contract and web
-applications are the next implementation phase.
+The repository contains the locked product requirements document, five Soroban
+protocol-behavior spikes, and the first production contract implementation.
+Pre-event work is kept explicit: the spikes and contract hardening establish the
+technical foundation; the HackMeridian build sprint produces the submitted MVP.
 
 - [`LATCH-PRD.md`](./LATCH-PRD.md) — product, contract, security, test, and demo specification
+- [`docs/BUILD-PLAN.md`](./docs/BUILD-PLAN.md) — milestone plan and objective exit tests
+- `contracts/latch` — LATCH custom-account contract
 - `spike-reentry` — SAC re-entry behavior inside `__check_auth`
 - `spike-s1` — invoker-contract authorization for nested self-transfers
 - `spike-s2` — relay/intermediary authorization contexts
@@ -32,3 +35,15 @@ done
 
 The spike projects use `soroban-sdk 27.0.6` and exercise behavior against
 `soroban-env-host 27.0.1`.
+
+The production suite currently has 14 focused tests covering lifecycle,
+authorization policy, merchant binding, expiry, reservation bounds, external
+clawback/backing loss, sync, and bounded state retention. The optimized WASM is
+23,746 bytes (31,995 bytes before optimization).
+
+## Build the contract
+
+```sh
+cargo test --workspace --all-features
+cargo build --package latch-contract --target wasm32v1-none --release
+```

@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - run: cargo test --workspace --all-features
+      - name: Run protocol spike tests
+        run: |
+          for crate in spike-reentry spike-s1 spike-s2 spike-s3 spike-s6; do
+            cargo test --manifest-path "$crate/Cargo.toml" --all-features
+          done
+      - run: cargo build --package latch-contract --target wasm32v1-none --release

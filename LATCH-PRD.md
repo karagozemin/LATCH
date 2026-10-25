@@ -340,7 +340,8 @@ Documented here only to preempt the association.
 ## 5.1 Statement
 
 ```
-AVAILABLE  =  MIRROR_BALANCE  −  Σ(active, non-expired holds)
+BACKING    =  min(MIRROR_BALANCE, REAL_SAC_BALANCE)
+AVAILABLE  =  max(0, BACKING − Σ(active, non-expired holds))
 
 For every outflow:      outflow      ≤  AVAILABLE
 For every new hold:     max_amount   ≤  AVAILABLE
@@ -505,6 +506,7 @@ pub enum HoldStatus {
     Active,
     Captured,
     Voided,
+    Expired,
 }
 
 #[contracttype]
@@ -516,6 +518,7 @@ pub struct Hold {
     pub expires_ledger: u32,
     pub reference:      BytesN<32>,
     pub status:         HoldStatus,
+    pub captured_amount: i128,
 }
 
 #[contracttype]
@@ -524,6 +527,7 @@ pub struct HoldVerification {
     pub merchant:       Address,
     pub max_amount:     i128,
     pub expires_ledger: u32,
+    pub reference:      BytesN<32>,
     pub guaranteed:     bool,
 }
 ```
@@ -533,6 +537,7 @@ pub struct HoldVerification {
 ```rust
 const MAX_ACTIVE_HOLDS:  u32 = 16;
 const MAX_HOLD_LEDGERS:  u32 = 120_960;   // ≈ 7 days at 5s/ledger
+const MAX_STORED_HOLDS:  u32 = 64;
 ```
 
 `MAX_HOLD_LEDGERS` is a payer protection: a merchant cannot reserve capacity
@@ -540,16 +545,16 @@ indefinitely. The account itself caps hold duration.
 
 ## 7.4 Function specifications
 
-### `initialize`
+### `__constructor`
 
 ```rust
-pub fn initialize(env: Env, owner: BytesN<32>, token: Address)
+pub fn __constructor(env: Env, owner: BytesN<32>, token: Address)
 ```
 
 | | |
 |---|---|
-| Auth | None (constructor-style, one-shot) |
-| Guards | Panics if already initialized |
+| Auth | None — atomic Soroban constructor |
+| Guards | The host runs it exactly once at deployment |
 | State | Writes `Owner`, `Token`, `Mirror = 0`, `Holds = {}`, `NextHoldId = 1` |
 | Events | `latch_init(owner, token)` |
 
@@ -580,7 +585,7 @@ invocation — no `sync()` needed.
 ### `pay` — the single outflow path
 
 ```rust
-pub fn pay(env: Env, to: Address, amount: i128)
+pub fn pay(env: Env, to: MuxedAddress, amount: i128)
 ```
 
 | | |
@@ -643,6 +648,7 @@ pub fn capture(env: Env, hold_id: u64, amount: i128)
 | | caller `== hold.merchant` |
 | | `current_ledger ≤ hold.expires_ledger` |
 | | `0 ≤ amount ≤ hold.max_amount` |
+| | post-capture backing remains ≥ reservations belonging to other holds |
 | Effects | `mirror -= amount`; `token.transfer(self → merchant, amount)`; `status = Captured` |
 | Events | `latch_captured(id, amount, released = max_amount − amount)` |
 
@@ -708,14 +714,17 @@ pub fn available(env: Env) -> i128
 ```
 
 ```
-available = mirror − Σ { h.max_amount
-                       | h.status == Active
-                       ∧ current_ledger ≤ h.expires_ledger }
+backing   = min(mirror, token.balance(self))
+available = max(0, backing − Σ { h.max_amount
+                               | h.status == Active
+                               ∧ current_ledger ≤ h.expires_ledger })
 ```
 
 **Lazy expiry.** Expired holds are excluded from the sum at read time. No keeper,
-no cron, no scheduled transaction. Cleanup of expired entries happens
-opportunistically on the next write.
+no cron, no scheduled transaction. The real balance check prevents an issuer
+clawback or stale mirror from creating spendable capacity. Once the bounded
+64-record map fills, terminal/expired records are compacted; events retain the
+historical audit trail.
 
 ---
 
@@ -781,7 +790,7 @@ impl CustomAccountInterface for Latch {
                 Context::Contract(c) if c.contract == self_addr(&env) => {
                     if c.fn_name == symbol_short!("pay") {
                         outflow += arg_i128(&c, 1);
-                    } else if c.fn_name == symbol_short!("crt_hold") {
+                    } else if c.fn_name == Symbol::new(&env, "create_hold") {
                         // no token flow at authorization time
                     } else {
                         return Err(LatchError::ForbiddenSelfCall);
@@ -870,41 +879,52 @@ Verified (spike-s6c): a token-transfer context returns
 #[derive(Copy, Clone, PartialEq)]
 #[repr(u32)]
 pub enum LatchError {
-    InvalidSignature          = 1,
-    ForbiddenSelfCall         = 2,
-    DirectTokenCallsDisabled  = 3,
-    ForbiddenOperation        = 4,
-    ReservedBalanceViolation  = 5,
+    ForbiddenSelfCall         = 1,
+    DirectTokenCallsDisabled  = 2,
+    ForbiddenOperation        = 3,
+    ReservedBalanceViolation  = 4,
+    HoldNotFound              = 5,
     HoldNotActive             = 6,
     ExceedsHoldMaximum        = 7,
     HoldExpired               = 8,
     InsufficientAvailable     = 9,
     TooManyHolds              = 10,
     HoldDurationTooLong       = 11,
-    NotHoldMerchant           = 12,
+    InvalidAmount             = 12,
+    InvalidExpiration         = 13,
+    BalanceBackingLost        = 14,
+    ArithmeticOverflow        = 15,
 }
 ```
 
 | # | Error | Raised by |
 |---|---|---|
-| 1 | `InvalidSignature` | `__check_auth` — ed25519 verification |
-| 2 | `ForbiddenSelfCall` | `__check_auth` — non-whitelisted self function |
-| 3 | `DirectTokenCallsDisabled` | `__check_auth` — any token-contract context |
-| 4 | `ForbiddenOperation` | `__check_auth` — third contract or contract creation |
-| 5 | `ReservedBalanceViolation` | `__check_auth` — `outflow > available` |
+| 1 | `ForbiddenSelfCall` | `__check_auth` — non-whitelisted self function |
+| 2 | `DirectTokenCallsDisabled` | `__check_auth` — any token-contract context |
+| 3 | `ForbiddenOperation` | `__check_auth` — third contract or contract creation |
+| 4 | `ReservedBalanceViolation` | auth/body — `outflow > available` |
+| 5 | `HoldNotFound` | hold lookup after invalid ID or history compaction |
 | 6 | `HoldNotActive` | `capture` / `void` on a terminal hold |
 | 7 | `ExceedsHoldMaximum` | `capture` with `amount > max_amount` |
 | 8 | `HoldExpired` | `capture` after `expires_ledger` |
 | 9 | `InsufficientAvailable` | `create_hold` exceeding available capacity |
 | 10 | `TooManyHolds` | `create_hold` at 16 active holds |
 | 11 | `HoldDurationTooLong` | `create_hold` beyond `MAX_HOLD_LEDGERS` |
-| 12 | `NotHoldMerchant` | `capture` / `void` by a non-bound address |
+| 12 | `InvalidAmount` | non-positive payment/hold or negative capture |
+| 13 | `InvalidExpiration` | hold expiry at/before the current ledger |
+| 14 | `BalanceBackingLost` | capture would impair another active reservation |
+| 15 | `ArithmeticOverflow` | checked arithmetic failure |
 
 ## 9.1 Error opacity — a documented limitation
 
-Errors 1–5 originate inside `__check_auth`. They are asserted individually in the
+Errors 1–4 originate inside `__check_auth`. They are asserted individually in the
 test suite via `env.try_invoke_contract_check_auth::<LatchError>(...)`, which
 returns the specific code.
+
+Invalid Ed25519 signatures are different: in SDK 27 `ed25519_verify` aborts with
+a host crypto error instead of returning a contract-defined error. Tests assert
+that host boundary explicitly; the contract does not claim an unreachable
+`InvalidSignature` variant.
 
 **End-to-end, they do not reach the client.** A failed submit surfaces as
 `Error(Context, InvalidAction)` — a generic authorization failure. Verified in
@@ -1135,7 +1155,7 @@ reserved name and cannot be invoked directly.
 
 | # | Test | Expected |
 |---|---|---|
-| 1 | Wrong signer attempts `pay` | `InvalidSignature` |
+| 1 | Wrong signer attempts `pay` | host crypto verification error |
 | 2 | Owner attempts an unlisted self function | `ForbiddenSelfCall` |
 | 3 | Owner signs a raw `token.transfer` | `DirectTokenCallsDisabled` |
 | 4 | Owner signs `token.approve` | `DirectTokenCallsDisabled` |
@@ -1145,7 +1165,7 @@ reserved name and cannot be invoked directly.
 | 8 | Two `pay` entries in one tx exceeding available in aggregate | `ReservedBalanceViolation` on the second |
 | 9 | `capture` above `max_amount` | `ExceedsHoldMaximum` |
 | 10 | `capture` after expiry | `HoldExpired` |
-| 11 | `capture` by a non-bound address | `NotHoldMerchant` |
+| 11 | `capture` by a non-bound address | authorization failure; state unchanged |
 | 12 | `create_hold` at 16 active holds | `TooManyHolds` |
 
 ## 12.2 Invariant properties
@@ -1174,8 +1194,9 @@ advance past expiry   → (no-op; B already terminal)
 
 ## 12.4 README claim
 
-> "Twelve attack paths and six invariant properties, all green against
-> `soroban-env-host 27.0.1`."
+> "The production contract suite covers the lifecycle, authorization boundary,
+> reservation invariants, clawback/backing loss, expiry, bounds, and state
+> compaction against `soroban-env-host 27.0.1`."
 
 \newpage
 
@@ -1238,11 +1259,12 @@ play if the network is unavailable. Never shown unless required.
 ## 15.1 In scope
 
 - One Soroban contract account, single asset
-- `initialize` · `deposit` · `pay` · `create_hold` · `capture` · `void` · `sync` ·
+- `__constructor` · `deposit` · `pay` · `create_hold` · `capture` · `void` · `sync` ·
   `available` · `verify_hold`
 - `__check_auth` default-deny policy, two authorized call shapes
 - Lazy expiry, max 16 active holds, max 7-day hold duration
-- Twelve attack tests with distinct error codes
+- Focused lifecycle, authorization, attack, and invariant tests; host-level
+  signature failures are distinguished from contract error codes
 - Payer mobile web app with Reserved/Available bar
 - Merchant panel with QR generation and `FUNDS RESERVED` badge
 - Three-read decline panel with explorer links
@@ -1266,7 +1288,7 @@ them requires removing something from §15.1.
 | Hours | Workstream | Deliverable |
 |---|---|---|
 | 0–1 | Setup | Repo, `soroban-sdk 27.0.6` pinned, Testnet identities, self-issued asset, merchant trustlines, `seed-demo.sh` |
-| 1–4 | Contract core | Storage, types, `initialize`, `deposit`, `available_internal` |
+| 1–4 | Contract core | Storage, types, `__constructor`, `deposit`, `available_internal` |
 | 4–7 | Authorization | `__check_auth` with default deny; first three attack tests green |
 | 7–10 | Holds | `create_hold`, `verify_hold`, lazy expiry |
 | 10–13 | Settlement | `pay`, `capture`, `void`, `sync` |
@@ -1301,7 +1323,8 @@ latch/
 │           ├── lib.rs          # contract + __check_auth
 │           ├── types.rs        # Hold, HoldStatus, HoldVerification, DataKey
 │           ├── errors.rs       # LatchError
-│           └── test.rs         # 12 attack tests + 6 invariant properties
+│           ├── events.rs       # typed contract events
+│           └── test.rs         # lifecycle, attack, and invariant suite
 ├── apps/
 │   ├── payer/                  # mobile-first web app
 │   └── merchant/               # tablet panel
@@ -1446,4 +1469,4 @@ integrations, an SDK, and an audited policy module.
 
 ---
 
-**END OF DOCUMENT — LATCH Engineering PRD v1.0 — LOCKED 22 August 2026**
+**END OF DOCUMENT — LATCH Engineering PRD v1.1 — LOCKED 19 October 2026**
