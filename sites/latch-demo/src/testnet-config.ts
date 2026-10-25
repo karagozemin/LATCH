@@ -8,6 +8,15 @@ export const TESTNET = {
   "explorerBaseUrl": "https://stellar.expert/explorer/testnet",
   "proofContract": "CCWSZPG5PLKCKKUBDN6WI6XHPYZJIQVGZSBGYF27PSS5GWH4HYENP7LC",
   "wasmHash": "d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d",
+  "actors": {
+    "payer": "GAQ6RGCI6TRKMPDFTBIDJ756CJ7Y6RRQHR43C5QPH7TZDK6WVMIDSALV",
+    "merchantPrimary": "GCXT7I4IOR2WVICIM62AZNEUL4WGMYSQBTQ5GEJ2POXAV5J7PWBZCDHF",
+    "merchantSecondary": "GAQJZ3J6DRHX7GCG2ENX7GCFH5UBKZWNHALVE7TGW4XPSTDW7RBLPI4A"
+  },
+  "references": {
+    "primary": "6f972d0a53963c5730aa6234e0f250d036fb550550d10e9d5fd3a21308658b9e",
+    "secondary": "35aa2c647e355f8f7f65a3fbe5c69585101c3a6eaf00427f38e24c7411e2155c"
+  },
   "proof": {
     "deposit": "d9ef93d2d6ece78a407b26d814d7cd2721dc33e2e240cff61f5172a3fe93fc25",
     "hold": "f2c87a278a7bde8ac47be189e97892252e2b9c90aeda0726c63295a2ce152074",

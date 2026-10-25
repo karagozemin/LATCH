@@ -12,6 +12,12 @@
 6. At release: “The second 15 returns too; final available capacity is 37.60.”
 7. Open one proof link: “These are the exact Testnet transactions, not UI mocks.”
 
+For the two-party interaction, enter amount, expiry, and reference in the
+merchant terminal and press **Generate request + QR**. Scanning the QR opens the
+same signed-intent payload on the payer view, where **Authorize hold** and
+**Decline** are explicit. The displayed authorization ID is the SHA-256 digest
+of that exact payload.
+
 ## Stage-safe live-wallet fallback
 
 Prerequisites: Chrome, Freighter set to Testnet, popup access enabled, and a

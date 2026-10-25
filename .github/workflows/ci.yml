@@ -52,6 +52,8 @@ jobs:
       - name: Verify generated site inputs
         run: git diff --exit-code -- sites/latch-demo/vendor sites/latch-demo/src/testnet-config.ts
       - run: npm ci --prefix sites/latch-demo
+      - run: npm run lint --prefix sites/latch-demo
+      - run: npm test --prefix sites/latch-demo
       - run: npm run build:site
       - name: Verify committed demo bundle
         run: git diff --exit-code -- sites/latch-demo/dist/app.js

@@ -63,9 +63,9 @@ transaction artifact.
 
 ## P4 — Canonical two-party demo UX
 
-- [ ] Merchant creates amount, expiry, and reference; UI produces a hold request
+- [x] Merchant creates amount, expiry, and reference; UI produces a hold request
   payload/QR.
-- [ ] Payer opens/scans the request and explicitly authorizes or declines it.
+- [x] Payer opens/scans the request and explicitly authorizes or declines it.
 - [x] Render multiple concurrent holds and reference-derived authorization IDs.
 - [x] Match the canonical lifecycle: holds 30 + 15, available 5, rejected spend
   10, safe spend 4, capture 8.40, release the second hold.
@@ -78,12 +78,12 @@ help, and the 12-second replay tells the same numerical story.
 
 ## P5 — Frontend automation and CI truth
 
-- [ ] Extract/test deterministic state and amount transitions.
-- [ ] Test replay controls, live-mode state restoration, guarantee badge,
+- [x] Extract/test deterministic state and amount transitions.
+- [x] Test replay controls, live-mode state restoration, guarantee badge,
   decline evidence, retry safety, and responsive critical controls.
 - [ ] Add frontend test and lint commands to CI; do not mark them complete until
   those commands execute on GitHub Actions.
-- [ ] Keep the committed production bundle drift check.
+- [x] Keep the committed production bundle drift check.
 
 **Exit:** the BUILD-PLAN CI checkbox is supported by actual frontend tests, not
 only typechecking and bundling.
@@ -104,12 +104,8 @@ one verifiable story.
 
 - Live wallet intentionally remains the labeled one-wallet stage fallback; the
   canonical replay and public proof use the full two-merchant lifecycle.
-- QR/request approval, multiple active holds, capture sheet, and guarantee
-  polling are absent.
-- Decline UX does not yet show the PRD's three independent chain facts.
-- Live mode uses Freighter and native XLM, while the original integration table
-  specified owned signing and a self-issued asset.
-- CI typechecks/builds the frontend but has no frontend test runner or lint step.
+- CI includes the new frontend test/lint gates but their first GitHub Actions
+  execution must pass before P5 is closed.
 - Poor-network rehearsal, backup video, pitch deck, and submission answers are
   not yet final artifacts.
 
@@ -121,3 +117,7 @@ one verifiable story.
   checked-in network definition and deployment manifest.
 - Contract events now expose the PRD accounting fields and have direct payload
   assertions in the production test suite.
+- QR request/approval, concurrent holds, guarantee polling, three-fact decline
+  evidence, and the capture breakdown now ship in the judge UI.
+- The Freighter/XLM live fallback and deterministic LUSD proof are documented as
+  deliberate, non-interchangeable modes.

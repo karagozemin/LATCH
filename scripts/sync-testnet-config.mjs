@@ -12,6 +12,12 @@ export const TESTNET = ${JSON.stringify(
     ...TESTNET_NETWORK,
     proofContract: deployment.latch.contractId,
     wasmHash: deployment.latch.wasmSha256,
+    actors: {
+      payer: deployment.actors.payer,
+      merchantPrimary: deployment.actors.merchant,
+      merchantSecondary: deployment.actors.merchantSecondary,
+    },
+    references: deployment.proof.references,
     proof: {
       deposit: deployment.proof.transactionHashes.deposit,
       hold: deployment.proof.transactionHashes.createHoldPrimary,

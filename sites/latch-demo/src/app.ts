@@ -16,6 +16,21 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { Client as LatchClient, type HoldVerification } from "latch-client";
+import QRCode from "qrcode";
+import {
+  SCALE,
+  amountToUnits,
+  canonicalSnapshot,
+  decodeRequest,
+  encodeRequest,
+  guaranteeState,
+  parseStoredLiveSession,
+  shouldOfferRetry,
+  type DeclineEvidence,
+  type DemoState,
+  type HoldRequestPayload,
+  type StoredLiveSession,
+} from "./demo-model";
 import { TESTNET } from "./testnet-config";
 
 const proof = TESTNET.proof;
@@ -24,28 +39,16 @@ const WASM_HASH = TESTNET.wasmHash;
 const RPC_URL = TESTNET.rpcUrl;
 const FRIENDBOT_URL = TESTNET.friendbotUrl;
 const NETWORK_PASSPHRASE = TESTNET.passphrase;
-const SCALE = 10_000_000n;
 const STORAGE_PREFIX = "latch-live-v2:";
 const rpcServer = new rpc.Server(RPC_URL);
 
-type DemoState = "funded" | "heldPrimary" | "held" | "blocked" | "paid" | "captured" | "released";
 type DemoMode = "replay" | "live";
 
-interface LiveSession {
-  contractId: string;
-  holdId?: string;
-  phase: DemoState;
-  lastHash?: string;
-  declineEvidence?: DeclineEvidence;
-}
-
-interface DeclineEvidence {
-  beforeAvailable: number;
-  beforeBalance: number;
-  attempted: number;
-  afterAvailable: number;
-  afterBalance: number;
-  kind: "simulation";
+interface PendingRequest {
+  payload: HoldRequestPayload;
+  encoded: string;
+  authorizationId: string;
+  url: string;
 }
 
 interface RetryAction {
@@ -131,6 +134,18 @@ const els = {
   settlementPaid: $("#settlement-paid"),
   settlementReleased: $("#settlement-released"),
   settlementAvailable: $("#settlement-available"),
+  requestInbox: $("#request-inbox"),
+  inboxTitle: $("#inbox-title"),
+  inboxAuthId: $("#inbox-auth-id"),
+  approveRequest: $<HTMLButtonElement>("#approve-request"),
+  declineRequest: $<HTMLButtonElement>("#decline-request"),
+  requestAmountInput: $<HTMLInputElement>("#request-amount-input"),
+  requestExpiry: $<HTMLSelectElement>("#request-expiry"),
+  requestReferenceInput: $<HTMLInputElement>("#request-reference-input"),
+  generateRequest: $<HTMLButtonElement>("#generate-request"),
+  requestQr: $("#request-qr"),
+  requestQrCanvas: $<HTMLCanvasElement>("#request-qr-canvas"),
+  requestAuthId: $("#request-auth-id"),
 };
 
 let mode: DemoMode = "replay";
@@ -139,9 +154,10 @@ let running = false;
 let busy = false;
 let walletAddress = "";
 let liveClient: LatchClient | null = null;
-let liveSession: LiveSession | null = null;
+let liveSession: StoredLiveSession | null = null;
 let currentContractAddress: string = PROOF_CONTRACT;
 let retryAction: RetryAction | null = null;
+let pendingRequest: PendingRequest | null = null;
 
 function money(value: number) {
   return Number(value).toFixed(2);
@@ -150,6 +166,7 @@ function money(value: number) {
 function units(value: bigint) {
   return Number(value) / Number(SCALE);
 }
+
 
 function shortAddress(address: string) {
   return address.length > 12 ? `${address.slice(0, 5)}…${address.slice(-4)}` : address;
@@ -169,6 +186,60 @@ function configureProofEvidence() {
     const label = link.querySelector("b");
     if (label) label.textContent = `${hash.slice(0, 6)}…${hash.slice(-6)}`;
   });
+}
+
+async function authorizationId(encoded: string) {
+  const digest = await crypto.subtle.digest("SHA-256", Buffer.from(encoded, "utf8"));
+  return Buffer.from(digest).toString("hex");
+}
+
+async function showHoldRequest(payload: HoldRequestPayload, encoded = encodeRequest(payload)) {
+  const id = await authorizationId(encoded);
+  const requestUrl = new URL(window.location.href);
+  requestUrl.searchParams.set("request", encoded);
+  requestUrl.hash = "demo";
+  pendingRequest = { payload, encoded, authorizationId: id, url: requestUrl.toString() };
+  els.requestInbox.hidden = false;
+  els.inboxTitle.textContent = `${payload.merchantName} · ${money(Number(payload.amount))} ${payload.asset}`;
+  els.inboxAuthId.textContent = `auth ${id.slice(0, 12)}…${id.slice(-8)}`;
+  els.requestAuthId.textContent = id;
+  els.requestQr.hidden = false;
+  await QRCode.toCanvas(els.requestQrCanvas, requestUrl.toString(), {
+    width: 180,
+    margin: 1,
+    color: { dark: "#111d17", light: "#f4f2e9" },
+  });
+}
+
+async function generateHoldRequest() {
+  const amount = els.requestAmountInput.value;
+  amountToUnits(amount);
+  const reference = els.requestReferenceInput.value.trim();
+  if (!reference) throw new Error("A merchant reference is required");
+  const merchant = mode === "live" ? walletAddress : TESTNET.actors.merchantPrimary;
+  if (!merchant) throw new Error("Connect the merchant wallet before creating a live request");
+  await showHoldRequest({
+    version: 1,
+    network: "testnet",
+    asset: mode === "live" ? "XLM" : "LUSD",
+    merchant,
+    merchantName: els.merchantName.textContent ?? "Merchant",
+    amount,
+    expiresInLedgers: Number(els.requestExpiry.value),
+    reference,
+  });
+  toast("Scannable hold request ready");
+}
+
+async function loadHoldRequestFromUrl() {
+  const encoded = new URL(window.location.href).searchParams.get("request");
+  if (!encoded) return;
+  const payload = decodeRequest(encoded);
+  if (!StrKey.isValidEd25519PublicKey(payload.merchant)) {
+    throw new Error("Hold request merchant is not a valid Stellar account");
+  }
+  await showHoldRequest(payload, encoded);
+  toast("Merchant request loaded · authorize or decline");
 }
 
 function errorMessage(error: unknown) {
@@ -292,11 +363,24 @@ function setBalances(balance: number, reserved: number, received = 0) {
   els.reservedBar.style.width = `${(reserved / total) * 100}%`;
 }
 
+function setCanonicalBalances(nextState: DemoState) {
+  const snapshot = canonicalSnapshot(nextState);
+  setBalances(
+    units(snapshot.balance),
+    units(snapshot.reserved),
+    units(snapshot.received),
+  );
+}
+
 function setMerchant(name: string, mark: string, amount: number, reference: string) {
   els.merchantName.textContent = name;
   els.merchantLogo.textContent = mark;
   els.requestAmount.textContent = money(amount);
   els.requestReference.textContent = reference;
+  if (!pendingRequest) {
+    els.requestAmountInput.value = money(amount);
+    els.requestReferenceInput.value = `${reference.replace(/^#/, "")} · ${name}`;
+  }
 }
 
 function setPromise(primary: boolean, secondary: boolean, status = "None") {
@@ -365,7 +449,8 @@ function render(nextState: DemoState, hash?: string | null) {
   if (state === "funded") {
     setMerchant("Meridian Hotel", "M", 30, "#H-0001");
     setJudgeBeat(1, "The payer keeps custody.", "All 50 LUSD stays in the payer's account; creating a hold transfers nothing to the merchant.");
-    setBalances(50, 0);
+    if (mode === "replay") setCanonicalBalances(state);
+    else setBalances(50, 0);
     setPromise(false, false);
     setGuarantee("idle", "Ready to request", "Waiting for payer authorization");
     setDeclineEvidence();
@@ -390,7 +475,8 @@ function render(nextState: DemoState, hash?: string | null) {
       mode === "live" ? "#H-0001" : "#F-0002",
     );
     setJudgeBeat(2, "The merchant gets certainty, not custody.", "The first 30 LUSD promise is merchant-bound; zero moves at authorization.");
-    setBalances(50, 30);
+    if (mode === "replay") setCanonicalBalances(state);
+    else setBalances(50, 30);
     setPromise(true, false, "1 active");
     setGuarantee("guaranteed", "Funds reserved", `30 ${mode === "live" ? "XLM" : "LUSD"} is guaranteed on-chain`);
     setDeclineEvidence();
@@ -419,7 +505,8 @@ function render(nextState: DemoState, hash?: string | null) {
     } else {
       setJudgeBeat(3, "Two merchants share one honest capacity.", "A second 15 LUSD hold leaves only 5 available without transferring custody.");
     }
-    setBalances(50, reserved);
+    if (isLiveFallback) setBalances(50, reserved);
+    else setCanonicalBalances(state);
     setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
     setGuarantee("guaranteed", "Funds reserved", `${reserved} ${isLiveFallback ? "XLM" : "LUSD"} is guaranteed on-chain`);
     setDeclineEvidence(
@@ -457,7 +544,8 @@ function render(nextState: DemoState, hash?: string | null) {
     const amount = isLiveFallback ? 5 : 4;
     setMerchant("Meridian Hotel", "M", 30, "#H-0001");
     setJudgeBeat(5, "Unreserved money remains useful.", "A 4 LUSD payment succeeds while both merchant guarantees remain untouched.");
-    setBalances(isLiveFallback ? 45 : 46, isLiveFallback ? 30 : 45);
+    if (isLiveFallback) setBalances(45, 30);
+    else setCanonicalBalances(state);
     setPromise(true, !isLiveFallback, isLiveFallback ? "1 active" : "2 active");
     setGuarantee("guaranteed", "Still guaranteed", "Direct payment preserved the hold");
     setDeclineEvidence();
@@ -482,7 +570,8 @@ function render(nextState: DemoState, hash?: string | null) {
       isLiveFallback ? "#H-0001" : "#F-0002",
     );
     setJudgeBeat(6, "Only the final amount settles.", "The hotel captures 8.40 LUSD; its unused 21.60 is released while the second 15 LUSD hold stays backed.");
-    setBalances(isLiveFallback ? 37 : 37.6, isLiveFallback ? 0 : 15, isLiveFallback ? 8 : 8.4);
+    if (isLiveFallback) setBalances(37, 0, 8);
+    else setCanonicalBalances(state);
     setPromise(false, !isLiveFallback, isLiveFallback ? "Captured" : "1 active");
     setGuarantee(
       isLiveFallback ? "idle" : "guaranteed",
@@ -508,7 +597,8 @@ function render(nextState: DemoState, hash?: string | null) {
   if (state === "released") {
     const liveBalance = previousState === "paid" ? 45 : 50;
     setJudgeBeat(7, "Unused capacity returns immediately.", "Atlantic Fuel releases 15 LUSD. The payer finishes with 37.60 available and no active reservations.");
-    setBalances(mode === "live" ? liveBalance : 37.6, 0, mode === "live" ? 0 : 8.4);
+    if (mode === "live") setBalances(liveBalance, 0);
+    else setCanonicalBalances(state);
     setPromise(false, false, "Released");
     setGuarantee("idle", "Released", "No funds were captured");
     setDeclineEvidence();
@@ -568,11 +658,7 @@ function saveLiveSession() {
 function loadLiveSession(address: string) {
   const raw = localStorage.getItem(`${STORAGE_PREFIX}${address}`);
   if (!raw) return null;
-  try {
-    return JSON.parse(raw) as LiveSession;
-  } catch {
-    return null;
-  }
+  return parseStoredLiveSession(raw);
 }
 
 function walletSigner(xdrValue: string, options?: { networkPassphrase?: string; address?: string }) {
@@ -742,16 +828,18 @@ async function createLiveAccount() {
   }
 }
 
-async function createLiveHold() {
+async function createLiveHold(request?: HoldRequestPayload) {
   if (!liveClient || !liveSession) throw new Error("Create a live LATCH account first");
   setBusy(true, "Signing a 30 XLM hold");
   try {
     const latest = await rpcServer.getLatestLedger();
-    const reference = crypto.getRandomValues(new Uint8Array(32));
+    const reference = request
+      ? new Uint8Array(await crypto.subtle.digest("SHA-256", Buffer.from(request.reference, "utf8")))
+      : crypto.getRandomValues(new Uint8Array(32));
     const holdTx = await liveClient.create_hold({
-      merchant: walletAddress,
-      maximum: 30n * SCALE,
-      expires_at: latest.sequence + 5_000,
+      merchant: request?.merchant ?? walletAddress,
+      maximum: request ? amountToUnits(request.amount) : 30n * SCALE,
+      expires_at: latest.sequence + (request?.expiresInLedgers ?? 5_000),
       reference: Buffer.from(reference),
     });
     const holdId = unwrapResult<bigint>(holdTx.result);
@@ -769,6 +857,55 @@ async function createLiveHold() {
     busy = false;
     restoreButtons();
   }
+}
+
+function clearPendingRequest() {
+  pendingRequest = null;
+  els.requestInbox.hidden = true;
+  els.requestQr.hidden = true;
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("request");
+  window.history.replaceState({}, "", cleanUrl);
+}
+
+async function approvePendingRequest() {
+  if (!pendingRequest) throw new Error("Generate or scan a hold request first");
+  const { payload } = pendingRequest;
+  if (mode === "live") {
+    if (!liveClient || !walletAddress) throw new Error("Create the live LATCH account before authorizing");
+    if (payload.asset !== "XLM" || payload.merchant !== walletAddress || amountToUnits(payload.amount) !== 30n * SCALE) {
+      throw new Error("Stage-safe live mode accepts a 30 XLM request from the connected one-wallet merchant");
+    }
+    clearPendingRequest();
+    await createLiveHold(payload);
+    return;
+  }
+
+  const requested = units(amountToUnits(payload.amount));
+  if (state === "funded" && requested === 30) {
+    clearPendingRequest();
+    render("heldPrimary", proof.hold);
+    return;
+  }
+  if (state === "heldPrimary" && requested === 15) {
+    clearPendingRequest();
+    render("held", proof.holdSecondary);
+    return;
+  }
+  throw new Error("Replay expects the canonical 30 LUSD request followed by the 15 LUSD request");
+}
+
+function declinePendingRequest() {
+  if (!pendingRequest) return;
+  const declined = pendingRequest.payload;
+  clearPendingRequest();
+  setConsole({
+    icon: "!",
+    blocked: true,
+    title: `${money(Number(declined.amount))} ${declined.asset} request declined`,
+    copy: "The payer signed nothing and no transaction was submitted; account state is unchanged.",
+  });
+  toast("Request declined · no state changed");
 }
 
 async function readLiveCapacity() {
@@ -921,7 +1058,7 @@ async function pollHoldGuarantee() {
       id: BigInt(liveSession.holdId),
     });
     const verification = unwrapResult<HoldVerification>(verificationTx.result);
-    if (verification.active && verification.guaranteed) {
+    if (guaranteeState(verification.active, verification.guaranteed) === "guaranteed") {
       setGuarantee("guaranteed", "Funds reserved", "verify_hold: active + backed on-chain");
     } else {
       setGuarantee(
@@ -984,7 +1121,11 @@ function reportError(error: unknown) {
   const message = errorMessage(error);
   const transactionError = error instanceof LiveTransactionError ? error : null;
   const walletRejected = /user rejected|declined|denied|cancelled|canceled/i.test(message);
-  const canRetry = Boolean(retryAction && (transactionError?.safeToRetry || walletRejected));
+  const canRetry = shouldOfferRetry(
+    Boolean(retryAction),
+    Boolean(transactionError?.safeToRetry),
+    walletRejected,
+  );
   toast(message);
   setConsole({
     icon: "!",
@@ -1009,6 +1150,16 @@ els.walletButton.addEventListener("click", () => {
   const action = walletAddress && !liveClient ? createLiveAccount() : connectWallet();
   action.catch(reportError);
 });
+
+els.generateRequest.addEventListener("click", () => {
+  void generateHoldRequest().catch(reportError);
+});
+
+els.approveRequest.addEventListener("click", () => {
+  void approvePendingRequest().catch(reportError);
+});
+
+els.declineRequest.addEventListener("click", declinePendingRequest);
 
 els.holdButton.addEventListener("click", () => {
   if (mode === "replay") render(state === "funded" ? "heldPrimary" : "held");
@@ -1093,3 +1244,4 @@ window.setInterval(() => {
 
 configureProofEvidence();
 render("funded");
+void loadHoldRequestFromUrl().catch(reportError);
