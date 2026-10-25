@@ -40,6 +40,8 @@ every overspend and unauthorized transition is rejected.
 - [x] Merchant terminal: create/verify/capture/void with clear transaction state.
 - [ ] Shared typed contract client and network configuration.
 - [x] Add the three-second judge flow and a reset button for repeated demos.
+- [x] Add a Freighter-signed Testnet mode that deploys a user-owned LATCH
+  account, deposits native XLM, proves overspend rejection, and settles a hold.
 
 **Exit test:** a first-time user completes the scripted flow without CLI help.
 

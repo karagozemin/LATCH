@@ -33,5 +33,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            sites/latch-demo/package-lock.json
       - run: npm ci
       - run: npm run build:client
+      - run: npm ci --prefix sites/latch-demo
+      - run: npm run build:site
+      - name: Verify committed demo bundle
+        run: git diff --exit-code -- sites/latch-demo/dist/app.js

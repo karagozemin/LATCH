@@ -65,9 +65,13 @@
 
         <div class="demo-shell">
           <div class="demo-toolbar">
-            <div class="replay-label">
+            <div class="replay-label" id="mode-label">
               <span class="pulse"></span>
               Verified Testnet replay
+            </div>
+            <div class="mode-switch" aria-label="Demo mode">
+              <button class="is-active" type="button" id="replay-mode">Replay</button>
+              <button type="button" id="live-mode">Live wallet</button>
             </div>
             <div class="toolbar-actions">
               <button class="text-button" type="button" id="reset-button">Reset</button>
@@ -78,15 +82,24 @@
             </div>
           </div>
 
+          <div class="live-session" id="live-session" hidden>
+            <div class="live-session-copy">
+              <span class="live-kicker">Real Testnet mode</span>
+              <strong id="live-title">Connect Freighter to begin</strong>
+              <span id="live-copy">Your wallet signs every state change. No private key leaves Freighter.</span>
+            </div>
+            <button class="wallet-button" type="button" id="wallet-button">Connect Freighter</button>
+          </div>
+
           <div class="demo-grid">
             <article class="device payer-device" aria-label="Payer wallet">
               <div class="device-topline">
                 <span>Payer</span>
-                <span class="address">GAQ6…SALV</span>
+                <span class="address" id="payer-address">GAQ6…SALV</span>
               </div>
               <div class="balance-block">
                 <span class="balance-label">LATCH balance</span>
-                <strong><span id="payer-balance">50.00</span><small>LUSD</small></strong>
+                <strong><span id="payer-balance">50.00</span><small class="asset-unit">LUSD</small></strong>
                 <div class="capacity-bar" aria-label="Available and reserved capacity">
                   <span id="available-bar"></span><i id="reserved-bar"></i>
                 </div>
@@ -105,7 +118,7 @@
                 <div class="promise-details" id="promise-details" hidden>
                   <div class="merchant-mark">M</div>
                   <div><strong>Meridian Café</strong><span>Table tab · Ref 6A16…5607</span></div>
-                  <b>30.00</b>
+                  <b><span id="promise-amount">30.00</span></b>
                 </div>
               </div>
 
@@ -127,7 +140,7 @@
             <article class="device merchant-device" aria-label="Merchant terminal">
               <div class="device-topline">
                 <span>Merchant terminal</span>
-                <span class="address">GCXT…CDHF</span>
+                <span class="address" id="merchant-address">GCXT…CDHF</span>
               </div>
               <div class="merchant-header">
                 <div class="merchant-logo">M</div>
@@ -135,7 +148,7 @@
               </div>
               <div class="request-card">
                 <span>Requested capacity</span>
-                <strong>30.00 <small>LUSD</small></strong>
+                <strong><span id="request-amount">30.00</span> <small class="asset-unit">LUSD</small></strong>
                 <div class="request-meta"><span>Valid for 6h 56m</span><span>#0001</span></div>
               </div>
               <div class="guarantee" id="guarantee">
@@ -149,7 +162,7 @@
                   <button type="button" id="void-button" disabled>Release</button>
                 </div>
               </div>
-              <div class="merchant-total"><span>Received in this session</span><b><span id="merchant-received">0.00</span> LUSD</b></div>
+              <div class="merchant-total"><span>Received in this session</span><b><span id="merchant-received">0.00</span> <span class="asset-unit">LUSD</span></b></div>
             </article>
           </div>
 
@@ -176,7 +189,7 @@
           <a href="https://stellar.expert/explorer/testnet/tx/cee7f80908dd667ccb61353cae29af4c5d40f8436ea07415555e8da3addde9f4" target="_blank" rel="noreferrer"><span>Capture</span><b>cee7f8…e9f4</b><i>↗</i></a>
         </div>
         <div class="contract-row">
-          <div><span>Deployed contract</span><code>CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS</code></div>
+          <div><span id="contract-label">Deployed proof contract</span><code id="contract-address">CCBM23TEAN2UQRWW6SZS3FSCDBIDHJRPYS2LC2QUY4GSU727Z26EVZSS</code></div>
           <button type="button" id="copy-contract" aria-label="Copy contract address">Copy</button>
         </div>
       </section>

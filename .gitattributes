@@ -1,0 +1,2 @@
+# Generated third-party bundle contains whitespace inside SDK error templates.
+sites/latch-demo/dist/app.js -whitespace

@@ -67,10 +67,21 @@ are written to `deployments/testnet.json`.
 
 ## Open the judge demo
 
-The first M3 interface replays the verified Testnet lifecycle and links every
-successful transition to its public transaction. It includes payer capacity,
-merchant verification, overspend rejection, capture/release, an automated
-12-second judge flow, and a reset path for repeated demos.
+The M3 interface has two modes. **Replay** runs the deterministic 12-second LUSD
+story and links every successful transition to its public transaction. **Live
+wallet** connects Freighter, deploys a fresh user-owned LATCH account, deposits
+50 Testnet XLM, signs a 30 XLM hold, proves a 25 XLM overspend is rejected, then
+pays and captures on-chain. The live judge flow uses one wallet for both roles
+to keep setup reliable; the contract still enforces merchant-bound settlement.
+
+Freighter must be set to Testnet. The app can fund a new Testnet address through
+Friendbot, stores only the resulting public contract ID in browser storage, and
+never receives or persists a private key.
+
+```sh
+npm ci --prefix sites/latch-demo
+npm run build:site
+```
 
 ```sh
 python3 -m http.server 4173 -d sites/latch-demo/dist

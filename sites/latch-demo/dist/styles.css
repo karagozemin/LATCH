@@ -51,6 +51,9 @@ nav a:hover { opacity: .5; }
 .demo-shell { border: 1px solid rgba(255,255,255,.16); border-radius: 30px; overflow: hidden; background: #0d1813; box-shadow: 0 30px 80px rgba(0,0,0,.22); }
 .demo-toolbar { min-height: 72px; border-bottom: 1px solid rgba(255,255,255,.12); padding: 13px 18px 13px 24px; display: flex; align-items: center; justify-content: space-between; }
 .replay-label { display: flex; align-items: center; gap: 11px; text-transform: uppercase; font-size: 10px; letter-spacing: .13em; font-weight: 800; }
+.mode-switch { display: flex; padding: 4px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; background: rgba(255,255,255,.035); }
+.mode-switch button { padding: 8px 13px; border-radius: 8px; background: transparent; color: #7f8a83; font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: .07em; }
+.mode-switch button.is-active { background: var(--paper); color: var(--ink); }
 .toolbar-actions { display: flex; align-items: center; gap: 8px; }
 button { border: 0; cursor: pointer; }
 .text-button { padding: 12px 16px; background: transparent; color: #9da69f; }
@@ -58,6 +61,15 @@ button { border: 0; cursor: pointer; }
 .run-button:hover { background: #caff8a; }
 .run-button:disabled { opacity: .65; cursor: wait; }
 .run-icon { font-size: 9px; }
+.live-session { min-height: 86px; padding: 15px 24px; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(185,255,102,.055); display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.live-session[hidden] { display: none; }
+.live-session-copy { min-width: 0; display: flex; flex-direction: column; }
+.live-kicker { color: var(--mint); font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: .1em; }
+.live-session-copy strong { margin-top: 5px; font-size: 13px; }
+.live-session-copy > span:last-child { margin-top: 4px; color: #829088; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wallet-button { flex: 0 0 auto; min-width: 160px; padding: 13px 16px; border-radius: 11px; background: var(--paper); color: var(--ink); font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .05em; }
+.wallet-button.is-ready { background: var(--mint); }
+.wallet-button:disabled { opacity: .55; cursor: wait; }
 .demo-grid { display: grid; grid-template-columns: minmax(280px, 1fr) 210px minmax(300px, 1fr); gap: 20px; padding: 36px; align-items: stretch; }
 .device { border-radius: var(--radius); padding: 24px; min-height: 530px; }
 .payer-device { background: var(--paper); color: var(--ink); }
@@ -201,9 +213,13 @@ footer p:last-child { justify-self: end; }
   .section-heading { align-items: flex-start; flex-direction: column; margin-bottom: 38px; }
   .section-heading > p { font-size: 14px; }
   .demo-toolbar { align-items: flex-start; gap: 12px; }
-  .replay-label { padding-top: 10px; }
+  .replay-label { display: none; }
+  .mode-switch { margin-right: auto; }
   .text-button { display: none; }
   .run-button { font-size: 10px; padding: 12px; }
+  .live-session { align-items: stretch; flex-direction: column; }
+  .live-session-copy > span:last-child { white-space: normal; }
+  .wallet-button { width: 100%; }
   .demo-grid { grid-template-columns: 1fr; padding: 16px; }
   .flow-column { order: 2; flex-direction: row; justify-content: space-between; padding: 4px 0; overflow: hidden; }
   .merchant-device { order: 3; }
