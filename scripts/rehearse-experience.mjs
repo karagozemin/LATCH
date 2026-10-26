@@ -285,7 +285,7 @@ try {
   assert(
     failedLiveAction.step === "Make a promise" &&
       failedLiveAction.toast.includes("Freighter approval required") &&
-      failedLiveAction.button.includes("Approve the Testnet setup in Freighter"),
+      failedLiveAction.button.includes("Confirm in Freighter"),
     `A failed live authorization incorrectly advanced the simulated experience: ${JSON.stringify(failedLiveAction)}`,
   );
   await navigate("#app/fuel/live");

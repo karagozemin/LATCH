@@ -22,11 +22,22 @@ account prevents the reserved capacity from being spent elsewhere.
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
 
+<p align="center">
+  <a href="https://latch-ui.vercel.app">
+    <img src="./docs/assets/frontend-landing.png" alt="LATCH live frontend — payment promise landing page" width="100%">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://latch-ui.vercel.app"><strong>Open the live frontend ↗</strong></a>
+</p>
+
 LATCH is not escrow: no third party receives the reservation. Its guarantee is
 deliberately payer-side—issuer freeze/clawback remains external, and fresh
 verification or settlement requires network access.
 
-[Testnet contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
+[Live frontend](https://latch-ui.vercel.app)
+· [Testnet contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
 · [proof manifest](./deployments/testnet.json)
 · [architecture](./docs/ARCHITECTURE.md)
 · [security evidence](./docs/SECURITY-EVIDENCE.md)
@@ -203,8 +214,8 @@ real Testnet XLM calls. Direct scenario entry also supports a one-wallet path;
 use two separate wallets to test independent merchant authorization. The public
 transaction manifest remains historical evidence, not an interactive replay.
 
-The final public frontend will be deployed to Vercel after the release build is
-frozen. Until then, run it locally.
+The public frontend is deployed on
+[Vercel](https://latch-ui.vercel.app). The steps below reproduce it locally.
 
 ## Reproduce it
 

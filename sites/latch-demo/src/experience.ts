@@ -396,14 +396,16 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 		const original = button.innerHTML;
 		button.disabled = true;
 		button.classList.add("is-pending");
-		button.textContent =
+		button.setAttribute("aria-busy", "true");
+		const pendingLabel =
 			action === "authorize"
-				? "Approve the Testnet setup in Freighter…"
+				? "Confirm in Freighter"
 				: action === "capture"
-					? "Approve capture in Freighter…"
+					? "Confirm capture in Freighter"
 					: action === "release"
-						? "Approve release in Freighter…"
-						: "Checking the on-chain invariant…";
+						? "Confirm release in Freighter"
+						: "Checking on-chain capacity";
+		button.innerHTML = `<span class="pending-spinner" aria-hidden="true"></span><span>${pendingLabel}</span>`;
 		showToast("Freighter approval required · Stellar Testnet");
 		try {
 			let authorized:
@@ -442,6 +444,7 @@ export function initExperience(loadProtocol: () => Promise<ProtocolModule>) {
 			liveActionPending = false;
 			button.disabled = false;
 			button.classList.remove("is-pending");
+			button.removeAttribute("aria-busy");
 			button.innerHTML = original;
 		}
 	}

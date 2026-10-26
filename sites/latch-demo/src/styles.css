@@ -4120,8 +4120,29 @@ select {
 .scene-primary.is-pending,
 .overspend-button.is-pending {
 	cursor: progress;
-	opacity: 0.78;
-	animation: wallet-search 0.65s ease-in-out infinite alternate;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	background: #7658c8;
+	box-shadow: none;
+	opacity: 1;
+	transform: none;
+}
+.scene-primary.is-pending:disabled,
+.overspend-button.is-pending:disabled {
+	opacity: 1;
+}
+.pending-spinner {
+	width: 15px;
+	height: 15px;
+	flex: 0 0 auto;
+	border: 2px solid #ffffff52;
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: pending-spin 0.8s linear infinite;
+}
+@keyframes pending-spin {
+	to { transform: rotate(360deg); }
 }
 .experience-layout .protocol-view {
 	max-width: none;
