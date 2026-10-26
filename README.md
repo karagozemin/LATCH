@@ -2,35 +2,49 @@
   <img src="./docs/assets/latch-logo-purple.png" alt="LATCH" width="180">
 </p>
 
-# LATCH
+<h1 align="center">LATCH</h1>
 
-**Merchant-bound payment reservations for Stellar.**
+<p align="center">
+  <strong>Payment certainty without taking custody.</strong><br>
+  Merchant-bound payment reservations for Stellar, enforced by the payer's own Soroban smart account.
+</p>
 
-LATCH is a Soroban-native checkout primitive that lets a payer reserve part of
-their spendable token balance for one merchant—without paying or moving the
-funds at authorization time. The merchant can verify the reservation on-chain,
-then capture the final amount once or release it. The payer's own contract
-account prevents the reserved capacity from being spent elsewhere.
+<p align="center">
+  <a href="https://latch-ui.vercel.app"><strong>Launch the live Testnet demo ↗</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU">Inspect the contract ↗</a>
+  &nbsp;·&nbsp;
+  <a href="./deployments/testnet.json">Verify the proof</a>
+</p>
 
-**Reserve now. Deliver with confidence. Settle only what is owed.**
+<p align="center">
+  <a href="https://github.com/karagozemin/Latch/actions/workflows/ci.yml"><img src="https://github.com/karagozemin/Latch/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/network-Stellar%20Testnet-6c63ff" alt="Stellar Testnet">
+  <img src="https://img.shields.io/badge/built%20with-Soroban-111827" alt="Built with Soroban">
+  <img src="https://img.shields.io/badge/contract%20tests-15%20passing-22c55e" alt="15 contract tests passing">
+  <img src="https://img.shields.io/badge/frontend%20tests-28%20passing-22c55e" alt="28 frontend tests passing">
+</p>
 
-[![CI](https://github.com/karagozemin/Latch/actions/workflows/ci.yml/badge.svg)](https://github.com/karagozemin/Latch/actions/workflows/ci.yml)
-![Stellar Testnet](https://img.shields.io/badge/network-Stellar%20Testnet-6c63ff)
-![Soroban SDK](https://img.shields.io/badge/soroban--sdk-27.0.6-111827)
-![Contract tests](https://img.shields.io/badge/contract%20tests-15%20passing-22c55e)
-![Frontend tests](https://img.shields.io/badge/frontend%20tests-28%20passing-22c55e)
+<p align="center"><strong>Built for HackMeridian · Stellar Unlocked</strong></p>
+
+LATCH lets a payer reserve spendable capacity for one named merchant without
+transferring funds at authorization time. The merchant can verify that promise
+on-chain, then capture the final amount once—or release it. Unused capacity
+becomes available immediately, with no refund flow.
+
+| Moment | What LATCH guarantees |
+|---|---|
+| **Authorize** | The hold is bound to one merchant, amount ceiling, expiry, and reference; **0 tokens move** |
+| **During service** | The payer's smart account prevents reserved capacity from being spent elsewhere |
+| **Settle** | Only the bound merchant can capture, and never above the approved ceiling |
+| **Finish** | The final amount moves once; every unused unit is released atomically |
+
+> [!IMPORTANT]
+> The hosted product uses Freighter and real **Testnet XLM** transactions. The
+> checked-in **LUSD canonical run** is fixed, independently inspectable evidence
+> that the same contract lifecycle works with a Stellar asset contract.
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
-
-LATCH is not escrow: no third party receives the reservation. Its guarantee is
-deliberately payer-side—issuer freeze/clawback remains external, and fresh
-verification or settlement requires network access.
-
-[Live frontend](https://latch-ui.vercel.app)
-· [Testnet contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
-· [proof manifest](./deployments/testnet.json)
-· [architecture](./docs/ARCHITECTURE.md)
-· [security evidence](./docs/SECURITY-EVIDENCE.md)
 
 ## Why LATCH exists
 
@@ -38,21 +52,23 @@ Many merchants need proof of payment capacity **before** the final charge is
 known: a hotel before check-in, a fuel pump before dispensing, or a service
 provider before delivery.
 
-Existing approaches force a trade-off:
+Existing approaches force a trade-off. LATCH adds a fourth state:
+**merchant-bound reserved capacity inside the payer-controlled account**.
 
-- **Pay and refund:** the merchant takes funds the payer may never owe.
-- **Allowance:** the merchant has permission, but the balance can be spent
-  elsewhere before settlement.
-- **Per-deal escrow:** capacity is backed by moving funds out of the payer's
-  account before the final amount is known.
-
-LATCH adds a fourth state: **merchant-bound reserved capacity inside the
-payer-controlled account**. Creating a hold moves zero tokens. Capture moves
-only the final amount.
+| Approach | Transfer at authorization | Capacity protected | Settlement |
+|---|---:|---:|---|
+| Pay and refund | Yes | Yes | Overpay first, refund later |
+| Token allowance | No | No | Balance can disappear before capture |
+| Per-deal escrow | Yes | Yes | Funds leave payer control upfront |
+| **LATCH** | **No** | **Yes** | **Capture only the final amount** |
 
 > Wallets initiate payments. Anchors fund and off-ramp assets. Merchant apps
 > accept payments. LATCH provides the authorization layer between payer approval
 > and deferred merchant settlement.
+
+LATCH is not escrow: no third party receives the reservation. Its guarantee is
+deliberately payer-side—issuer freeze/clawback remains external, and fresh
+verification or settlement requires network access.
 
 ## The lifecycle
 
@@ -120,18 +136,20 @@ state model, trust boundaries, and transaction sequences.
 
 ## Proof at a glance
 
-The checked-in proof was produced from a fresh Testnet deployment with isolated
-owner, payer, and merchant identities. It is not a UI-only simulation.
+The latest checked-in proof was generated on **October 25, 2026 at 11:39 UTC**
+from a fresh deployment with isolated owner, payer, and merchant identities.
+Every linked transaction is successful on Stellar Testnet; this is not a
+UI-only simulation.
 
 | Proof | Verifiable result |
 |---|---|
+| Live product | Freighter-signed Testnet XLM holds, overspend protection, capture, and release |
 | Contract | [`CCPQ2PBP…GJ4JPWU`](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU) |
-| Lifecycle | Deposit → two holds → rejected overspend → safe pay → capture → release |
+| Canonical proof | LUSD deposit → two holds → rejected overspend → safe pay → capture → release |
 | On-chain actors | Distinct owner, payer, primary merchant, and secondary merchant addresses |
 | Contract suite | 15 lifecycle, authorization, event, attack, and invariant tests |
 | Host assumptions | 14 tests across five isolated Soroban spike crates |
 | Frontend suite | 28 scenario accounting, lifecycle, request, settlement, retry, persistence, and responsive-control tests |
-| Rehearsal | 30/30 automated seven-state judge replays passed |
 | Reproduction | `npm run testnet:bootstrap` rebuilds, deploys, executes, verifies, and rewrites the manifest |
 
 ### Canonical Testnet run
@@ -170,13 +188,10 @@ control, test, and known boundary.
 
 ## Demo and roles
 
-The frontend opens with a black-and-violet landing page and three interactive
-experiences: hotel check-in, fuel authorization, and a studio booking. All three
-use real Stellar Testnet transactions signed through Freighter. Walletless
-app simulations and replay controls have been removed; old demo links open the
-live flow. App balances are not populated until a live account has been read.
-The landing card remains a separate, labeled local preview with no wallet or navigation.
-See the [frontend guide](./sites/latch-demo/README.md) for development and routes.
+Launch the [live frontend](https://latch-ui.vercel.app), connect Freighter on
+Testnet, and choose a hotel, fuel, or studio flow. Every action inside the app
+uses real Testnet XLM calls. The landing-page card is the only local preview and
+is explicitly labeled as a simulation.
 
 The product models two distinct roles:
 
@@ -198,11 +213,15 @@ The live interface implements a two-party handoff without a trusted backend:
 The links are transports, not authority. Freighter signatures and fresh
 contract reads remain the authorization and verification boundaries.
 
-The frontend exposes only the **live wallet** flow. Separate merchant and payer
-browser profiles exchange request and settlement links while Freighter submits
-real Testnet XLM calls. Direct scenario entry also supports a one-wallet path;
-use two separate wallets to test independent merchant authorization. The public
-transaction manifest remains historical evidence, not an interactive replay.
+For the fastest product walkthrough, a direct scenario runs authorization,
+overspend protection, service delivery, and final capture from one interface.
+For the canonical trust-boundary proof, separate merchant and payer browser
+profiles exchange request and settlement links while distinct Freighter wallets
+sign their own actions.
+
+The public proof manifest is fixed evidence, not an interactive replay. See the
+[frontend guide](./sites/latch-demo/README.md) and
+[judge runbook](./docs/DEMO-RUNBOOK.md) for both paths.
 
 The public frontend is deployed on
 [Vercel](https://latch-ui.vercel.app). The steps below reproduce it locally.
@@ -307,12 +326,16 @@ See [Product decisions](./docs/PRODUCT-DECISIONS.md).
 
 ## Three-minute judge path
 
-1. Inspect the [public contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU)
-   and [proof manifest](./deployments/testnet.json).
-2. Read the [architecture](./docs/ARCHITECTURE.md) and
+1. Open the [live demo](https://latch-ui.vercel.app) and connect Freighter on
+   Stellar Testnet.
+2. Authorize a 30 XLM hotel hold and show that no payment reached the merchant.
+3. Trigger the overspend proof: simulation rejects the payment and state remains
+   unchanged.
+4. Capture the final bill, show the unused capacity released immediately, and
+   open the resulting Stellar Expert transaction.
+5. Inspect the [public contract](https://stellar.expert/explorer/testnet/contract/CCPQ2PBP7CYUP5FPKHJPOBGGI6WQZ7VOWKJY4HYWO2FTRU2TMGJ4JPWU),
+   [proof manifest](./deployments/testnet.json), and
    [security evidence](./docs/SECURITY-EVIDENCE.md).
-3. Run the deterministic UI locally, or reproduce the entire public lifecycle
-   with `npm run testnet:bootstrap`.
 
 LATCH's claim is deliberately narrow and verifiable: **a Soroban contract
 account can reserve merchant-bound payment capacity, keep funds payer-controlled
