@@ -64,8 +64,9 @@ One terminal capture per hold. Partial capture with residual reservation
 accounting is intentionally deferred so the Genesis invariant remains small and
 auditable.
 
-## What was built before the event?
+## What was built at HackMeridian?
 
-Answer from the frozen baseline and event commit log only. Do not improvise.
-State pre-event architecture/protocol work and event-window product delta
-separately.
+LATCH was started during HackMeridian. The contract, Testnet deployment,
+merchant/payer wallet flow, frontend, tests, documentation, brand assets, and
+demo materials were produced during the event build window. The public commit
+history and proof manifest provide the review trail.

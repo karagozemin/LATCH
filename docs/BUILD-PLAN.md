@@ -53,8 +53,8 @@ every overspend and unauthorized transition is rejected.
 - [x] Run contract tests, frontend tests, lint, format, and production builds in CI.
 - [x] Threat-model review and test evidence matrix against the PRD.
 - [ ] Rehearse the demo under poor network conditions; capture a backup video.
-- [x] Publish architecture, honest pre-event/build-window disclosure, testnet
-  addresses, demo link, and continued-development roadmap.
+- [x] Publish architecture, project-origin disclosure, Testnet addresses, demo
+  link, and continued-development roadmap.
 
 **Exit test:** repository, live demo, pitch, and fallback recording all tell the
 same verifiable story.

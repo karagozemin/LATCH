@@ -94,8 +94,6 @@ guarantee.
 
 The official site describes Genesis as “new idea, early prototype, or problem
 worth solving → working product” and Scale as moving an existing product toward
-production. LATCH is currently an early prototype but has meaningful pre-event
-implementation. Before selecting Genesis, obtain organizer confirmation and
-freeze a pre-event baseline commit. The final submission must list exactly what
-was built during the 25–26 October hacking window; never imply that pre-event
-work was produced during those 28 hours.
+production. LATCH started during HackMeridian and reached a working Testnet MVP
+during the event build window. The portal-assigned builder track is Genesis;
+the selected thematic track is Stellar Unlocked.

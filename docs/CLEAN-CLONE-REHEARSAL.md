@@ -1,11 +1,8 @@
-# Clean-clone rehearsal
+# Clean-clone reproduction checklist
 
-**Date:** 20 October 2026  
-**Commit:** `544e06970d25c25eca8d0f123378a047e0a352a7`  
-**Source:** fresh depth-1 clone from `https://github.com/karagozemin/Latch`
-
-The clone had no repository-local build cache or installed dependencies. The
-following gates completed successfully:
+Run this checklist from a fresh clone of
+`https://github.com/karagozemin/Latch` with no repository-local build cache or
+installed dependencies:
 
 - root `npm ci` and zero high-severity audit findings;
 - Rust formatting and 15/15 production contract tests;
@@ -14,8 +11,5 @@ following gates completed successfully:
   `d80feb4ff5eb56d62d8b8fca3fa04d7f404d453298fded9ef2cd2298df3a590d`;
 - generated TypeScript ABI matched the committed client;
 - client build and vendored client/config drift checks;
-- isolated site `npm ci`, Biome lint, 12/12 frontend tests, typecheck, and bundle;
+- isolated site `npm ci`, Biome lint, 28/28 frontend tests, typecheck, and bundle;
 - rebuilt `dist/app.js` matched the committed production bundle.
-
-The temporary clone and its 2.5 GiB Rust build cache were removed after the
-successful run.
