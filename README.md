@@ -5,8 +5,8 @@
 <h1 align="center">LATCH</h1>
 
 <p align="center">
-  <strong>Payment certainty without taking custody.</strong><br>
-  Merchant-bound payment reservations for Stellar, enforced by the payer's own Soroban smart account.
+  <strong>On-chain payment authorization without escrow.</strong><br>
+  Card-style pre-authorization, rebuilt as a payer-controlled Soroban smart account.
 </p>
 
 <p align="center">
@@ -27,10 +27,13 @@
 
 <p align="center"><strong>Built for HackMeridian 2026 · Genesis · Stellar Unlocked</strong></p>
 
-LATCH lets a payer reserve spendable capacity for one named merchant without
-transferring funds at authorization time. The merchant can verify that promise
-on-chain, then capture the final amount once—or release it. Unused capacity
-becomes available immediately, with no refund flow.
+LATCH is a payment reservation protocol for transactions where the final bill
+is not known upfront—hotels, fuel pumps, rentals, and professional services. A
+customer authorizes a maximum amount for one named merchant, but **no funds move
+to the merchant at authorization**. Instead, the customer's Soroban smart
+account protects that capacity from being spent elsewhere. The merchant can
+verify the promise on-chain, then capture only the final amount; everything
+unused is released automatically, with no refund flow.
 
 | Moment | What LATCH guarantees |
 |---|---|
