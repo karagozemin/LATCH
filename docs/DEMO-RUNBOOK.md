@@ -52,7 +52,7 @@ fresh browser profile if rehearsing first-run behavior.
 ## Venue checklist
 
 - Freighter is on Testnet and displays the expected G-address.
-- Hosted and localhost tabs are open before presenting.
+- The deployed frontend at <https://latch-ui.vercel.app> is open before presenting.
 - Replay mode is reset to beat 1.
 - A live account is created once during rehearsal and its browser storage kept.
 - Stellar Expert proof links are opened in background tabs.

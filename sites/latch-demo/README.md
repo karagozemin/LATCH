@@ -7,7 +7,7 @@
 A black and violet landing page with the original LATCH artwork, a short app-entry
 transition, and three interactive payment-reservation experiences.
 
-## Run locally
+## Development
 
 From the repository root:
 
@@ -16,9 +16,10 @@ npm ci --prefix sites/latch-demo
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. TypeScript rebuilds in memory when edited; refresh the
-browser to see changes. HTML and CSS are served directly from `src/`. Development
-does not overwrite the committed production bundle.
+The deployed frontend is available at <https://latch-ui.vercel.app>. During local
+development, TypeScript rebuilds in memory when edited; refresh the development
+tab to see changes. HTML and CSS are served directly from `src/`. Development does
+not overwrite the committed production bundle.
 
 ```sh
 npm run build:site

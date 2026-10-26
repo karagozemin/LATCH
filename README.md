@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./latch1.png" alt="LATCH" width="180">
+  <img src="./docs/assets/latch-logo-purple.png" alt="LATCH" width="180">
 </p>
 
 # LATCH
@@ -21,16 +21,6 @@ account prevents the reserved capacity from being spent elsewhere.
 ![Frontend tests](https://img.shields.io/badge/frontend%20tests-28%20passing-22c55e)
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
-
-<p align="center">
-  <a href="https://latch-ui.vercel.app">
-    <img src="./docs/assets/frontend-landing.png" alt="LATCH live frontend — payment promise landing page" width="100%">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://latch-ui.vercel.app"><strong>Open the live frontend ↗</strong></a>
-</p>
 
 LATCH is not escrow: no third party receives the reservation. Its guarantee is
 deliberately payer-side—issuer freeze/clawback remains external, and fresh
@@ -240,13 +230,7 @@ npm test --prefix sites/latch-demo
 npm run build:site
 ```
 
-Run the built frontend:
-
-```sh
-python3 -m http.server 4173 -d sites/latch-demo/dist
-```
-
-Open <http://127.0.0.1:4173>.
+Open the live frontend at <https://latch-ui.vercel.app>.
 
 ### Fresh Testnet lifecycle
 
