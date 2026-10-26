@@ -25,7 +25,7 @@
   <img src="https://img.shields.io/badge/frontend%20tests-28%20passing-22c55e" alt="28 frontend tests passing">
 </p>
 
-<p align="center"><strong>Built for HackMeridian · Stellar Unlocked</strong></p>
+<p align="center"><strong>Built for HackMeridian 2026 · Genesis · Stellar Unlocked</strong></p>
 
 LATCH lets a payer reserve spendable capacity for one named merchant without
 transferring funds at authorization time. The merchant can verify that promise
@@ -43,6 +43,11 @@ becomes available immediately, with no refund flow.
 > The hosted product uses Freighter and real **Testnet XLM** transactions. The
 > checked-in **LUSD canonical run** is fixed, independently inspectable evidence
 > that the same contract lifecycle works with a Stellar asset contract.
+
+**Why this fits Stellar Unlocked:** LATCH turns Soroban's contract-account
+authorization into a new payment primitive. The reservation is not a backend
+record or an escrow balance; it is a spending rule enforced by the payer's own
+on-chain account.
 
 **Working Testnet MVP · public contract · reproducible lifecycle · not independently audited**
 
@@ -101,10 +106,20 @@ Active ── capture ──> Captured
 A captured, voided, or expired hold cannot settle again. A capture below the
 ceiling releases the unused capacity atomically.
 
-## Why Soroban smart accounts
+## Why Stellar — and why a smart account
 
-LATCH puts the payment rule at the **payer-account layer**, not only in a
-merchant-side settlement contract.
+LATCH is not a generic escrow moved onto another chain. Its core guarantee
+depends on Stellar's contract-account authorization model: the payment rule
+lives at the **payer-account layer**, not only in a merchant-side application.
+
+- **Contract accounts:** `CustomAccountInterface` makes reserved capacity part
+  of the account's authorization policy.
+- **Native and issued assets:** the live product proves Testnet XLM while the
+  canonical run proves the same lifecycle with a Stellar asset contract.
+- **Role-specific authorization:** the payer creates the hold; only its bound
+  merchant can capture or release it.
+- **Public verification:** contract state, events, and settlement transactions
+  remain independently readable without trusting the LATCH frontend.
 
 The LATCH contract implements Soroban's `CustomAccountInterface`:
 
@@ -316,13 +331,22 @@ One-shot capture and deterministic expiry are intentional: they keep settlement,
 accounting, and replay behavior small enough to audit and demonstrate clearly.
 See [Product decisions](./docs/PRODUCT-DECISIONS.md).
 
-## Planned next steps
+## Path from MVP to production
 
-1. Merchant integration helpers over the generated ABI client.
-2. Event/indexer-backed status history for merchant operations.
-3. Partial capture with explicit residual-reservation accounting.
-4. Multi-asset account policy and POS integration adapters.
-5. Exploration of reserved capacity for x402-style deferred settlement.
+The MVP proves the hardest part first: an account can preserve merchant-bound
+capacity across owner payments and settle it exactly once. The next milestones
+turn that primitive into infrastructure merchants can adopt:
+
+| Stage | Deliverable | Outcome |
+|---|---|---|
+| **1. Integration** | Merchant SDK helpers, request/settlement schemas, and reference checkout components | A merchant can add LATCH without rebuilding the protocol flow |
+| **2. Operations** | Event indexer, status history, webhooks, and reconciliation exports | Holds become observable inside existing merchant operations |
+| **3. Settlement depth** | Partial capture with explicit residual-capacity accounting and multi-asset policy | Supports longer-lived and multi-stage services |
+| **4. Production readiness** | Independent audit, load/failure testing, wallet compatibility work, and a limited merchant pilot | Evidence required before any Mainnet launch |
+
+Potential integrations include hospitality deposits, fuel authorization,
+mobility, equipment rental, professional services, and metered agent payments—
+all cases where the final bill is known after authorization rather than before.
 
 ## Three-minute judge path
 
