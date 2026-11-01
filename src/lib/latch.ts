@@ -1,17 +1,55 @@
-import { arcTestnet } from 'viem/chains'
+import { arc, arcTestnet } from 'viem/chains'
 import { isAddress, parseAbiItem, type Address } from 'viem'
 import { getUsdc } from '@/onchain-facts'
 
-export const LATCH_CHAIN_ID = arcTestnet.id
+/**
+ * Network selection. The app targets ONE Arc network, chosen by VITE_LATCH_NETWORK:
+ *   testnet (default) -> Arc Testnet, chain ID 5042002
+ *   mainnet           -> Arc Mainnet, chain ID 5042
+ * Each network has its own contract address and deployment block, so a mainnet build can never
+ * silently fall back to the testnet contract (and vice versa).
+ */
+const env = import.meta.env
+const rawNetwork = ((env.VITE_LATCH_NETWORK as string | undefined) ?? 'testnet').trim().toLowerCase()
 
-const rawAddress = import.meta.env.VITE_LATCH_ADDRESS as string | undefined
+export const LATCH_IS_MAINNET = rawNetwork === 'mainnet'
+export const LATCH_CHAIN_ID: typeof arc.id | typeof arcTestnet.id = LATCH_IS_MAINNET ? arc.id : arcTestnet.id
+
+const ADDRESS_ENV_KEY = LATCH_IS_MAINNET ? 'VITE_LATCH_ADDRESS_MAINNET' : 'VITE_LATCH_ADDRESS_TESTNET'
+const BLOCK_ENV_KEY = LATCH_IS_MAINNET ? 'VITE_LATCH_DEPLOY_BLOCK_MAINNET' : 'VITE_LATCH_DEPLOY_BLOCK_TESTNET'
+export const LATCH_ADDRESS_ENV_KEY: string = ADDRESS_ENV_KEY
+
+/** The Arc Testnet deployment. Used only to refuse it as a mainnet address. */
+const KNOWN_TESTNET_ADDRESS = '0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b'
+
+const rawAddress = ((LATCH_IS_MAINNET ? env.VITE_LATCH_ADDRESS_MAINNET : env.VITE_LATCH_ADDRESS_TESTNET) as
+  | string
+  | undefined)?.trim()
+const rawDeployBlock = ((LATCH_IS_MAINNET ? env.VITE_LATCH_DEPLOY_BLOCK_MAINNET : env.VITE_LATCH_DEPLOY_BLOCK_TESTNET) as
+  | string
+  | undefined)?.trim()
+
+function configError(): string | undefined {
+  if (rawNetwork !== 'testnet' && rawNetwork !== 'mainnet') {
+    return `VITE_LATCH_NETWORK must be "testnet" or "mainnet" (got "${rawNetwork}").`
+  }
+  if (rawAddress && !isAddress(rawAddress)) return `${ADDRESS_ENV_KEY} is not a valid address.`
+  if (LATCH_IS_MAINNET && rawAddress?.toLowerCase() === KNOWN_TESTNET_ADDRESS) {
+    return `${ADDRESS_ENV_KEY} is the Arc Testnet contract. Use the address of your Arc Mainnet deployment.`
+  }
+  if (rawDeployBlock && !/^\d+$/.test(rawDeployBlock)) return `${BLOCK_ENV_KEY} must be a block number.`
+  return undefined
+}
+
+/** Set when the environment is inconsistent. The app refuses to talk to any contract in that case. */
+export const LATCH_CONFIG_ERROR: string | undefined = configError()
+
 export const LATCH_ADDRESS: Address | undefined =
-  rawAddress && isAddress(rawAddress) ? rawAddress : undefined
+  !LATCH_CONFIG_ERROR && rawAddress && isAddress(rawAddress) ? rawAddress : undefined
 
-const rawDeployBlock = import.meta.env.VITE_LATCH_DEPLOY_BLOCK as string | undefined
 /** Block the contract was deployed at. Bounds the activity scan; never scan from genesis. */
 export const LATCH_DEPLOY_BLOCK: bigint | undefined =
-  rawDeployBlock && /^\d+$/.test(rawDeployBlock) ? BigInt(rawDeployBlock) : undefined
+  !LATCH_CONFIG_ERROR && rawDeployBlock ? BigInt(rawDeployBlock) : undefined
 
 export const latchEvents = [
   parseAbiItem(
@@ -22,7 +60,7 @@ export const latchEvents = [
 ] as const
 
 const usdc = getUsdc(LATCH_CHAIN_ID)
-if (!usdc) throw new Error('USDC fact missing for Arc Testnet')
+if (!usdc) throw new Error(`USDC fact missing for chain ${LATCH_CHAIN_ID}`)
 export const USDC_ADDRESS = usdc.address as Address
 
 export const latchAbi = [

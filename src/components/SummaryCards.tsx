@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { ArrowDownToLine, Lock, Undo2, type LucideIcon } from 'lucide-react'
 import { fmtUsdc } from '@/lib/format'
-import { remainingOf, statusOf, type Hold } from '@/lib/latch'
+import { networkLabel } from '@/lib/network'
+import { LATCH_CHAIN_ID, remainingOf, statusOf, type Hold } from '@/lib/latch'
 import { Label, Panel, Skeleton } from '@/components/ui/Panel'
 
 interface Props {
@@ -49,7 +50,7 @@ function Card({ label, icon: Icon, value, note, state, accent }: CardProps) {
           : state === 'error'
             ? 'Unavailable right now. Retrying.'
             : state === 'loading'
-              ? 'Reading from Arc Testnet…'
+              ? `Reading from ${networkLabel(LATCH_CHAIN_ID)}…`
               : note}
       </p>
     </Panel>

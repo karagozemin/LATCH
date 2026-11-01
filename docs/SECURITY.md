@@ -15,7 +15,7 @@ Latch has not had a third-party audit. Treat this as hackathon-grade software un
 
 - Automated static analysis (Slither): only informational timestamp-comparison notes, which are the intended expiry checks.
 - Two independent automated reviews of the source (rule-based and behaviour-focused). No material findings.
-- 65 Foundry tests: happy paths, every revert path, events, exact demo flow, fee-on-transfer token, reentrancy attempts, fuzz tests and handler-based invariants (token conservation, per-hold accounting, status consistency).
+- 65 Foundry tests (also passing under Arc Foundry with `arc-forge test --network arc`): happy paths, every revert path, events, exact demo flow, fee-on-transfer token, reentrancy attempts, fuzz tests and handler-based invariants (token conservation, per-hold accounting, status consistency).
 
 These are not a substitute for a professional audit.
 

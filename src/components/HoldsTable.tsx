@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
 import { ArrowRight, Inbox, Wallet } from 'lucide-react'
-import { remainingOf, statusOf, type Hold } from '@/lib/latch'
+import { LATCH_CHAIN_ID, remainingOf, statusOf, type Hold } from '@/lib/latch'
 import { fmtDate, fmtDuration, fmtUsdc, shortAddress } from '@/lib/format'
+import { networkLabel } from '@/lib/network'
 import { Panel, PanelHeader, Skeleton } from '@/components/ui/Panel'
 import { Segmented } from '@/components/ui/Segmented'
 import { StatusChip } from '@/components/ui/StatusChip'
@@ -69,7 +70,7 @@ export function HoldsTable({
         <EmptyState
           icon={<Inbox className="size-5" strokeWidth={1.5} />}
           title="Could not load authorizations"
-          body="Reading from Arc Testnet failed. This view retries automatically every few seconds."
+          body={`Reading from ${networkLabel(LATCH_CHAIN_ID)} failed. This view retries automatically every few seconds.`}
         />
       )
     }

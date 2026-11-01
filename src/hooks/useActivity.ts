@@ -26,8 +26,11 @@ export interface ActivityProgress {
   truncated: boolean
 }
 
-// Measured against the Arc Testnet RPC: 5,000-block ranges succeed, 10,000 is rejected.
+// Starting range per eth_getLogs call. Measured on the Arc Testnet RPC: 5,000 blocks succeed, 10,000 is
+// rejected. The scan halves the range (down to MIN_CHUNK) whenever the RPC refuses one, so it adapts to
+// whatever limit the connected endpoint enforces.
 const CHUNK = 5_000n
+const MIN_CHUNK = 250n
 // Bounded lookback so a cold start never crawls the whole chain.
 const LOOKBACK = 100_000n
 const POLL_MS = 8_000
@@ -42,6 +45,7 @@ export function useActivity() {
   const [error, setError] = useState<string | null>(null)
   const scannedRef = useRef<bigint | null>(null)
   const fromRef = useRef<bigint>(0n)
+  const chunkRef = useRef<bigint>(CHUNK)
 
   useEffect(() => {
     if (!client || !LATCH_ADDRESS) return
@@ -60,9 +64,21 @@ export function useActivity() {
         }
         let start = scannedRef.current + 1n
         while (start <= head && !cancelled) {
-          const end = start + CHUNK - 1n > head ? head : start + CHUNK - 1n
-          const logs = await client.getLogs({ address, events: latchEvents, fromBlock: start, toBlock: end })
+          const end = start + chunkRef.current - 1n > head ? head : start + chunkRef.current - 1n
+          let logs
+          try {
+            logs = await client.getLogs({ address, events: latchEvents, fromBlock: start, toBlock: end })
+          } catch (error) {
+            // The RPC refused this range (too large, or a lagging backend). Retry with a smaller one.
+            if (chunkRef.current > MIN_CHUNK) {
+              chunkRef.current = chunkRef.current / 2n
+              continue
+            }
+            throw error
+          }
           if (cancelled) return
+          // Recover toward the full range after a transient refusal (e.g. a lagging RPC backend).
+          if (chunkRef.current < CHUNK) chunkRef.current = chunkRef.current * 2n > CHUNK ? CHUNK : chunkRef.current * 2n
           const fresh: ActivityEvent[] = []
           for (const log of logs) {
             if (log.blockNumber === null || log.logIndex === null || log.transactionHash === null) continue
@@ -98,7 +114,7 @@ export function useActivity() {
         }
         if (!cancelled) setError(null)
       } catch {
-        if (!cancelled) setError('Could not read activity from Arc Testnet. Retrying.')
+        if (!cancelled) setError('Could not read activity from the Arc RPC. Retrying.')
       } finally {
         if (!cancelled) timer = setTimeout(() => void tick(), POLL_MS)
       }

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ExternalLink, History, Loader2, Wallet } from 'lucide-react'
 import { LATCH_CHAIN_ID } from '@/lib/latch'
 import { fmtUsdc, shortAddress } from '@/lib/format'
+import { networkLabel } from '@/lib/network'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 import type { ActivityEvent, ActivityKind, ActivityProgress } from '@/hooks/useActivity'
 import { Panel, PanelHeader } from '@/components/ui/Panel'
@@ -78,7 +79,7 @@ export function HistoryTable({ events, progress, error, syncing }: Props) {
           title={syncing ? 'Scanning recent blocks…' : 'No transactions in range'}
           body={
             syncing
-              ? 'Reading Latch events from Arc Testnet. Results appear as soon as they are found.'
+              ? `Reading Latch events from ${networkLabel(LATCH_CHAIN_ID)}. Results appear as soon as they are found.`
               : 'No reservations, captures or refunds were found in the scanned block range. Create an authorization to see real transactions here.'
           }
         />

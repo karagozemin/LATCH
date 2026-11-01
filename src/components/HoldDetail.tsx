@@ -3,6 +3,7 @@ import { useAccount } from 'wagmi'
 import { ExternalLink, Loader2, MousePointerClick } from 'lucide-react'
 import { LATCH_ADDRESS, LATCH_CHAIN_ID, latchAbi, remainingOf, statusOf, type Hold } from '@/lib/latch'
 import { fmtDate, fmtDuration, fmtUsdc } from '@/lib/format'
+import { networkLabel } from '@/lib/network'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 import { parseUsdc } from '@/onchain-money'
 import { useTx } from '@/hooks/useTx'
@@ -142,7 +143,7 @@ export function HoldDetail({ hold, now, isLoading, hasHolds, events, activitySyn
     <Panel id="hold-detail">
       <PanelHeader
         title={`Authorization #${hold.id.toString()}`}
-        subtitle="Live from the Latch contract on Arc Testnet."
+        subtitle={`Live from the Latch contract on ${networkLabel(LATCH_CHAIN_ID)}.`}
         right={<StatusChip status={status} />}
       />
 
@@ -232,7 +233,7 @@ export function HoldDetail({ hold, now, isLoading, hasHolds, events, activitySyn
         )}
 
         {wrongChain && (canCapture || canRefund) && (
-          <p className="text-xs text-warn">Your wallet will be asked to switch to Arc Testnet first.</p>
+          <p className="text-xs text-warn">Your wallet will be asked to switch to {networkLabel(LATCH_CHAIN_ID)} first.</p>
         )}
         {note && <p className="text-[13px] text-pretty text-slate2">{note}</p>}
 

@@ -11,3 +11,4 @@ traces.jsonl
 console.jsonl
 *.log
 .DS_Store
+broadcast

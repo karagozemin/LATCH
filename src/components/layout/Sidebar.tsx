@@ -1,6 +1,7 @@
 import { BookOpen, ExternalLink, Globe, Droplets } from 'lucide-react'
 import type { View } from '@/hooks/useView'
-import { LATCH_ADDRESS, LATCH_CHAIN_ID } from '@/lib/latch'
+import { LATCH_ADDRESS, LATCH_CHAIN_ID, LATCH_IS_MAINNET } from '@/lib/latch'
+import { networkLabel } from '@/lib/network'
 import { buildAddressExplorerUrl, requireChain } from '@/onchain-facts'
 import { CopyButton } from '@/components/ui/CopyButton'
 import { shortAddress } from '@/lib/format'
@@ -10,7 +11,8 @@ import { Wordmark } from './Wordmark'
 const LINKS = [
   { label: 'Arc documentation', href: 'https://docs.arc.io', icon: BookOpen },
   { label: 'Circle developer docs', href: 'https://developers.circle.com', icon: BookOpen },
-  { label: 'Testnet faucet', href: 'https://faucet.circle.com', icon: Droplets },
+  // Testnet USDC is only useful on testnet.
+  ...(LATCH_IS_MAINNET ? [] : [{ label: 'Testnet faucet', href: 'https://faucet.circle.com', icon: Droplets }]),
 ]
 
 export function Sidebar({ view, onNavigate }: { view: View; onNavigate: (v: View) => void }) {
@@ -53,7 +55,7 @@ export function Sidebar({ view, onNavigate }: { view: View; onNavigate: (v: View
             className="flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13px] text-slate2 transition-colors hover:bg-panel/60 hover:text-ink"
           >
             <Globe className="size-4 text-faint" strokeWidth={1.75} />
-            <span className="flex-1">Arc Testnet explorer</span>
+            <span className="flex-1">{networkLabel(LATCH_CHAIN_ID)} explorer</span>
             <ExternalLink className="size-3 text-faint" />
           </a>
           {LINKS.map((l) => (

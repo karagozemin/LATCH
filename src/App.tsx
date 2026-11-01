@@ -3,7 +3,7 @@ import { useAccount } from 'wagmi'
 import { useHolds, useNow } from '@/hooks/useHolds'
 import { useActivity } from '@/hooks/useActivity'
 import { useView } from '@/hooks/useView'
-import { LATCH_ADDRESS } from '@/lib/latch'
+import { LATCH_ADDRESS, LATCH_ADDRESS_ENV_KEY, LATCH_CONFIG_ERROR, LATCH_IS_MAINNET } from '@/lib/latch'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 import { MobileNav } from '@/components/layout/MobileNav'
@@ -68,10 +68,18 @@ export default function App() {
         <MobileNav view={view} onNavigate={navigate} />
 
         <main className="mx-auto max-w-[1240px] space-y-6 px-4 pb-24 pt-6 sm:px-6 lg:space-y-8 lg:px-8 lg:pt-8">
+          {LATCH_IS_MAINNET && LATCH_ADDRESS && (
+            <div
+              role="note"
+              className="rounded-xl border border-warn/30 bg-warn/[0.07] px-4 py-3 text-[13px] text-warn"
+            >
+              Arc Mainnet. Transactions use real USDC and cannot be reversed. Check every address before you confirm.
+            </div>
+          )}
           {!LATCH_ADDRESS ? (
             <Panel className="p-6 text-sm text-danger">
-              No contract address configured. Set VITE_LATCH_ADDRESS in .env to your deployed Latch address and
-              restart the dev server.
+              {LATCH_CONFIG_ERROR ??
+                `No contract address configured for this network. Set ${LATCH_ADDRESS_ENV_KEY} in .env and restart the dev server or rebuild.`}
             </Panel>
           ) : (
             <div key={view} className="animate-fade-up space-y-6 lg:space-y-8">

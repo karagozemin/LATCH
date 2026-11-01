@@ -9,7 +9,7 @@ type Write = ReturnType<typeof useWriteContract>['writeContractAsync']
 
 /**
  * One onchain write with honest phases: wallet signature, confirmation, result.
- * Switches to Arc Testnet first when the wallet is on another chain.
+ * Switches to the configured Arc network first when the wallet is on another chain.
  */
 export function useTx(onConfirmed?: () => void) {
   const { chainId } = useAccount()
