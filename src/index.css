@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #080d16;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: 'Geist', 'DM Sans', ui-sans-serif, sans-serif;
+  color: #e8eef6;
+  background: #080d16;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
+}
+
+::selection {
+  background: rgba(63, 224, 192, 0.28);
+}
+
+:focus-visible {
+  outline: 2px solid rgba(63, 224, 192, 0.7);
+  outline-offset: 2px;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+select {
+  color-scheme: dark;
+}
+
+/* Thin scrollbars that match the canvas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Hairline top highlight used on elevated panels */
+.panel-hl {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
