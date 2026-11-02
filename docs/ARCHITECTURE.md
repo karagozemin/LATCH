@@ -508,7 +508,7 @@ If usage outgrows these bounds, the natural extension is a replaceable indexer t
 | Network | Contract | Deployment block | Status |
 | --- | --- | ---: | --- |
 | Arc Testnet | `0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b` | `70172256` | Development deployment recorded |
-| Arc Mainnet | `0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2` | `29071512` | Deployment transaction recorded; verification work remains |
+| Arc Mainnet | `0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2` | `29071512` | Deployment and first complete lifecycle recorded; source/bytecode verification remains |
 
 Mainnet deployment transaction:
 
@@ -516,11 +516,12 @@ Mainnet deployment transaction:
 0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6
 ```
 
+The first complete mainnet Approve → Reserve → Capture → Refund lifecycle is recorded for hold `#2` in [`docs/reference/DEPLOYMENTS.md`](reference/DEPLOYMENTS.md).
+
 The following mainnet claims are **not complete and must not be inferred from this document**:
 
 - explorer source verification;
-- independent reproduction and comparison of deployed runtime bytecode;
-- documented first mainnet Reserve/Capture/Refund lifecycle.
+- independent reproduction and comparison of deployed runtime bytecode.
 
 The authoritative evidence checklist and transaction records live in [`docs/reference/DEPLOYMENTS.md`](reference/DEPLOYMENTS.md).
 

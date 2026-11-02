@@ -43,28 +43,41 @@ Deployed independently by the project owner with Foundry and their own wallet. N
 | Source (`contracts/Latch.sol`) SHA-256 | `0b889effdbb2a1fefbb27d845f773465fa93b55b3ff3e37bf01096ac998d2d9f` |
 | Compiler | solc 0.8.28, optimizer on (200 runs), EVM `cancun` |
 
-Read-only checks the owner ran on their own machine, as reported to the maintainers:
+Deployment-time read-only checks the owner ran on their own machine, as reported to the maintainers:
 
 - `USDC()` returns `0x3600000000000000000000000000000000000000`.
 - `holdCount()` returns `0`.
 - The deployed contract has non-empty runtime bytecode.
 - Foundry reported the deployment as successful on chain 5042.
 
-These details were supplied by the owner. They were not re-checked against Arc Mainnet when this document was written.
+These details were supplied by the owner and describe the contract immediately after deployment. `holdCount()` has since advanced as the recorded mainnet holds were created.
 
-### Still pending
+### Verification status
 
 | Item | Status |
 | --- | --- |
 | Source verification on https://explorer.arc.io | Pending. Not yet performed. |
 | Byte-for-byte comparison of deployed runtime bytecode with `contracts/out/Latch.sol/Latch.json` (see the [deployment guide](../guides/DEPLOYMENT.md), step 11) | Pending. Only "non-empty bytecode" has been confirmed. |
-| First mainnet Reserve, Capture and Refund transactions | Pending. None are recorded yet. |
+| First complete mainnet Reserve, Capture and Refund lifecycle | Complete. Hold `#2` was reserved for `0.15 USDC`, partially captured for `0.05 USDC`, and refunded for the remaining `0.10 USDC`. |
 
-When the first mainnet round trip is done, add the transaction links here. Do not add a transaction that you have not seen on the explorer.
+### First mainnet lifecycle — Hold #2
 
-| Step | Mainnet transaction |
+Explorer evidence collected on 2026-11-02:
+
+| Field | Value |
 | --- | --- |
-| Approve | _pending_ |
-| Reserve | _pending_ |
-| Capture | _pending_ |
-| Refund | _pending_ |
+| Payer | [`0x2c06D8eBB95678944C9Ba9f67284619BA7AcAE51`](https://explorer.arc.io/address/0x2c06D8eBB95678944C9Ba9f67284619BA7AcAE51) |
+| Recipient | [`0x9BC9C9E6d793fC2ed8A8cFc98d55e1f64d3bf6DF`](https://explorer.arc.io/address/0x9BC9C9E6d793fC2ed8A8cFc98d55e1f64d3bf6DF) |
+| Reserved | `0.15 USDC` |
+| Captured | `0.05 USDC` |
+| Remaining after capture | `0.10 USDC` |
+| Expiry | `2026-11-02 02:39:34 UTC` |
+
+| Step | Amount | Block | Mainnet transaction |
+| --- | ---: | ---: | --- |
+| Approve | `0.15 USDC` | `29087920` | [`0x934884...8d23`](https://explorer.arc.io/tx/0x9348849251bb49ef1e2977d86e19032d8a965f04fdceee8eeb6ce509b9478d23) |
+| Reserve (`createHold`) | `0.15 USDC` | `29087951` | [`0xc412d4...29db`](https://explorer.arc.io/tx/0xc412d4205a97ada53553f2ebedc98f8f5742e0227f5b00de397228550d1929db) |
+| Capture | `0.05 USDC` | `29088001` | [`0xa8f609...eda8`](https://explorer.arc.io/tx/0xa8f6098d9b70ef8025aead8538826b90c3df5a9a11dec878cc525bd87d0beda8) |
+| Refund | `0.10 USDC` | `29088262` | [`0x623bfd...8e13`](https://explorer.arc.io/tx/0x623bfde3a1455dd69506bf9dbefa3ae15b0c2255ea6e5b50108171496f958e13) |
+
+All four transactions are successful. The reserve emitted `HoldCreated` for hold ID `2`; the recipient captured `0.05 USDC`; and after expiry the payer called `refundExpired(2)` to recover the remaining `0.10 USDC`.

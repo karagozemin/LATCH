@@ -181,7 +181,16 @@ Both networks expose Arc USDC through the ERC-20 interface at:
 
 The production frontend selects mainnet from the committed `.env.production`; local development defaults to testnet unless configured otherwise. Network, contract, explorer links, wallet switching, USDC facts, and activity scan start block all derive from the same build-time selection.
 
-The mainnet deployment was performed independently by the owner outside Arc Studio. Its source verification, byte-for-byte deployed runtime comparison, and first recorded mainnet authorization lifecycle remain pending. Do not infer completion from the presence of a deployment transaction. See [Deployment records](docs/reference/DEPLOYMENTS.md).
+The mainnet deployment was performed independently by the owner outside Arc Studio. Hold `#2` records a complete mainnet lifecycle:
+
+| Step | Amount | Transaction |
+| --- | ---: | --- |
+| Approve | `0.15 USDC` | [`0x934884...8d23`](https://explorer.arc.io/tx/0x9348849251bb49ef1e2977d86e19032d8a965f04fdceee8eeb6ce509b9478d23) |
+| Reserve | `0.15 USDC` | [`0xc412d4...29db`](https://explorer.arc.io/tx/0xc412d4205a97ada53553f2ebedc98f8f5742e0227f5b00de397228550d1929db) |
+| Capture | `0.05 USDC` | [`0xa8f609...eda8`](https://explorer.arc.io/tx/0xa8f6098d9b70ef8025aead8538826b90c3df5a9a11dec878cc525bd87d0beda8) |
+| Refund | `0.10 USDC` | [`0x623bfd...8e13`](https://explorer.arc.io/tx/0x623bfde3a1455dd69506bf9dbefa3ae15b0c2255ea6e5b50108171496f958e13) |
+
+All four transactions succeeded. Full evidence is in [Deployment records](docs/reference/DEPLOYMENTS.md). Explorer source verification and byte-for-byte deployed runtime comparison remain pending.
 
 ## Quick start & testing
 
