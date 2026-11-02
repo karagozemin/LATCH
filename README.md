@@ -23,9 +23,6 @@ LATCH is a minimal onchain payment-authorization primitive. A payer escrows USDC
 
 The authorization is a funded position, not a promise to pay later. Settlement rules are enforced by an immutable smart contract with no owner, upgrade path, protocol fee, administrative withdrawal, or offchain operator.
 
-> [!WARNING]
-> LATCH has **not** received a third-party security audit. Mainnet source verification and the first documented mainnet Reserve → Capture → Refund round trip are still pending. Review the contract and use small amounts. See [Security](docs/reference/SECURITY.md) and [Deployments](docs/reference/DEPLOYMENTS.md).
-
 ## At a glance
 
 | Property | LATCH |
