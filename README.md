@@ -18,12 +18,6 @@
   <a href="docs/guides/DEMO.md">Demo</a>
 </p>
 
-<p align="center">
-  <a href="https://latch-arc.vercel.app">
-    <img src="docs/assets/latch-landing.png" alt="LATCH landing page" width="100%" />
-  </a>
-</p>
-
 ---
 
 ## What is LATCH?
