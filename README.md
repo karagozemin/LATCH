@@ -1,238 +1,306 @@
 <p align="center">
-  <img src="Latch-Arc.png" alt="LATCH logo" width="250" height="250" />
+  <img src="Latch-Arc.png" alt="LATCH" width="220" height="220" />
 </p>
 
-# LATCH
+<h1 align="center">LATCH</h1>
 
-### Programmable USDC authorization holds on Arc.
+<p align="center">
+  <strong>Authorize first. Settle only what is owed.</strong><br />
+  Fully funded, programmable USDC payment authorizations on Arc.
+</p>
 
-**Reserve now. Capture what is owed. Reclaim what is unused.**
-
-LATCH is an onchain payment authorization primitive that separates **committing funds** from **settling a payment**. A payer reserves USDC for a designated recipient, the recipient captures funds before an expiry, and the payer can reclaim any unused balance afterward.
-
-Built with [Arc Studio](https://studio.arc.io). Deployed on Arc Mainnet.
-
-[**Architecture →**](docs/ARCHITECTURE.md) · [Smart Contract](contracts/Latch.sol) · [Deployments](docs/reference/DEPLOYMENTS.md) · [Security](docs/reference/SECURITY.md) · [Demo](docs/guides/DEMO.md)
+<p align="center">
+  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="contracts/Latch.sol">Contract</a> ·
+  <a href="docs/reference/DEPLOYMENTS.md">Deployments</a> ·
+  <a href="docs/reference/SECURITY.md">Security</a> ·
+  <a href="docs/guides/DEMO.md">Demo</a>
+</p>
 
 ---
 
-## The problem
+LATCH is a minimal onchain payment-authorization primitive. A payer escrows USDC for one recipient and chooses an expiry. The recipient may capture some or all of that balance before expiry; at or after expiry, the payer may reclaim anything left.
 
-Most onchain payments are final as soon as the transfer executes.
+The authorization is a funded position, not a promise to pay later. Settlement rules are enforced by an immutable smart contract with no owner, upgrade path, protocol fee, administrative withdrawal, or offchain operator.
 
-That makes sense when the price is known and the work is already complete. It is less useful when the final amount depends on what happens next.
+> [!WARNING]
+> LATCH has **not** received a third-party security audit. Mainnet source verification and the first documented mainnet Reserve → Capture → Refund round trip are still pending. Review the contract and use small amounts. See [Security](docs/reference/SECURITY.md) and [Deployments](docs/reference/DEPLOYMENTS.md).
 
-Consider usage-based APIs, service providers, or work that is settled after delivery. Paying everything upfront exposes the payer to non-delivery. Paying afterward leaves the recipient with no funds committed in advance.
+## At a glance
 
-**LATCH introduces a third option: authorize a maximum amount first, then settle only the amount actually required.**
+| Property | LATCH |
+| --- | --- |
+| Settlement asset | Arc USDC, ERC-20 interface, 6 decimals |
+| Funding model | Fully collateralized at authorization creation |
+| Settlement | Recipient-controlled partial or full captures before expiry |
+| Remainder | Payer-triggered refund at or after expiry; never automatic |
+| Privileged roles | None |
+| Protocol fees | None |
+| Upgradeability | None |
+| Backend / database / relayer | None |
+| Read model | Direct contract reads and RPC event logs |
+| Contract build | Solidity source `^0.8.20`, pinned to solc `0.8.28` |
+| Test suite | 65 Foundry tests: unit, reverts, fuzzing, reentrancy, invariants |
 
-The authorization is backed by USDC held in a smart contract—not a promise to pay later.
+## Why payment authorization?
 
-## How it works
+Immediate transfers work well when the amount is known and delivery is complete. They are a poor fit when usage is variable, work is delivered over time, or the final charge is determined later.
+
+| Model | Payer assurance | Recipient assurance | Final amount |
+| --- | --- | --- | --- |
+| Pay everything upfront | Low after transfer | High | Fixed before delivery |
+| Pay only after delivery | High until payment | Low | Known after delivery |
+| Authorize with LATCH | Unused funds remain reclaimable | USDC is already escrowed | Captured incrementally up to a funded maximum |
+
+LATCH adds a narrow layer between commitment and settlement: funds are available, permissions are explicit, and only the earned amount needs to move to the recipient.
+
+Possible applications include usage-based API billing, service-provider authorizations, and variable-cost onchain commerce. These are protocol capabilities, not claims of existing integrations.
+
+## Protocol flow
 
 ```mermaid
-flowchart LR
-    A["01 / Reserve<br/>Payer commits USDC"] --> B["02 / Capture<br/>Recipient withdraws<br/>before expiry"]
-    B --> C["03 / Refund<br/>Payer reclaims<br/>unused funds after expiry"]
+sequenceDiagram
+    autonumber
+    actor P as Payer
+    participant U as Arc USDC
+    participant L as LATCH
+    actor R as Recipient
+
+    P->>U: approve(LATCH, maximum amount)
+    P->>L: createHold(recipient, amount, expiry)
+    L->>U: transferFrom(payer, LATCH, amount)
+    L-->>P: HoldCreated(id, payer, recipient, amount, expiry)
+
+    loop Zero or more captures before expiry
+        R->>L: capture(id, portion)
+        L->>U: transfer(recipient, portion)
+        L-->>R: Captured(id, portion, remaining)
+    end
+
+    Note over L: At block.timestamp >= expiry,<br/>capture is closed
+    P->>L: refundExpired(id)
+    L->>U: transfer(payer, remaining)
+    L-->>P: Refunded(id, remaining)
 ```
 
-Each authorization has four core properties: a **payer**, a **recipient**, a **reserved amount**, and an **expiration timestamp**.
+### Contract operations
 
-| Operation | Caller | Behavior |
-| :--- | :--- | :--- |
-| `createHold()` | Payer | Locks approved USDC for a designated recipient until a specified expiry. |
-| `capture()` | Recipient | Withdraws any amount up to the remaining balance, strictly before expiry. Partial captures are supported. |
-| `refundExpired()` | Payer | Returns the unused balance after expiry. |
+| Function | Authorized caller | Time condition | Result |
+| --- | --- | --- | --- |
+| `createHold(recipient, amount, expiry)` | Any payer | `expiry > block.timestamp` | Pulls exactly `amount` USDC into LATCH and creates the next sequential hold ID |
+| `capture(holdId, amount)` | Designated recipient | `block.timestamp < expiry` | Transfers a nonzero amount up to the remaining balance to the recipient |
+| `refundExpired(holdId)` | Original payer | `block.timestamp >= expiry` | Transfers the entire remaining balance back to the payer |
 
-### An example
+Capture and refund windows never overlap. The boundary timestamp belongs to the refund side.
 
-A payer reserves **$10 in USDC** for a service.
+### Accounting model
 
-The service provider completes work worth **$6** and captures that amount before the authorization expires.
-
-After expiry, the payer claims the remaining **$4**.
-
-| | Amount |
-| :--- | ---: |
-| Authorized | 10.00 USDC |
-| Captured by recipient | 6.00 USDC |
-| Refunded to payer | 4.00 USDC |
-| Platform fee | 0.00 USDC |
-
-This is an illustrative example. Refunds are **not automatic**: the payer must submit the refund transaction after expiry. If the entire balance has already been captured, there is nothing left to refund.
-
-## Design principles
-
-LATCH is intentionally small.
-
-**Fully funded authorizations.** A hold is backed by USDC transferred into the contract at creation. Recipients do not depend on a future payment approval.
-
-**Partial settlement.** A recipient can capture funds in multiple transactions while an authorization remains active.
-
-**Explicit permissions.** Only the designated recipient can capture. Only the original payer can refund, and only after expiry.
-
-**No privileged operator.** The contract has no owner, administrative withdrawal, upgrade mechanism, or protocol fee.
-
-**Deterministic accounting.** Every hold maintains the following invariant:
+Every hold stores its original deposit and cumulative settlement amounts. Its unspent balance is derived rather than independently mutable:
 
 ```text
+remaining = deposited - captured - refunded
+
 deposited = captured + refunded + remaining
 ```
 
-**Immutable settlement rules.** Neither party can unilaterally change the recipient or expiry after a hold is created.
+The invariant is checked per hold and globally by handler-based Foundry invariant tests. A full capture ends in `Captured`; an expiry refund ends in `Refunded`. Time passing alone never changes contract storage: an **Expired** label in the interface means a stored `Active` hold whose deadline has passed.
 
-These choices deliberately keep LATCH focused on a single primitive rather than combining authorization with invoicing, arbitration, reputation, or a marketplace.
+### Example
 
-## Architecture
+A payer authorizes `10.00 USDC`. The recipient completes work worth `6.00 USDC` and captures it before expiry. After expiry, the payer submits a refund transaction for the remaining `4.00 USDC`.
 
-LATCH consists of two main pieces:
+| Outcome | Amount |
+| --- | ---: |
+| Deposited | 10.00 USDC |
+| Captured | 6.00 USDC |
+| Refunded | 4.00 USDC |
+| Protocol fee | 0.00 USDC |
+| Remaining | 0.00 USDC |
 
-- **Onchain:** An immutable Solidity contract that holds USDC, enforces the authorization rules, maintains per-hold accounting, and emits settlement events.
-- **Frontend:** A React application that connects to wallets, submits transactions, reads authorizations, and displays activity.
+## Guarantees and boundaries
 
-The frontend uses **wagmi** and **viem** to communicate with Arc. It does not require a proprietary backend, database, or transaction relayer.
+### Enforced by the contract
 
-```text
-User Wallet
-    │
-    ▼
-React / Vite Dashboard
-    │
-    ▼
-wagmi + viem
-    │
-    ▼
-Arc RPC
-    │
-    ├── LATCH Contract
-    │       └── Authorization state + settlement rules
-    │
-    └── Arc USDC
-            └── Token transfers
+- A hold is funded before it exists; `createHold` rejects an unexpected token balance delta.
+- Only the named recipient can capture, and only before expiry.
+- Only the payer can refund, and only at or after expiry.
+- Capture cannot exceed the hold's remaining balance.
+- State is updated before external token transfers, every write is `nonReentrant`, and transfers use OpenZeppelin `SafeERC20`.
+- No administrator can redirect, withdraw, pause, upgrade, extend, cancel, or rescue holds.
+
+### Deliberately not provided
+
+- Automatic refunds, scheduled execution, relaying, or keepers
+- Cancellation before expiry, expiry extension, top-ups, or recipient replacement
+- Arbitration, delivery verification, invoices, subscriptions, or reputation
+- Recovery for tokens sent directly to the contract outside `createHold`
+- Protection from Arc USDC issuer controls such as pausing or blocklisting
+
+Immutability removes privileged control; it also removes administrative recovery. That trade-off is intentional.
+
+## System architecture
+
+LATCH has two runtime components:
+
+1. **An immutable contract** that escrows USDC, stores hold accounting, enforces permissions and timing, and emits events.
+2. **A static browser application** that reads Arc RPC data and asks an injected wallet to sign transactions.
+
+There is no application server, database, indexer, custody service, or relayer.
+
+```mermaid
+flowchart LR
+    visitor[Visitor] --> landing[Public landing page]
+    user[Payer / recipient] --> dashboard[React dashboard]
+    dashboard --> wallet[Injected wallet]
+    dashboard --> rpc[Arc RPC]
+    wallet --> rpc
+    rpc --> latch[LATCH contract]
+    latch <--> usdc[Arc USDC]
 ```
 
-For detailed diagrams, contract state transitions, data flow, event indexing limitations, and architectural decisions:
+The public landing page is served at `/`. The wallet-enabled dashboard is lazy-loaded at `/app`, so marketing-page visitors do not load the Web3 provider stack. Dashboard subviews remain shareable through `?view=overview|create|holds|history`.
 
-**[Explore the complete architecture →](docs/ARCHITECTURE.md)**
+The dashboard reads the newest 60 holds every five seconds. Activity history scans contract events in adaptive RPC ranges, bounded by the configured deployment block and a 100,000-block maximum lookback. These are interface limits, not protocol limits; every hold remains available through the contract.
 
-## Deployed contracts
+For component boundaries, data flows, trust assumptions, failure modes, build behavior, and design decisions, read the **[complete architecture document](docs/ARCHITECTURE.md)**.
 
-LATCH is deployed on both Arc Mainnet and Arc Testnet.
+## Deployments
 
-| Network | Chain ID | Contract |
-| :--- | ---: | :--- |
-| **Arc Mainnet** | `5042` | [`0xd09E...7CC2`](https://explorer.arc.io/address/0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2) |
-| **Arc Testnet** | `5042002` | [`0xdb90...a3b`](https://explorer.testnet.arc.io/address/0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b) |
+| Network | Chain ID | LATCH | Deployment |
+| --- | ---: | --- | --- |
+| Arc Mainnet | `5042` | [`0xd09E...7CC2`](https://explorer.arc.io/address/0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2) | [tx](https://explorer.arc.io/tx/0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6), block `29071512` |
+| Arc Testnet | `5042002` | [`0xdb90...a3b`](https://explorer.testnet.arc.io/address/0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b) | [tx](https://explorer.testnet.arc.io/tx/0xdcab033de2bbd2733dfa0873b9ad6541861fdcb464d99bbd4093a85a874a5fb0), block `70172256` |
 
-The contract uses Arc's USDC ERC-20 interface at:
+Both networks expose Arc USDC through the ERC-20 interface at:
 
-`0x3600000000000000000000000000000000000000`
+```text
+0x3600000000000000000000000000000000000000
+```
 
-USDC amounts use six decimal places.
+The production frontend selects mainnet from the committed `.env.production`; local development defaults to testnet unless configured otherwise. Network, contract, explorer links, wallet switching, USDC facts, and activity scan start block all derive from the same build-time selection.
 
-**Mainnet deployment:** [View transaction](https://explorer.arc.io/tx/0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6) · Block `29071512`
+The mainnet deployment was performed independently by the owner outside Arc Studio. Its source verification, byte-for-byte deployed runtime comparison, and first recorded mainnet authorization lifecycle remain pending. Do not infer completion from the presence of a deployment transaction. See [Deployment records](docs/reference/DEPLOYMENTS.md).
 
-The mainnet contract was deployed independently using Foundry. The testnet contract has been exercised with two wallets. Mainnet source verification and the first documented mainnet Reserve/Capture/Refund demonstration are still pending.
-
-[Full deployment details →](docs/reference/DEPLOYMENTS.md)
-
-## Getting started
+## Quick start
 
 ### Requirements
 
 - [Bun](https://bun.sh)
 - [Foundry](https://book.getfoundry.sh)
-- An EVM-compatible wallet
+- An injected EVM wallet for browser interactions
 
-### Run the application
+### Install and run
 
 ```bash
 git clone https://github.com/karagozemin/LATCH.git
 cd LATCH
-
 bun install
 cp .env.example .env
 bun run dev
 ```
 
-The development environment is intended to use Arc Testnet. Set `VITE_LATCH_NETWORK=testnet` in your local `.env` and confirm the testnet contract configuration before connecting a wallet.
+Open:
 
-The public landing page is available at `http://localhost:5173`; the functional dashboard is at `http://localhost:5173/app`. Dashboard views remain directly addressable with URLs such as `/app?view=holds`.
+- `http://localhost:5173/` — public landing page
+- `http://localhost:5173/app` — dashboard
+- `http://localhost:5173/app?view=holds` — direct Active Holds view
 
-Production builds use the public Arc Mainnet configuration in `.env.production`. Environment variables beginning with `VITE_` are exposed to browser code and must never contain private keys or signing secrets.
+Local development should target Arc Testnet. Confirm the values in `.env` before connecting a wallet. All `VITE_*` variables are public browser configuration and must never contain keys, secrets, or signing material.
 
-For production hosting, see the [Vercel deployment guide](docs/guides/VERCEL.md).
-
-## Smart contract development
-
-LATCH is implemented in **Solidity 0.8.28** with OpenZeppelin's `SafeERC20` and `ReentrancyGuard`.
-
-Compile and run the contract tests:
+### Build and verify
 
 ```bash
-forge build
-forge test
-```
-
-The Foundry suite contains **65 tests**, covering:
-
-- Authorization creation, partial capture, and refund behavior
-- Access control and invalid state transitions
-- Expiry boundaries
-- Reentrancy attempts
-- Fuzzing and accounting invariants
-
-The same suite has also passed using Arc Foundry.
-
-Validate the frontend:
-
-```bash
-bun run check
+# Frontend
+bun run typecheck
 bun run build
+
+# Contract
+bun run contracts:build
+bun run contracts:test
 ```
 
-The production build is generated in `dist/`.
+`bun run check` runs the configured frontend lint and type checks. `bun run build` emits the static site to `dist/`, including the separately compiled `latch.css` stylesheet.
 
-## Project structure
+### Environment configuration
+
+| Variable | Meaning |
+| --- | --- |
+| `VITE_LATCH_NETWORK` | `testnet` or `mainnet` |
+| `VITE_LATCH_ADDRESS_TESTNET` | Testnet contract address |
+| `VITE_LATCH_DEPLOY_BLOCK_TESTNET` | Testnet deployment block for bounded event scanning |
+| `VITE_LATCH_ADDRESS_MAINNET` | Mainnet contract address |
+| `VITE_LATCH_DEPLOY_BLOCK_MAINNET` | Mainnet deployment block for bounded event scanning |
+
+Production configuration fails closed: a missing/invalid address, invalid block, unknown network, or known cross-network address produces a visible configuration error and no contract interaction. It never silently falls back from mainnet to testnet.
+
+## Testing
+
+The current Foundry suite contains **65 tests** across four suites:
+
+| Class | Count | Coverage focus |
+| --- | ---: | --- |
+| Unit and behavior | 20 | Creation, partial/full capture, refund, events, exact demo flow, token quirks, reentrancy |
+| Revert paths | 32 | Caller permissions, time boundaries, unknown holds, insufficient funds/allowance, terminal states |
+| Fuzz | 7 | Arbitrary amounts, expiries, capture sequences, multi-hold conservation |
+| Handler invariants | 6 | Global/per-hold accounting, token conservation, authorization safety, hold-count consistency |
+
+The invariant suite runs 256 campaigns with 128,000 handler calls per invariant. The suite passes with standard Foundry; project records also document a pass under Arc Foundry. Automated testing and static analysis are evidence, not an audit.
+
+Compiler configuration is pinned in `foundry.toml`: solc `0.8.28`, optimizer enabled with 200 runs, EVM target `cancun`. The recorded SHA-256 of `contracts/Latch.sol` is:
+
+```text
+0b889effdbb2a1fefbb27d845f773465fa93b55b3ff3e37bf01096ac998d2d9f
+```
+
+## Repository map
 
 ```text
 LATCH/
-├── contracts/          # Solidity contracts, tests, deployment scripts
-├── src/                # Frontend application and Web3 integration
-├── scripts/            # Development and Studio tooling
+├── contracts/
+│   ├── Latch.sol                 # Protocol implementation
+│   ├── script/DeployLatch.s.sol  # Chain and USDC-checked Foundry deploy script
+│   └── test/                     # Unit, revert, fuzz, and invariant suites
+├── src/
+│   ├── LandingPage.tsx           # Public route (/)
+│   ├── DashboardRoot.tsx         # Lazy Web3 provider boundary (/app)
+│   ├── App.tsx                   # Dashboard composition
+│   ├── components/               # Landing and dashboard UI
+│   ├── hooks/                    # Holds, activity, transaction state
+│   └── lib/latch.ts              # ABI, network selection, derived hold state
+├── config/                       # Tailwind and deterministic CSS build plugin
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── guides/         # Demo and deployment walkthroughs
-│   └── reference/      # Deployment records and security notes
+│   ├── ARCHITECTURE.md           # Technical system design
+│   ├── guides/                   # Demo, deployment, and hosting runbooks
+│   └── reference/                # Security and deployment evidence
+├── scripts/                      # Arc Studio and validation helpers
 ├── foundry.toml
 ├── package.json
-└── README.md
+└── vercel.json
 ```
 
-This tree shows the main components rather than every configuration file. Some build and dependency files remain at the root to preserve tooling compatibility.
+Root-level configuration files remain at the repository root where their tools expect them. IDE file nesting in `.vscode/settings.json` keeps the explorer compact without changing build semantics.
 
 ## Documentation
 
-| Resource | Description |
-| :--- | :--- |
-| [Architecture](docs/ARCHITECTURE.md) | System components, authorization lifecycle, state transitions, and design trade-offs |
-| [Demo](docs/guides/DEMO.md) | Walk through Reserve → Capture → Refund |
-| [Deployment](docs/guides/DEPLOYMENT.md) | Deploy and verify the smart contract using Foundry |
-| [Vercel](docs/guides/VERCEL.md) | Publish the frontend |
-| [Deployments](docs/reference/DEPLOYMENTS.md) | Contract addresses, transactions, and deployment records |
-| [Security](docs/reference/SECURITY.md) | Trust assumptions, test coverage, and known limitations |
+| Document | Purpose |
+| --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | System context, contract state machine, frontend read/write models, trust boundaries, failure handling, decisions |
+| [Security](docs/reference/SECURITY.md) | Security posture, test evidence, trust assumptions, known limitations |
+| [Deployments](docs/reference/DEPLOYMENTS.md) | Addresses, deployment transactions, compiler settings, evidence, pending verification work |
+| [Demo](docs/guides/DEMO.md) | Testnet Reserve → Capture → Refund walkthrough |
+| [Contract deployment](docs/guides/DEPLOYMENT.md) | Foundry mainnet deployment and verification runbook |
+| [Vercel](docs/guides/VERCEL.md) | Static frontend deployment and route checks |
 
 ## Security
 
-LATCH is immutable and has no administrative recovery mechanism. That removes privileged operator access but also means that operational mistakes cannot be reversed by an administrator.
+- The contract is immutable and cannot be paused or repaired by an administrator.
+- The frontend is not a security boundary; the contract validates every caller, amount, state, and time condition.
+- Arc USDC issuer controls and transfer failures remain external dependencies.
+- Refunds require a payer transaction. Funds can remain escrowed indefinitely if the payer never submits it.
+- Direct USDC transfers to the contract are outside hold accounting and are unrecoverable.
+- The interface intentionally shows only a bounded recent view of holds and events.
 
-The implementation has undergone automated analysis and testing, **not a third-party security audit**.
-
-USDC issuer-level restrictions can affect transfers, and any unclaimed funds remaining after expiry require the payer to initiate a refund transaction.
-
-**Use small amounts until you have independently reviewed the contract and understood its limitations.**
-
-See [Security Notes](docs/reference/SECURITY.md) for more details.
+Report suspected vulnerabilities privately when disclosure could put funds at risk. For the complete posture, see [Security Notes](docs/reference/SECURITY.md).
 
 ## License
 
