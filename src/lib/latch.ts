@@ -10,7 +10,9 @@ import { getUsdc } from '@/onchain-facts'
  * silently fall back to the testnet contract (and vice versa).
  */
 const env = import.meta.env
-const rawNetwork = ((env.VITE_LATCH_NETWORK as string | undefined) ?? 'testnet').trim().toLowerCase()
+// Local development defaults to testnet. A production build never guesses: the network must be set
+// (it is, in .env.production), otherwise the app shows a configuration error instead of picking one.
+const rawNetwork = ((env.VITE_LATCH_NETWORK as string | undefined) ?? (env.PROD ? '' : 'testnet')).trim().toLowerCase()
 
 export const LATCH_IS_MAINNET = rawNetwork === 'mainnet'
 export const LATCH_CHAIN_ID: typeof arc.id | typeof arcTestnet.id = LATCH_IS_MAINNET ? arc.id : arcTestnet.id
@@ -19,8 +21,9 @@ const ADDRESS_ENV_KEY = LATCH_IS_MAINNET ? 'VITE_LATCH_ADDRESS_MAINNET' : 'VITE_
 const BLOCK_ENV_KEY = LATCH_IS_MAINNET ? 'VITE_LATCH_DEPLOY_BLOCK_MAINNET' : 'VITE_LATCH_DEPLOY_BLOCK_TESTNET'
 export const LATCH_ADDRESS_ENV_KEY: string = ADDRESS_ENV_KEY
 
-/** The Arc Testnet deployment. Used only to refuse it as a mainnet address. */
+/** The two known deployments. Each is refused on the other network so they can never be mixed up. */
 const KNOWN_TESTNET_ADDRESS = '0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b'
+const KNOWN_MAINNET_ADDRESS = '0xd09eac2f4ef49a5e918bb49884189c37793a7cc2'
 
 const rawAddress = ((LATCH_IS_MAINNET ? env.VITE_LATCH_ADDRESS_MAINNET : env.VITE_LATCH_ADDRESS_TESTNET) as
   | string
@@ -31,11 +34,14 @@ const rawDeployBlock = ((LATCH_IS_MAINNET ? env.VITE_LATCH_DEPLOY_BLOCK_MAINNET 
 
 function configError(): string | undefined {
   if (rawNetwork !== 'testnet' && rawNetwork !== 'mainnet') {
-    return `VITE_LATCH_NETWORK must be "testnet" or "mainnet" (got "${rawNetwork}").`
+    return `VITE_LATCH_NETWORK must be "testnet" or "mainnet" (got "${rawNetwork || 'nothing'}").`
   }
   if (rawAddress && !isAddress(rawAddress)) return `${ADDRESS_ENV_KEY} is not a valid address.`
   if (LATCH_IS_MAINNET && rawAddress?.toLowerCase() === KNOWN_TESTNET_ADDRESS) {
     return `${ADDRESS_ENV_KEY} is the Arc Testnet contract. Use the address of your Arc Mainnet deployment.`
+  }
+  if (!LATCH_IS_MAINNET && rawAddress?.toLowerCase() === KNOWN_MAINNET_ADDRESS) {
+    return `${ADDRESS_ENV_KEY} is the Arc Mainnet contract. Set VITE_LATCH_NETWORK=mainnet to use it, or use your Arc Testnet address here.`
   }
   if (rawDeployBlock && !/^\d+$/.test(rawDeployBlock)) return `${BLOCK_ENV_KEY} must be a block number.`
   return undefined

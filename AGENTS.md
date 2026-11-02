@@ -13,7 +13,7 @@ Latch is a minimal programmable USDC payment authorization on Arc. A payer reser
 ## Deployments
 
 - Arc Testnet (5042002): `0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b`, tx `0xdcab033de2bbd2733dfa0873b9ad6541861fdcb464d99bbd4093a85a874a5fb0`. Frontend reads it from `VITE_LATCH_ADDRESS_TESTNET` in `.env` (network chosen by `VITE_LATCH_NETWORK`, default testnet).
-- Mainnet: not deployed. The user deploys independently, see `docs/DEPLOYMENT.md`. Never simulate mainnet transactions or invent hashes or addresses. `VITE_LATCH_ADDRESS_MAINNET` / `VITE_LATCH_DEPLOY_BLOCK_MAINNET` stay empty until the user supplies real values; the app refuses the testnet address on mainnet.
+- Arc Mainnet (5042): `0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2`, tx `0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6`, block `29071512`, deployer `0xcD14091eE1B8B51B84F0E971AeD62fD87dcF4044`. Deployed by the owner outside Studio. Production builds target it via the committed `.env.production`; the local `.env` stays on testnet for development. Source verification and the first mainnet Reserve/Capture/Refund are still PENDING: never claim them or invent transaction hashes. Studio must not make mainnet RPC calls or sign anything.
 
 ## Decisions
 

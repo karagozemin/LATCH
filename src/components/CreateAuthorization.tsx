@@ -4,7 +4,7 @@ import { erc20Abi, isAddress } from 'viem'
 import { useAccount, useReadContract } from 'wagmi'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { TokenUSDC } from '@web3icons/react'
-import { LATCH_ADDRESS, LATCH_CHAIN_ID, USDC_ADDRESS, latchAbi } from '@/lib/latch'
+import { LATCH_ADDRESS, LATCH_CHAIN_ID, LATCH_IS_MAINNET, USDC_ADDRESS, latchAbi } from '@/lib/latch'
 import { fmtDate, fmtUsdc } from '@/lib/format'
 import { networkLabel } from '@/lib/network'
 import { parseUsdc } from '@/onchain-money'
@@ -308,6 +308,13 @@ export function CreateAuthorization({ onCreated }: { onCreated: () => void }) {
             <span className="h-px w-6 bg-edge/25" />
             <Step n={2} label="Reserve" state={needsApproval ? 'todo' : 'current'} />
           </div>
+        )}
+
+        {LATCH_IS_MAINNET && (
+          <p className="rounded-xl border border-warn/30 bg-warn/[0.07] px-3.5 py-2.5 text-xs text-pretty text-warn">
+            Arc Mainnet: this reserves real USDC and every transaction is irreversible. Check the recipient address and
+            amount before you confirm in your wallet.
+          </p>
         )}
 
         <div>

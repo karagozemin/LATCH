@@ -197,7 +197,7 @@ The mainnet verifier URL above is not confirmed in Arc's documentation as of thi
 
 ## 13. Point the frontend at mainnet
 
-The app targets one network at a time. Edit `.env` (copy `.env.example` first):
+The app targets one network at a time, chosen by public environment variables (see `.env.example`):
 
 ```ini
 VITE_LATCH_NETWORK=mainnet
@@ -205,16 +205,16 @@ VITE_LATCH_ADDRESS_MAINNET=0x...        # contractAddress from step 10
 VITE_LATCH_DEPLOY_BLOCK_MAINNET=...     # blockNumber from step 10
 ```
 
-Then `bun run dev` for a local check, or `bunx vite build` for a production build (output in `dist/`). Vite reads `.env` only at start or build time, so restart or rebuild after changing it.
+The committed `.env.production` already holds the values of the deployment recorded in `DEPLOYMENTS.md`, so `bun run build` produces a mainnet build. If you deploy your own copy, change those three values (or override them in your host's settings, see `VERCEL.md`). Vite reads `.env` files only at start or build time, so restart or rebuild after changing them.
 
 Safety behaviour built into the app:
 
-- If `VITE_LATCH_NETWORK=mainnet` and the mainnet address is empty, the app shows a configuration message and talks to no contract.
-- The app refuses the known Arc Testnet contract address as a mainnet address.
-- On mainnet it shows a persistent notice that transactions use real USDC, and the network badge reads "Arc Mainnet".
-- Mainnet and testnet values are separate variables, so one can never silently stand in for the other.
+- It never falls back from mainnet to testnet. If `VITE_LATCH_NETWORK=mainnet` and the mainnet address is empty or invalid, it shows a configuration message and talks to no contract.
+- It refuses the known Arc Testnet contract as a mainnet address, and the known Arc Mainnet contract as a testnet address.
+- Chain, contract, USDC address, wallet network check, transaction links and explorer links all derive from the same selected network.
+- On mainnet it shows an "Arc Mainnet" badge and a persistent real-USDC warning.
 
-To go back to testnet, set `VITE_LATCH_NETWORK=testnet` and fill `VITE_LATCH_ADDRESS_TESTNET` and `VITE_LATCH_DEPLOY_BLOCK_TESTNET` (the Arc Testnet address is listed in `DEPLOYMENTS.md`; its deployment block is `70172256`).
+For local development against testnet, set `VITE_LATCH_NETWORK=testnet` in your `.env` (the `VITE_LATCH_*_TESTNET` values are in `.env.example`).
 
 ## 14. First live check
 
