@@ -1,6 +1,8 @@
 # Security notes
 
-Latch has not had a third-party audit. Treat this as hackathon-grade software until it has.
+[README](../../README.md) · [Architecture](../ARCHITECTURE.md) · [Deployments](DEPLOYMENTS.md)
+
+Latch has not had a third-party audit. Treat it accordingly: review the code yourself and start with small amounts.
 
 ## Design
 

@@ -40,7 +40,7 @@ Latch is a minimal programmable USDC payment authorization on Arc. A payer reser
 - `src/hooks/` - useHolds (contract reads), useActivity (bounded event scan), useTx (write + confirmation phases), useView (`?view=` routing)
 - `src/lib/latch.ts` - ABI, address, hold helpers
 - `contracts/Latch.sol`, `contracts/test/` - contract and Foundry tests
-- `docs/` - deployment, demo, security notes
+- `docs/` - `ARCHITECTURE.md`, `guides/` (DEMO, DEPLOYMENT, VERCEL), `reference/` (DEPLOYMENTS, SECURITY). Keep README links and these paths in sync when moving docs.
 - `src/config.ts` - wagmi config (chains, connectors, transports)
 
 ## Share links

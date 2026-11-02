@@ -1,5 +1,7 @@
 # Deploying the LATCH frontend on Vercel
 
+[README](../../README.md) · [Deployment guide](DEPLOYMENT.md)
+
 The frontend is a static Vite app. Vercel needs no server and no rewrites: pages use a `?view=` query string, so every URL loads `index.html`.
 
 ## 1. Import the project
@@ -36,7 +38,7 @@ After the build finishes, open the site and confirm:
 - The page is styled (dark dashboard). The build emits `latch.css` next to `index.html`; if the page is unstyled, open `/latch.css` and confirm it returns CSS.
 - Connect a wallet on Arc Mainnet (chain ID 5042). On another network the badge turns amber and offers a switch button.
 
-Before announcing the app, make a first small Reserve, Capture and Refund yourself and record the transactions in `DEPLOYMENTS.md`.
+Before announcing the app, make a first small Reserve, Capture and Refund yourself and record the transactions in [DEPLOYMENTS](../reference/DEPLOYMENTS.md).
 
 ## Troubleshooting
 

@@ -1,5 +1,7 @@
 # Deploying Latch to Arc Mainnet yourself
 
+[README](../../README.md) · [Architecture](../ARCHITECTURE.md) · [Deployments](../reference/DEPLOYMENTS.md) · [Security](../reference/SECURITY.md)
+
 > **Warning.** Transactions on mainnet involve real funds and, once submitted, are irreversible. This repository was prepared in Arc Studio, which does not deploy to, sign for, fund or transact on mainnet. Review everything below, test on Arc Testnet first, consider an independent professional audit, and run the deployment yourself, from your own machine and wallet. You are responsible for the result.
 
 Latch has no constructor arguments, owner, admin, proxy or upgrade path. The deployer has no special rights after deployment, so you can use a fresh, dedicated wallet.
@@ -45,7 +47,7 @@ Check the first one after you clone: `sha256sum contracts/Latch.sol`.
 
 - 65 Foundry tests pass (unit, revert paths, fuzz, handler-based invariants) with standard Foundry 1.7.1.
 - The same 65 tests pass with Arc Foundry `v0.8.0-2` using `arc-forge test --network arc`.
-- Slither reported only the intentional timestamp comparisons. Two automated reviews found no material issues. See `SECURITY.md`. This is not a third-party audit.
+- Slither reported only the intentional timestamp comparisons. Two automated reviews found no material issues. See [SECURITY](../reference/SECURITY.md). This is not a third-party audit.
 - Reserve, capture and refund were run with two real wallets on Arc Testnet.
 - The deploy script was simulated against Arc Testnet (no broadcast) and a wrong-chain simulation was correctly rejected.
 
@@ -205,7 +207,7 @@ VITE_LATCH_ADDRESS_MAINNET=0x...        # contractAddress from step 10
 VITE_LATCH_DEPLOY_BLOCK_MAINNET=...     # blockNumber from step 10
 ```
 
-The committed `.env.production` already holds the values of the deployment recorded in `DEPLOYMENTS.md`, so `bun run build` produces a mainnet build. If you deploy your own copy, change those three values (or override them in your host's settings, see `VERCEL.md`). Vite reads `.env` files only at start or build time, so restart or rebuild after changing them.
+The committed `.env.production` already holds the values of the deployment recorded in [DEPLOYMENTS](../reference/DEPLOYMENTS.md), so `bun run build` produces a mainnet build. If you deploy your own copy, change those three values (or override them in your host's settings, see [VERCEL](VERCEL.md)). Vite reads `.env` files only at start or build time, so restart or rebuild after changing them.
 
 Safety behaviour built into the app:
 
@@ -218,7 +220,7 @@ For local development against testnet, set `VITE_LATCH_NETWORK=testnet` in your 
 
 ## 14. First live check
 
-Make your first mainnet interaction small: reserve a very small amount for a second wallet you control, capture part, wait for expiry, refund the rest. Only then share the app. Record the contract, deployment transaction, block, commit hash and date in `DEPLOYMENTS.md`.
+Make your first mainnet interaction small: reserve a very small amount for a second wallet you control, capture part, wait for expiry, refund the rest. Only then share the app. Record the contract, deployment transaction, block, commit hash and date in [DEPLOYMENTS](../reference/DEPLOYMENTS.md).
 
 ## If something goes wrong
 

@@ -1,5 +1,7 @@
 # Deployments
 
+[README](../../README.md) · [Architecture](../ARCHITECTURE.md) · [Deployment guide](../guides/DEPLOYMENT.md)
+
 ## Arc Testnet (chain ID 5042002)
 
 | Field | Value |
@@ -15,7 +17,7 @@ Checks performed against the live deployment: `holdCount()` returns 0 and `USDC(
 
 Source verification on the explorer has not been performed. To verify it yourself, submit `contracts/Latch.sol` (use `forge flatten contracts/Latch.sol` for a single file) with the compiler settings above and no constructor arguments.
 
-The first end-to-end demo run on this deployment has not been recorded here. After you run it (see `DEMO.md`), add the transaction links below.
+The first end-to-end demo run on this deployment has not been recorded here. After you run it (see the [demo guide](../guides/DEMO.md)), add the transaction links below.
 
 ### Demo transactions
 
@@ -28,7 +30,7 @@ The first end-to-end demo run on this deployment has not been recorded here. Aft
 
 ## Arc Mainnet (chain ID 5042)
 
-Deployed independently by the project owner with Foundry and their own wallet, outside Arc Studio. Arc Studio did not deploy, sign or fund anything on mainnet.
+Deployed independently by the project owner with Foundry and their own wallet. No mainnet transaction was created by the tooling used to build this repository.
 
 | Field | Value |
 | --- | --- |
@@ -48,14 +50,14 @@ Read-only checks the owner ran on their own machine, as reported to the maintain
 - The deployed contract has non-empty runtime bytecode.
 - Foundry reported the deployment as successful on chain 5042.
 
-These details were supplied by the owner. They were not re-checked from Arc Studio, which made no mainnet RPC calls.
+These details were supplied by the owner. They were not re-checked against Arc Mainnet when this document was written.
 
 ### Still pending
 
 | Item | Status |
 | --- | --- |
 | Source verification on https://explorer.arc.io | Pending. Not yet performed. |
-| Byte-for-byte comparison of deployed runtime bytecode with `contracts/out/Latch.sol/Latch.json` (see `DEPLOYMENT.md`, step 11) | Pending. Only "non-empty bytecode" has been confirmed. |
+| Byte-for-byte comparison of deployed runtime bytecode with `contracts/out/Latch.sol/Latch.json` (see the [deployment guide](../guides/DEPLOYMENT.md), step 11) | Pending. Only "non-empty bytecode" has been confirmed. |
 | First mainnet Reserve, Capture and Refund transactions | Pending. None are recorded yet. |
 
 When the first mainnet round trip is done, add the transaction links here. Do not add a transaction that you have not seen on the explorer.

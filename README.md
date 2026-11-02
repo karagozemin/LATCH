@@ -1,76 +1,117 @@
-# Latch
+# LATCH
 
-Latch is a minimal programmable USDC payment authorization for Arc. A payer reserves USDC for a named recipient with an expiry. The recipient can capture any part of it, in as many steps as they like, before it expires. After expiry the payer reclaims whatever is left. There is no admin, no upgrade path and no fee.
+**Programmable USDC payment authorizations on Arc. Reserve funds, let the recipient capture what they need, and return the rest.**
 
-Built with [Arc Studio](https://studio.arc.io)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Solidity 0.8.28](https://img.shields.io/badge/solidity-0.8.28-363636)
+![Network: Arc](https://img.shields.io/badge/network-Arc-3FE0C0)
 
-## Status
+[Architecture](docs/ARCHITECTURE.md) · [Deployments](docs/reference/DEPLOYMENTS.md) · [Security](docs/reference/SECURITY.md) · [Demo](docs/guides/DEMO.md) · [Deploy it yourself](docs/guides/DEPLOYMENT.md)
 
-- **Arc Mainnet:** deployed independently by the owner, outside Arc Studio. The app is configured to use it by default for production builds.
-  - Contract: [`0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2`](https://explorer.arc.io/address/0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2)
-  - Deployment tx: [`0xea07…cec6`](https://explorer.arc.io/tx/0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6), block `29071512`
-  - Deployer: [`0xcD14091eE1B8B51B84F0E971AeD62fD87dcF4044`](https://explorer.arc.io/address/0xcD14091eE1B8B51B84F0E971AeD62fD87dcF4044)
-  - **Pending:** explorer source verification, and the first mainnet Reserve, Capture and Refund transactions. Neither has been done yet.
-- **Arc Testnet:** deployed and tested end to end with two real wallets. Kept as an optional development network (see `docs/DEPLOYMENTS.md`).
-- **Review:** automated and AI-assisted review plus unit, fuzz and invariant tests. This is not a third-party audit (see `docs/SECURITY.md`).
+## What is LATCH?
+
+Paying a vendor, a driver or a service usually means either paying up front or trusting them to bill you later. LATCH adds a middle path, similar to a card pre-authorization: the payer locks USDC for a named recipient with a deadline, the recipient can take any part of it before the deadline, and whatever is left goes back to the payer afterwards.
+
+It is a single immutable smart contract. There is no admin key, no upgrade path and no fee, and the contract only ever sends funds to the payer or the recipient of a hold.
+
+## How it works
+
+| Step | Who | What happens |
+| --- | --- | --- |
+| **Reserve** | Payer | Approves USDC, then calls `createHold(recipient, amount, expiry)`. The USDC moves into the contract. |
+| **Capture** | Recipient | Calls `capture(holdId, amount)` any number of times, strictly before expiry, up to the remaining balance. |
+| **Refund** | Payer | After expiry, calls `refundExpired(holdId)` to take back everything that was not captured. |
+
+Example: reserve 0.02 USDC for a recipient, who captures 0.01 USDC before the deadline. After expiry the payer refunds the remaining 0.01 USDC.
+
+## Architecture
+
+A static React + Vite app talks to the Latch contract through the user's wallet and a public Arc RPC endpoint. There is no backend, database or indexer: holds and history are read directly from the chain.
+
+See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the system diagram, the authorization lifecycle, the contract's state machine and the design decisions.
+
+## Deployments
+
+| Network | Chain ID | Contract | Explorer |
+| --- | --- | --- | --- |
+| Arc Mainnet | 5042 | `0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2` | [explorer.arc.io](https://explorer.arc.io/address/0xd09EAC2f4eF49A5E918bB49884189c37793a7CC2) |
+| Arc Testnet | 5042002 | `0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b` | [explorer.testnet.arc.io](https://explorer.testnet.arc.io/address/0xdb90ccaee5b1c63139de9d01fd93b8c0c3665a3b) |
+
+USDC on both networks is `0x3600000000000000000000000000000000000000` (6 decimals, ERC-20 interface).
+
+The mainnet deployment was made independently with Foundry (transaction [`0xea07…cec6`](https://explorer.arc.io/tx/0xea0747048d177ce7b48830dbcb61b045b1fe63715e3098660bc565d36349cec6), block `29071512`). **Still pending:** explorer source verification and a recorded mainnet Reserve, Capture and Refund round trip. The testnet deployment has been exercised end to end with two wallets. Full details are in [DEPLOYMENTS](docs/reference/DEPLOYMENTS.md).
 
 Mainnet moves real USDC and transactions cannot be reversed. The app shows an "Arc Mainnet" badge and a real-USDC warning whenever it targets mainnet.
 
-## What you can do
+## Getting started
 
-- Reserve USDC for a recipient with an expiry.
-- Capture part or all of a hold as the recipient, before it expires.
-- Refund the unused balance as the payer, after it expires.
-- See every hold, its status, amounts and explorer links in a dashboard with overview totals, a selected-authorization view, and a transaction history.
-
-Demo: reserve 0.02 USDC, capture 0.01 USDC, wait for expiry, refund the remaining 0.01 USDC. See `docs/DEMO.md`.
-
-## Tech stack
-
-- Solidity 0.8.28, OpenZeppelin 5.6.1, Foundry
-- React, Vite, TypeScript, Tailwind CSS
-- wagmi, viem, ConnectKit
-- Chains: Arc Mainnet (chain ID 5042, production) and Arc Testnet (chain ID 5042002, development). USDC at `0x3600000000000000000000000000000000000000` (6 decimals) on both
-
-## Development
-
-Prerequisites: [Bun](https://bun.sh) and [Foundry](https://book.getfoundry.sh).
+Prerequisites: [Bun](https://bun.sh), [Foundry](https://book.getfoundry.sh) and Git.
 
 ```bash
+git clone https://github.com/karagozemin/LATCH.git
+cd LATCH
 bun install
-cp .env.example .env     # public values only; set VITE_LATCH_NETWORK=testnet for local development
-bun run dev              # app on http://localhost:5173
+cp .env.example .env     # then set VITE_LATCH_NETWORK=testnet to avoid real USDC
+bun run dev              # http://localhost:5173
 ```
 
-Contracts:
+Configuration is public environment variables only (see [`.env.example`](.env.example)). Production builds read the mainnet values from the committed [`.env.production`](.env.production).
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_LATCH_NETWORK` | `mainnet` or `testnet` |
+| `VITE_LATCH_ADDRESS_MAINNET`, `VITE_LATCH_DEPLOY_BLOCK_MAINNET` | Contract and deployment block on Arc Mainnet |
+| `VITE_LATCH_ADDRESS_TESTNET`, `VITE_LATCH_DEPLOY_BLOCK_TESTNET` | Contract and deployment block on Arc Testnet |
+
+## Testing
 
 ```bash
-bun run contracts:build  # forge build
-bun run contracts:test   # forge test (unit, fuzz, invariants)
+forge test        # 65 unit, revert, fuzz and invariant tests (the invariant suite takes a few minutes)
+bun run check     # lint and typecheck
+bun run build     # production build into dist/ (includes dist/latch.css)
 ```
 
-Checks for the frontend: `bun run check` (lint and typecheck). Production build: `bun run build` (same as `bunx vite build`, output in `dist/`). Styles are compiled by `vite.latch-css.ts` and served as `/latch.css`.
+The Foundry suite also passes under Arc Foundry with `arc-forge test --network arc`.
 
-### Environment variables
+## Project structure
 
-| Name | Purpose |
+```text
+LATCH/
+├── contracts/
+│   ├── Latch.sol            # the contract
+│   ├── script/              # Foundry deploy script
+│   └── test/                # unit, revert, fuzz and invariant tests
+├── src/
+│   ├── components/          # dashboard UI
+│   ├── hooks/               # contract reads, event scan, transactions
+│   └── lib/                 # ABI, network selection, formatting
+├── scripts/                 # helper scripts, see scripts/README.md
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── guides/              # DEMO, DEPLOYMENT, VERCEL
+│   └── reference/           # DEPLOYMENTS, SECURITY
+├── foundry.toml
+├── vite.config.ts
+└── vercel.json
+```
+
+## Documentation
+
+| Document | Contents |
 | --- | --- |
-| `VITE_LATCH_NETWORK` | `mainnet` or `testnet`. Selects which Arc network the app targets. Production builds read `mainnet` from the committed `.env.production`; if it is unset, local development uses `testnet` and a production build shows a configuration error instead of guessing. |
-| `VITE_LATCH_ADDRESS_TESTNET` | Address of the Latch contract on Arc Testnet (public). |
-| `VITE_LATCH_DEPLOY_BLOCK_TESTNET` | Block that contract was deployed at. Bounds the history scan (public). |
-| `VITE_LATCH_ADDRESS_MAINNET` | Address of the Latch deployment on Arc Mainnet (public). |
-| `VITE_LATCH_DEPLOY_BLOCK_MAINNET` | Block of the mainnet deployment. Bounds the history scan (public). |
-| `RPC_PROXY_BASE_URL`, `RPC_PROXY_TOKEN`, `RPC_PROXY_CHAINS` | Optional outside Arc Studio. Provisioned by Arc Studio for its own tooling; the app does not need them. |
+| [Architecture](docs/ARCHITECTURE.md) | Components, lifecycle, contract rules, data flow |
+| [Demo](docs/guides/DEMO.md) | Reserve, capture, expire and refund walkthrough |
+| [Deployment guide](docs/guides/DEPLOYMENT.md) | Deploy the contract yourself with Foundry and a keystore |
+| [Vercel guide](docs/guides/VERCEL.md) | Host the frontend |
+| [Deployments](docs/reference/DEPLOYMENTS.md) | Addresses, transactions, blocks, pending items |
+| [Security](docs/reference/SECURITY.md) | Design, review done, known limits |
 
-## Repository layout
+## Security and license
 
-- `contracts/Latch.sol`: the contract
-- `contracts/test/`: Foundry tests (`Latch.t.sol`, `Latch.Revert.t.sol`, `Latch.Fuzz.t.sol`, `Latch.Invariant.t.sol`, shared base and mock token)
-- `contracts/script/DeployLatch.s.sol`: Foundry deploy script with chain and USDC pre-flight checks
-- `src/`: the web app (dashboard layout in `src/components/layout`, pages composed in `src/App.tsx`)
-- `vercel.json`: Vercel settings (see `docs/VERCEL.md`)
-- `docs/`: design notes, security review, deployment and demo instructions
+LATCH has not had a third-party audit. It has been checked with static analysis, automated reviews and the test suite described above, which is not a substitute for a professional audit. Read [SECURITY](docs/reference/SECURITY.md) for the known limits (notably, USDC is centrally issued and can block addresses) and start with small amounts.
 
-## License
+Released under the [MIT License](LICENSE).
 
-MIT. See `LICENSE`.
+---
+
+Built with [Arc Studio](https://studio.arc.io)
