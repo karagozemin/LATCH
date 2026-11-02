@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://latch-arc.vercel.app/app"><strong>Launch App</strong></a> ·
   <a href="docs/ARCHITECTURE.md">Architecture</a> ·
   <a href="contracts/Latch.sol">Contract</a> ·
   <a href="docs/reference/DEPLOYMENTS.md">Deployments</a> ·
@@ -17,13 +18,21 @@
   <a href="docs/guides/DEMO.md">Demo</a>
 </p>
 
+<p align="center">
+  <a href="https://latch-arc.vercel.app">
+    <img src="docs/assets/latch-landing.png" alt="LATCH landing page" width="100%" />
+  </a>
+</p>
+
 ---
+
+## What is LATCH?
 
 LATCH is a minimal onchain payment-authorization primitive. A payer escrows USDC for one recipient and chooses an expiry. The recipient may capture some or all of that balance before expiry; at or after expiry, the payer may reclaim anything left.
 
 The authorization is a funded position, not a promise to pay later. Settlement rules are enforced by an immutable smart contract with no owner, upgrade path, protocol fee, administrative withdrawal, or offchain operator.
 
-## At a glance
+### At a glance
 
 | Property | LATCH |
 | --- | --- |
@@ -39,7 +48,7 @@ The authorization is a funded position, not a promise to pay later. Settlement r
 | Contract build | Solidity source `^0.8.20`, pinned to solc `0.8.28` |
 | Test suite | 65 Foundry tests: unit, reverts, fuzzing, reentrancy, invariants |
 
-## Why payment authorization?
+### Why payment authorization?
 
 Immediate transfers work well when the amount is known and delivery is complete. They are a poor fit when usage is variable, work is delivered over time, or the final charge is determined later.
 
@@ -53,7 +62,7 @@ LATCH adds a narrow layer between commitment and settlement: funds are available
 
 Possible applications include usage-based API billing, service-provider authorizations, and variable-cost onchain commerce. These are protocol capabilities, not claims of existing integrations.
 
-## Protocol flow
+## How it works
 
 ```mermaid
 sequenceDiagram
@@ -114,9 +123,9 @@ A payer authorizes `10.00 USDC`. The recipient completes work worth `6.00 USDC` 
 | Protocol fee | 0.00 USDC |
 | Remaining | 0.00 USDC |
 
-## Guarantees and boundaries
+### Guarantees and boundaries
 
-### Enforced by the contract
+#### Enforced by the contract
 
 - A hold is funded before it exists; `createHold` rejects an unexpected token balance delta.
 - Only the named recipient can capture, and only before expiry.
@@ -125,7 +134,7 @@ A payer authorizes `10.00 USDC`. The recipient completes work worth `6.00 USDC` 
 - State is updated before external token transfers, every write is `nonReentrant`, and transfers use OpenZeppelin `SafeERC20`.
 - No administrator can redirect, withdraw, pause, upgrade, extend, cancel, or rescue holds.
 
-### Deliberately not provided
+#### Deliberately not provided
 
 - Automatic refunds, scheduled execution, relaying, or keepers
 - Cancellation before expiry, expiry extension, top-ups, or recipient replacement
@@ -135,7 +144,7 @@ A payer authorizes `10.00 USDC`. The recipient completes work worth `6.00 USDC` 
 
 Immutability removes privileged control; it also removes administrative recovery. That trade-off is intentional.
 
-## System architecture
+## Architecture
 
 LATCH has two runtime components:
 
@@ -161,7 +170,7 @@ The dashboard reads the newest 60 holds every five seconds. Activity history sca
 
 For component boundaries, data flows, trust assumptions, failure modes, build behavior, and design decisions, read the **[complete architecture document](docs/ARCHITECTURE.md)**.
 
-## Deployments
+## Live deployment
 
 | Network | Chain ID | LATCH | Deployment |
 | --- | ---: | --- | --- |
@@ -178,7 +187,7 @@ The production frontend selects mainnet from the committed `.env.production`; lo
 
 The mainnet deployment was performed independently by the owner outside Arc Studio. Its source verification, byte-for-byte deployed runtime comparison, and first recorded mainnet authorization lifecycle remain pending. Do not infer completion from the presence of a deployment transaction. See [Deployment records](docs/reference/DEPLOYMENTS.md).
 
-## Quick start
+## Quick start & testing
 
 ### Requirements
 
@@ -230,7 +239,7 @@ bun run contracts:test
 
 Production configuration fails closed: a missing/invalid address, invalid block, unknown network, or known cross-network address produces a visible configuration error and no contract interaction. It never silently falls back from mainnet to testnet.
 
-## Testing
+### Testing
 
 The current Foundry suite contains **65 tests** across four suites:
 
@@ -249,7 +258,7 @@ Compiler configuration is pinned in `foundry.toml`: solc `0.8.28`, optimizer ena
 0b889effdbb2a1fefbb27d845f773465fa93b55b3ff3e37bf01096ac998d2d9f
 ```
 
-## Repository map
+### Repository map
 
 ```text
 LATCH/
@@ -277,7 +286,7 @@ LATCH/
 
 Only files required by package managers, Foundry, Vercel, Vite's HTML entry, and repository tooling remain at the root. Supporting configuration and helper scripts live under `tooling/`; Solidity dependencies live under `contracts/lib/`.
 
-## Documentation
+## Security & documentation
 
 | Document | Purpose |
 | --- | --- |
@@ -288,7 +297,7 @@ Only files required by package managers, Foundry, Vercel, Vite's HTML entry, and
 | [Contract deployment](docs/guides/DEPLOYMENT.md) | Foundry mainnet deployment and verification runbook |
 | [Vercel](docs/guides/VERCEL.md) | Static frontend deployment and route checks |
 
-## Security
+### Security
 
 - The contract is immutable and cannot be paused or repaired by an administrator.
 - The frontend is not a security boundary; the contract validates every caller, amount, state, and time condition.
