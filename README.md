@@ -1,4 +1,6 @@
-<img src="src/assets/logo.svg" alt="LATCH logo" width="88" height="88" />
+<p align="center">
+  <img src="src/assets/logo.svg" alt="LATCH logo" width="250" height="250" />
+</p>
 
 # LATCH
 
