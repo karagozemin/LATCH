@@ -1,12 +1,26 @@
-# LATCH
+<p align="center">
+  <img src="src/assets/logo.svg" alt="LATCH logo" width="96" height="96" />
+</p>
 
-**Programmable USDC payment authorizations on Arc. Reserve funds, let the recipient capture what they need, and return the rest.**
+<h1 align="center">LATCH</h1>
 
-![License: MIT](https://img.shields.io/badge/license-MIT-blue)
-![Solidity 0.8.28](https://img.shields.io/badge/solidity-0.8.28-363636)
-![Network: Arc](https://img.shields.io/badge/network-Arc-3FE0C0)
+<p align="center">
+  <strong>Programmable USDC payment authorizations on Arc.<br />Reserve funds, let the recipient capture what they need, and return the rest.</strong>
+</p>
 
-[Architecture](docs/ARCHITECTURE.md) · [Deployments](docs/reference/DEPLOYMENTS.md) · [Security](docs/reference/SECURITY.md) · [Demo](docs/guides/DEMO.md) · [Deploy it yourself](docs/guides/DEPLOYMENT.md)
+<p align="center">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue" />
+  <img alt="Solidity 0.8.28" src="https://img.shields.io/badge/solidity-0.8.28-363636" />
+  <img alt="Network: Arc" src="https://img.shields.io/badge/network-Arc-3FE0C0" />
+</p>
+
+<p align="center">
+  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="docs/reference/DEPLOYMENTS.md">Deployments</a> ·
+  <a href="docs/reference/SECURITY.md">Security</a> ·
+  <a href="docs/guides/DEMO.md">Demo</a> ·
+  <a href="docs/guides/DEPLOYMENT.md">Deploy it yourself</a>
+</p>
 
 ## What is LATCH?
 
