@@ -21,7 +21,13 @@ export function Sidebar({ view, onNavigate }: { view: View; onNavigate: (v: View
   return (
     <aside data-sidebar className="sticky top-0 hidden h-dvh w-[240px] shrink-0 flex-col border-r border-edge/[0.1] bg-canvas px-3 py-5 lg:flex">
       <div className="px-3 pb-7">
-        <Wordmark />
+        <a
+          href="../"
+          aria-label="Go to the LATCH landing page"
+          className="inline-flex rounded-lg transition-[opacity,transform] hover:-translate-y-0.5 hover:opacity-80"
+        >
+          <Wordmark />
+        </a>
       </div>
 
       <nav className="space-y-0.5" aria-label="Primary">

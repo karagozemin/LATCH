@@ -94,7 +94,13 @@ export function TopBar({ title }: { title: string }) {
     <header className="sticky top-0 z-30 border-b border-edge/[0.1] bg-canvas/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-4">
-          <Wordmark className="lg:hidden" />
+          <a
+            href="../"
+            aria-label="Go to the LATCH landing page"
+            className="inline-flex rounded-lg transition-opacity hover:opacity-80 lg:hidden"
+          >
+            <Wordmark />
+          </a>
           <h1 className="hidden truncate text-[15px] font-semibold tracking-tight text-ink lg:block">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
