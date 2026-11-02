@@ -42,7 +42,7 @@ The authorization is a funded position, not a promise to pay later. Settlement r
 | Contract build | Solidity source `^0.8.20`, pinned to solc `0.8.28` |
 | Test suite | 65 Foundry tests: unit, reverts, fuzzing, reentrancy, invariants |
 
-### Why payment authorization?
+### The problem
 
 Immediate transfers work well when the amount is known and delivery is complete. They are a poor fit when usage is variable, work is delivered over time, or the final charge is determined later.
 
@@ -51,6 +51,8 @@ Immediate transfers work well when the amount is known and delivery is complete.
 | Pay everything upfront | Low after transfer | High | Fixed before delivery |
 | Pay only after delivery | High until payment | Low | Known after delivery |
 | Authorize with LATCH | Unused funds remain reclaimable | USDC is already escrowed | Captured incrementally up to a funded maximum |
+
+### The solution
 
 LATCH adds a narrow layer between commitment and settlement: funds are available, permissions are explicit, and only the earned amount needs to move to the recipient.
 
