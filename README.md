@@ -81,19 +81,24 @@ LATCH/
 │   ├── Latch.sol            # the contract
 │   ├── script/              # Foundry deploy script
 │   └── test/                # unit, revert, fuzz and invariant tests
-├── src/
+├── src/                     # React + Vite dashboard
 │   ├── components/          # dashboard UI
 │   ├── hooks/               # contract reads, event scan, transactions
 │   └── lib/                 # ABI, network selection, formatting
-├── scripts/                 # helper scripts, see scripts/README.md
+├── config/                  # Tailwind config and the stylesheet build plugin
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── guides/              # DEMO, DEPLOYMENT, VERCEL
 │   └── reference/           # DEPLOYMENTS, SECURITY
-├── foundry.toml
-├── vite.config.ts
+├── scripts/                 # helper scripts, see scripts/README.md
+├── lib/                     # Foundry dependencies (forge-std)
+├── foundry.toml             # compiler settings and remappings
+├── vite.config.ts, index.html, package.json, tsconfig.json
 └── vercel.json
 ```
+
+The Vite app stays at the repository root rather than in a subfolder because Arc Studio's preview, lint
+and typecheck run from the root and Vercel builds from it with no root-directory setting.
 
 ## Documentation
 

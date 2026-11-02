@@ -177,4 +177,4 @@ When the app targets mainnet it shows an "Arc Mainnet" badge and a real-USDC war
 | Frontend ABI, addresses, status logic | [`src/lib/latch.ts`](../src/lib/latch.ts) |
 | Chain configuration | [`src/config.ts`](../src/config.ts), [`src/lib/network.ts`](../src/lib/network.ts) |
 | Data hooks | [`src/hooks`](../src/hooks) |
-| Stylesheet build | [`vite.latch-css.ts`](../vite.latch-css.ts) |
+| Stylesheet build | [`config/vite-latch-css.ts`](../config/vite-latch-css.ts) |

@@ -22,7 +22,7 @@ import { transformWithEsbuild, type Plugin } from 'vite'
 export function latchCss(root: string): Plugin {
   const input = path.resolve(root, 'src/index.css')
   const srcDir = path.resolve(root, 'src') + path.sep
-  const configFile = path.resolve(root, 'tailwind.config.js')
+  const configFile = path.resolve(root, 'config/tailwind.config.js')
 
   let css = ''
   let dirty = true

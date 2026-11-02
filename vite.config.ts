@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { latchCss } from './vite.latch-css'
+import { latchCss } from './config/vite-latch-css'
 
 export default defineConfig({
   plugins: [react(), nodePolyfills(), latchCss(__dirname)],

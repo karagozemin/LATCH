@@ -13,3 +13,6 @@ console.jsonl
 *.log
 .DS_Store
 broadcast
+
+# Arc Studio local skills folder (not part of the project)
+.agents/

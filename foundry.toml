@@ -4,6 +4,10 @@ test = "contracts/test"
 script = "contracts/script"
 out = "contracts/out"
 libs = ["lib"]
+remappings = [
+  "forge-std/=lib/forge-std/src/",
+  "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+]
 cache_path = "contracts/cache"
 solc_version = "0.8.28"
 auto_detect_solc = false
