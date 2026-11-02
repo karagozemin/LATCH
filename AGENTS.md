@@ -35,7 +35,8 @@ Latch is a minimal programmable USDC payment authorization on Arc. A payer reser
 
 ## Key Files
 
-- `src/App.tsx` - Composition root
+- `src/LandingPage.tsx` - Public landing page at `/`
+- `src/DashboardRoot.tsx`, `src/App.tsx` - Lazy-loaded dashboard provider shell and composition root at `/app`
 - `src/components/` - dashboard: `layout/` (Sidebar, TopBar, MobileNav), Hero, SummaryCards, CreateAuthorization, HoldDetail, HoldsTable, HistoryTable, TxStatus, `ui/` primitives
 - `src/hooks/` - useHolds (contract reads), useActivity (bounded event scan), useTx (write + confirmation phases), useView (`?view=` routing)
 - `src/lib/latch.ts` - ABI, address, hold helpers

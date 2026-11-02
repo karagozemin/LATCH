@@ -2,7 +2,7 @@
 
 [README](../../README.md) · [Deployment guide](DEPLOYMENT.md)
 
-The frontend is a static Vite app. Vercel needs no server and no rewrites: pages use a `?view=` query string, so every URL loads `index.html`.
+The frontend is a static Vite app. The public landing page lives at `/` and the dashboard lives at `/app`, with dashboard views selected through `?view=`. The rewrites in `vercel.json` send direct `/app` requests to `index.html`, so refreshes and shared view URLs work without a server.
 
 ## 1. Import the project
 
@@ -33,7 +33,9 @@ Variables are read at build time. After changing one, trigger a new deployment (
 
 After the build finishes, open the site and confirm:
 
-- The header badge says **Arc Mainnet** and the warning about real USDC is visible.
+- `/` displays the public landing page and every **Launch App** link opens `/app`.
+- A direct visit to `/app?view=holds` loads the dashboard's Active Holds view.
+- In the dashboard, the header badge says **Arc Mainnet** and the warning about real USDC is visible.
 - The sidebar contract link opens `explorer.arc.io/address/0xd09E...7CC2`.
 - The page is styled (dark dashboard). The build emits `latch.css` next to `index.html`; if the page is unstyled, open `/latch.css` and confirm it returns CSS.
 - Connect a wallet on Arc Mainnet (chain ID 5042). On another network the badge turns amber and offers a switch button.

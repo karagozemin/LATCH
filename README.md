@@ -157,7 +157,7 @@ bun run dev
 
 The development environment is intended to use Arc Testnet. Set `VITE_LATCH_NETWORK=testnet` in your local `.env` and confirm the testnet contract configuration before connecting a wallet.
 
-The application is available at `http://localhost:5173`.
+The public landing page is available at `http://localhost:5173`; the functional dashboard is at `http://localhost:5173/app`. Dashboard views remain directly addressable with URLs such as `/app?view=holds`.
 
 Production builds use the public Arc Mainnet configuration in `.env.production`. Environment variables beginning with `VITE_` are exposed to browser code and must never contain private keys or signing secrets.
 
