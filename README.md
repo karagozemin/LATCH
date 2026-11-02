@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/logo.svg" alt="LATCH logo" width="250" height="250" />
+  <img src="Latch-Arc.png" alt="LATCH logo" width="250" height="250" />
 </p>
 
 # LATCH
