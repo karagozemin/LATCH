@@ -7,6 +7,7 @@ const StudioLogo = () => (
 export function StudioWatermark() {
   return (
     <a
+      className="studio-watermark"
       href="https://studio.arc.io/"
       target="_blank"
       rel="noopener noreferrer"

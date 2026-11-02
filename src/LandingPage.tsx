@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type MouseEventHandler, type ReactNode } from 'react'
 import {
   ArrowDown,
   ArrowRight,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Wordmark } from '@/components/layout/Wordmark'
 import { StudioWatermark } from '@/components/StudioWatermark'
+import { AppTransition } from '@/components/AppTransition'
 
 const GITHUB_URL = 'https://github.com/karagozemin/LATCH'
 const ARCHITECTURE_URL = `${GITHUB_URL}/blob/main/docs/ARCHITECTURE.md`
@@ -58,9 +59,9 @@ const chamberStages: Record<
   },
 }
 
-function AppLink({ children, className = '' }: { children: ReactNode; className?: string }) {
+function AppLink({ children, className = '', onClick }: { children: ReactNode; className?: string; onClick: MouseEventHandler<HTMLAnchorElement> }) {
   return (
-    <a href="./app" className={className}>
+    <a href="./app" className={className} onClick={onClick}>
       {children}
     </a>
   )
@@ -351,6 +352,34 @@ function Infrastructure() {
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [launchTarget, setLaunchTarget] = useState<string | null>(null)
+  const launching = launchTarget !== null
+
+  const launchApp: MouseEventHandler<HTMLAnchorElement> = useCallback((event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    if (launching) return
+
+    const target = event.currentTarget.href
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.location.assign(target)
+      return
+    }
+
+    try {
+      window.sessionStorage.setItem('latch:launch-transition', '1')
+    } catch {
+      // The transition still works if storage is unavailable.
+    }
+    setMenuOpen(false)
+    setLaunchTarget(target)
+  }, [launching])
+
+  useEffect(() => {
+    if (!launchTarget) return
+    const timer = window.setTimeout(() => window.location.assign(launchTarget), 850)
+    return () => window.clearTimeout(timer)
+  }, [launchTarget])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -367,7 +396,7 @@ export default function LandingPage() {
   }, [menuOpen])
 
   return (
-    <div className="landing-page">
+    <div className="landing-page" data-launching={launching}>
       <header className="landing-nav" data-scrolled={scrolled}>
         <div className="landing-nav-inner">
           <a href="./" aria-label="LATCH home" className="landing-wordmark"><Wordmark /></a>
@@ -377,7 +406,7 @@ export default function LandingPage() {
             <ExternalLinkAnchor href={GITHUB_URL}>GitHub</ExternalLinkAnchor>
           </nav>
           <div className="nav-actions">
-            <AppLink className="nav-launch">Launch App <ArrowRight size={15} /></AppLink>
+            <AppLink className="nav-launch" onClick={launchApp}>Launch App <ArrowRight size={15} /></AppLink>
             <button
               type="button"
               className="menu-toggle"
@@ -394,7 +423,7 @@ export default function LandingPage() {
             <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
             <a href="#architecture" onClick={() => setMenuOpen(false)}>Architecture</a>
             <ExternalLinkAnchor href={GITHUB_URL}>GitHub</ExternalLinkAnchor>
-            <AppLink>Launch App <ArrowRight size={15} /></AppLink>
+            <AppLink onClick={launchApp}>Launch App <ArrowRight size={15} /></AppLink>
           </nav>
         )}
       </header>
@@ -410,7 +439,7 @@ export default function LandingPage() {
             <h1><span>Authorize first.</span><span>Settle only what’s owed.</span></h1>
             <p>Programmable USDC payment holds for onchain commerce. Reserve funds upfront, let recipients capture what they earn, and reclaim the unused balance after expiry.</p>
             <div className="hero-actions">
-              <AppLink className="primary-cta">Launch App <ArrowRight size={18} /></AppLink>
+              <AppLink className="primary-cta" onClick={launchApp}>Launch App <ArrowRight size={18} /></AppLink>
               <a href="#how-it-works" className="secondary-cta">Explore the Protocol <ArrowDown size={16} /></a>
             </div>
             <div className="hero-proof">
@@ -506,7 +535,7 @@ export default function LandingPage() {
           <h2>Make every payment intentional.</h2>
           <p>Reserve what you can spend. Settle what you actually owe.</p>
           <div className="final-actions">
-            <AppLink className="primary-cta">Launch LATCH <ArrowRight size={18} /></AppLink>
+            <AppLink className="primary-cta" onClick={launchApp}>Launch LATCH <ArrowRight size={18} /></AppLink>
             <ExternalLinkAnchor href={CONTRACT_URL} className="secondary-cta">
               View Smart Contract <ExternalLink size={15} />
             </ExternalLinkAnchor>
@@ -527,6 +556,7 @@ export default function LandingPage() {
         </nav>
       </footer>
       <StudioWatermark />
+      {launching && <AppTransition phase="exit" />}
     </div>
   )
 }
