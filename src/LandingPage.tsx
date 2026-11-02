@@ -17,6 +17,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { Wordmark } from '@/components/layout/Wordmark'
+import { StudioWatermark } from '@/components/StudioWatermark'
 
 const GITHUB_URL = 'https://github.com/karagozemin/LATCH'
 const ARCHITECTURE_URL = `${GITHUB_URL}/blob/main/docs/ARCHITECTURE.md`
@@ -402,6 +403,7 @@ export default function LandingPage() {
         <section className="hero-section">
           <div className="hero-ambient hero-ambient-one" aria-hidden />
           <div className="hero-ambient hero-ambient-two" aria-hidden />
+          <div className="hero-spectrum" aria-hidden />
           <div className="hero-grid-lines" aria-hidden />
           <div className="hero-copy">
             <div className="eyebrow"><span /> BUILT ON ARC · POWERED BY USDC</div>
@@ -416,8 +418,30 @@ export default function LandingPage() {
               <span><Gauge size={15} /> No protocol fees</span>
             </div>
           </div>
-          <div className="hero-visual"><AuthorizationChamber /></div>
+          <div className="hero-visual">
+            <div className="hero-float-badge badge-secured" aria-hidden>
+              <ShieldCheck size={14} /> FUNDS SECURED
+            </div>
+            <div className="hero-float-badge badge-settlement" aria-hidden>
+              <span>65%</span> SETTLED
+            </div>
+            <AuthorizationChamber />
+          </div>
         </section>
+
+        <div className="signal-rail" aria-hidden>
+          <div className="signal-track">
+            {[0, 1].map((group) => (
+              <div className="signal-group" key={group}>
+                <span>FUNDED AUTHORIZATION</span><i />
+                <span>PARTIAL CAPTURE</span><i />
+                <span>EXPIRY REFUND</span><i />
+                <span>ARC USDC</span><i />
+                <span>ZERO PROTOCOL FEES</span><i />
+              </div>
+            ))}
+          </div>
+        </div>
 
         <section className="landing-section problem-section">
           <div className="problem-copy">
@@ -477,6 +501,7 @@ export default function LandingPage() {
 
         <section className="final-cta-section">
           <div className="final-cta-mark" aria-hidden>L</div>
+          <div className="final-cta-aurora" aria-hidden />
           <span className="section-index">READY WHEN YOU ARE</span>
           <h2>Make every payment intentional.</h2>
           <p>Reserve what you can spend. Settle what you actually owe.</p>
@@ -501,6 +526,7 @@ export default function LandingPage() {
           <ExternalLinkAnchor href={CONTRACT_URL}>Contract Explorer <ExternalLink size={13} /></ExternalLinkAnchor>
         </nav>
       </footer>
+      <StudioWatermark />
     </div>
   )
 }
