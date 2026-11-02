@@ -1,3 +1,5 @@
+<img src="src/assets/logo.svg" alt="LATCH logo" width="88" height="88" />
+
 # LATCH
 
 ### Programmable USDC authorization holds on Arc.
