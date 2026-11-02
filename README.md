@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Latch-Arc.png" alt="LATCH" width="220" height="220" />
+  <img src="src/assets/Latch-Arc.png" alt="LATCH" width="220" height="220" />
 </p>
 
 <h1 align="center">LATCH</h1>
@@ -261,24 +261,24 @@ LATCH/
 │   ├── script/DeployLatch.s.sol  # Chain and USDC-checked Foundry deploy script
 │   └── test/                     # Unit, revert, fuzz, and invariant suites
 ├── src/
+│   ├── assets/                    # Brand assets
 │   ├── LandingPage.tsx           # Public route (/)
 │   ├── DashboardRoot.tsx         # Lazy Web3 provider boundary (/app)
 │   ├── App.tsx                   # Dashboard composition
 │   ├── components/               # Landing and dashboard UI
 │   ├── hooks/                    # Holds, activity, transaction state
 │   └── lib/latch.ts              # ABI, network selection, derived hold state
-├── config/                       # Tailwind and deterministic CSS build plugin
 ├── docs/
 │   ├── ARCHITECTURE.md           # Technical system design
 │   ├── guides/                   # Demo, deployment, and hosting runbooks
 │   └── reference/                # Security and deployment evidence
-├── scripts/                      # Arc Studio and validation helpers
+├── tooling/                      # Vite, TypeScript, lint, CSS, and helper scripts
 ├── foundry.toml
 ├── package.json
 └── vercel.json
 ```
 
-Root-level configuration files remain at the repository root where their tools expect them. IDE file nesting in `.vscode/settings.json` keeps the explorer compact without changing build semantics.
+Only files required by package managers, Foundry, Vercel, Vite's HTML entry, and repository tooling remain at the root. Supporting configuration and helper scripts live under `tooling/`; Solidity dependencies live under `contracts/lib/`.
 
 ## Documentation
 

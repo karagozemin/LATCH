@@ -24,7 +24,7 @@ const isAppRoute = /^\/app(?:\/|$)/.test(window.location.pathname)
 const root = createRoot(document.getElementById('root')!)
 
 if (isAppRoute) {
-  import('./DashboardRoot').then(({ default: DashboardRoot }) => {
+  void import('./DashboardRoot').then(({ default: DashboardRoot }) => {
     root.render(<StrictMode><DashboardRoot /></StrictMode>)
   })
 } else {

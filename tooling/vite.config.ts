@@ -2,13 +2,15 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { latchCss } from './config/vite-latch-css'
+import { latchCss } from './vite-latch-css'
+
+const projectRoot = path.resolve(__dirname, '..')
 
 export default defineConfig({
-  plugins: [react(), nodePolyfills(), latchCss(__dirname)],
+  plugins: [react(), nodePolyfills(), latchCss(projectRoot)],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(projectRoot, 'src'),
     },
     dedupe: ['react', 'react-dom'],
   },

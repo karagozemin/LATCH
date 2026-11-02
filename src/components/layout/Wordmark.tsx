@@ -1,4 +1,4 @@
-import logo from '../../../Latch-Arc.png'
+import logo from '../../assets/Latch-Arc.png'
 
 export function Wordmark({ className = '' }: { className?: string }) {
   return (

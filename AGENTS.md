@@ -19,8 +19,8 @@ Latch is a minimal programmable USDC payment authorization on Arc. A payer reser
 
 - Hold IDs start at 1. Capture is strictly before expiry; refund is at or after expiry, payer only.
 - Frontend reads holds directly from the contract (latest 60), no indexer. Transaction history scans events in 5,000-block chunks (measured RPC limit), starting at the network's `VITE_LATCH_DEPLOY_BLOCK_*` value or head minus 100,000 blocks, whichever is later.
-- Styling pipeline: Tailwind is compiled by `config/vite-latch-css.ts` from `src/index.css` and loaded as a real `<link rel="stylesheet" href="/latch.css">` in `index.html` (emitted as `dist/latch.css` on build). Do NOT import `src/index.css` from JS: Vite's JS-injected CSS was lost on HMR and on module errors. Sidebar and mobile nav carry `data-sidebar` / `data-mobile-nav`, which a tiny inline rule in `index.html` also uses to guarantee they never show together.
-- UI: dark fintech theme (canvas #080D16, panel #111B2A, teal #3FE0C0), Geist fonts, tokens in `config/tailwind.config.js`.
+- Styling pipeline: Tailwind is compiled by `tooling/vite-latch-css.ts` from `src/index.css` and loaded as a real `<link rel="stylesheet" href="/latch.css">` in `index.html` (emitted as `dist/latch.css` on build). Do NOT import `src/index.css` from JS: Vite's JS-injected CSS was lost on HMR and on module errors. Sidebar and mobile nav carry `data-sidebar` / `data-mobile-nav`, which a tiny inline rule in `index.html` also uses to guarantee they never show together.
+- UI: dark fintech theme (canvas #080D16, panel #111B2A, teal #3FE0C0), Geist fonts, tokens in `tooling/tailwind.config.js`.
 - Frontend ABI is hand-written in `src/lib/latch.ts`; keep it in sync with `contracts/Latch.sol`.
 
 ## Tech Stack

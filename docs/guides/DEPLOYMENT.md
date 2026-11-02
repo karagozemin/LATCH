@@ -21,7 +21,7 @@ Latch has no constructor arguments, owner, admin, proxy or upgrade path. The dep
 | Compiler | solc `0.8.28`, `auto_detect_solc = false` |
 | EVM target | `cancun` (Arc runs a newer baseline, so Cancun bytecode is valid) |
 | Optimizer | enabled, 200 runs |
-| Dependencies | OpenZeppelin Contracts `5.6.1` (via `bun install`), forge-std (vendored in `lib/forge-std`) |
+| Dependencies | OpenZeppelin Contracts `5.6.1` (via `bun install`), forge-std (vendored in `contracts/lib/forge-std`) |
 | Deploy script | `contracts/script/DeployLatch.s.sol:DeployLatch` |
 
 Sources for the Arc values: https://docs.arc.io/arc/references/rpc-endpoints.md , https://docs.arc.io/arc/references/contract-addresses.md , https://docs.arc.io/arc/references/gas-and-fees.md . Re-check them yourself before broadcasting.
@@ -93,7 +93,7 @@ sha256sum contracts/Latch.sol
 
 Optional but recommended: `arc-forge test --network arc`.
 
-`forge-std` is vendored in `lib/forge-std`. If you removed it: `forge install foundry-rs/forge-std --no-git`.
+`forge-std` is vendored in `contracts/lib/forge-std`. If you removed it, restore it under that directory before building.
 
 ## 6. Create a password-protected keystore
 

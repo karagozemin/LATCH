@@ -3,9 +3,9 @@ src = "contracts"
 test = "contracts/test"
 script = "contracts/script"
 out = "contracts/out"
-libs = ["lib"]
+libs = ["contracts/lib"]
 remappings = [
-  "forge-std/=lib/forge-std/src/",
+  "forge-std/=contracts/lib/forge-std/src/",
   "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
 ]
 cache_path = "contracts/cache"

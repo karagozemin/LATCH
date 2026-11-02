@@ -407,7 +407,7 @@ wagmi also registers Ethereum Mainnet solely for ENS resolution. Protocol reads 
 
 ### 9.1 Frontend build
 
-Vite compiles the TypeScript/React application. Tailwind is handled by the custom `config/vite-latch-css.ts` pipeline and emitted as `dist/latch.css`. `index.html` loads that file with a real stylesheet link.
+Vite compiles the TypeScript/React application. Tailwind is handled by the custom `tooling/vite-latch-css.ts` pipeline and emitted as `dist/latch.css`. `index.html` loads that file with a real stylesheet link.
 
 `src/index.css` must not be imported from JavaScript. The explicit CSS asset avoids losing styling during hot-module replacement or when a JavaScript module fails. A minimal inline rule in `index.html` also guarantees that desktop sidebar and mobile navigation cannot both display.
 
@@ -597,7 +597,7 @@ Recommended verification gates for protocol changes:
 
 ### Styling or application-shell changes
 
-- Keep CSS compilation in `config/vite-latch-css.ts`.
+- Keep CSS compilation in `tooling/vite-latch-css.ts`.
 - Keep `/latch.css` linked from `index.html`; do not import `src/index.css` from JavaScript.
 - Preserve mutually exclusive desktop/mobile navigation behavior.
 - Preserve reduced-motion handling and `installShareSync()`.
@@ -625,9 +625,12 @@ src/
 │   └── share.ts                 Share URL construction and Studio synchronization
 └── components/                  Dashboard, transaction, and UI components
 
-config/
+tooling/
+├── vite.config.ts               Frontend build configuration
+├── oxlint.json                  Frontend lint configuration
 ├── tailwind.config.js           Theme tokens
-└── vite-latch-css.ts            Deterministic CSS build pipeline
+├── vite-latch-css.ts            Deterministic CSS build pipeline
+└── scripts/                     Arc Studio and validation helpers
 
 docs/
 ├── guides/                      Demo, deployment, and hosting procedures
